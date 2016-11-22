@@ -11,8 +11,8 @@ import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
+import com.blackducksoftware.integration.hub.api.HubServicesFactory;
 import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
@@ -130,7 +130,7 @@ public class ProjectDependencyInformation {
 
     public void updateCache(RestConnection connection) {
         if (connection != null) {
-            DataServicesFactory servicesFactory = new DataServicesFactory(connection);
+            HubServicesFactory servicesFactory = new HubServicesFactory(connection);
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
             componentCache.setVulnService(vulnService);
             addAllProjects();
