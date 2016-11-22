@@ -180,7 +180,7 @@
 
   <!-- This whole section is to take care of the fact that Mac needs a special argline to 
 run Eclipse environment for tests, but no other operating system recognizes this argline -->
-<!-- unix must be before mac osx so that it runs on both Mac and Linux -->
+  <!-- unix must be before mac osx so that it runs on both Mac and Linux -->
   <profiles>
     <profile>
       <id>unix-jvm-flags</id>
