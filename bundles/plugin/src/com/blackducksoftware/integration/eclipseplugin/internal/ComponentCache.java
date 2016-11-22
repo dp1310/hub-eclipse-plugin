@@ -11,6 +11,7 @@ import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityIt
 import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+import com.blackducksoftware.integration.hub.exception.VersionDoesNotExistException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -39,7 +40,8 @@ public class ComponentCache {
                 .build(new CacheLoader<GavWithType, List<VulnerabilityItem>>() {
                     @Override
                     public List<VulnerabilityItem> load(final GavWithType gav)
-                            throws ComponentLookupNotFoundException, IOException, URISyntaxException, BDRestException, UnexpectedHubResponseException {
+                            throws ComponentLookupNotFoundException, IOException, URISyntaxException, BDRestException, UnexpectedHubResponseException,
+                            VersionDoesNotExistException {
                         if (vulnService != null) {
                             List<VulnerabilityItem> vulns = vulnService.getVulnsFromComponent(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());

@@ -16,9 +16,9 @@ import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
-import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
+import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
@@ -30,8 +30,8 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.JavaPr
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.NewJavaProjectListener;
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.ProjectDependenciesChangedListener;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
+import com.blackducksoftware.integration.hub.api.HubServicesFactory;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.dataservices.DataServicesFactory;
 import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
@@ -74,7 +74,7 @@ public class Activator extends AbstractUIPlugin {
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
         getInitialHubConnection();
         if (hubConnection != null) {
-            DataServicesFactory servicesFactory = new DataServicesFactory(hubConnection);
+            HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
             componentCache = new ComponentCache(vulnService, COMPONENT_CACHE_CAPACITY);
         } else {
