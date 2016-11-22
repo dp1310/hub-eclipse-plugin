@@ -10,6 +10,7 @@
   </parent>
 
   <artifactId>hub-eclipse-plugin-update-site</artifactId>
+  <!-- eclipse-repository == update site; eclipse-update-site packaging deprecated -->
   <packaging>eclipse-repository</packaging>
 
   <build>
@@ -19,6 +20,7 @@
         <artifactId>tycho-p2-director-plugin</artifactId>
         <version>${tycho.version}</version>
         <executions>
+          <!-- creates the update site -->
           <execution>
             <id>materialize-products</id>
             <goals>
@@ -31,6 +33,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
+          <!-- without this, the build deletes the zip file containing the update site -->
           <execution>
             <id>attach-sources</id>
             <phase>verify</phase>
@@ -52,6 +55,7 @@
               <goal>clean</goal>
             </goals>
             <configuration>
+              <!-- If this isn't skipped, the build deletes the zip file containing the update site -->
               <skip>true</skip>
             </configuration>
           </execution>

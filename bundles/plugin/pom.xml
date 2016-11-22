@@ -12,6 +12,7 @@
   <artifactId>hub-eclipse-plugin</artifactId>
   <packaging>eclipse-plugin</packaging>
 
+  <!-- where OSGI dependencies go -->
   <properties>
     <output-dir>./target/dependencies</output-dir>
   </properties>
@@ -39,6 +40,7 @@
         <executions>
           <execution>
             <id>unpack</id>
+            <!-- bound to initialize because these items need to be unpacked before any compilation occurs -->
             <phase>initialize</phase>
             <goals>
               <goal>unpack</goal>

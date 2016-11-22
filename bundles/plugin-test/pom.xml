@@ -12,6 +12,7 @@
   <artifactId>hub-eclipse-plugin-test</artifactId>
   <packaging>eclipse-test-plugin</packaging>
 
+  <!-- where OSGI dependencies go -->
   <properties>
     <output-dir>./target/dependencies</output-dir>
   </properties>
@@ -25,11 +26,13 @@
         <version>${tycho.version}</version>
         <configuration>
           <useUIHarness>true</useUIHarness>
+          <!-- argLine needed for SWTBot to run properly -->
           <argLine>${tycho.testArgLine} ${os-jvm-flags}</argLine>
           <useUIThread>false</useUIThread>
           <product>org.eclipse.sdk.ide</product>
           <application>org.eclipse.ui.ide.workbench</application>
           <dependencies>
+            <!-- needed for SWTBot -->
             <dependency>
               <artifactId>org.eclipse.sdk.feature.group</artifactId>
               <type>p2-installable-unit</type>
@@ -41,6 +44,7 @@
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho.version}</version>
+        <!-- gets rid of errors that prevent SWTBot from running -->
         <configuration>
           <compilerArgument>-warn:none</compilerArgument>
           <compilerArgument>-err:none</compilerArgument>
@@ -53,6 +57,7 @@
         <executions>
           <execution>
             <id>unpack</id>
+            <!-- bound to initialize because these items need to be unpacked before any compilation occurs -->
             <phase>initialize</phase>
             <goals>
               <goal>unpack</goal>
@@ -174,7 +179,8 @@
   </build>
 
   <!-- This whole section is to take care of the fact that Mac needs a special argline to 
-run Eclipse environment for tests but no other operating system recognizes this argline -->
+run Eclipse environment for tests, but no other operating system recognizes this argline -->
+<!-- unix must be before mac osx so that it runs on both Mac and Linux -->
   <profiles>
     <profile>
       <id>unix-jvm-flags</id>
