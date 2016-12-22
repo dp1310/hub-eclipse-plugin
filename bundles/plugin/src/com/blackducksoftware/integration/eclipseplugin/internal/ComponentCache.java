@@ -18,7 +18,7 @@ import com.google.common.cache.LoadingCache;
 
 public class ComponentCache {
 
-    private LoadingCache<GavWithType, List<VulnerabilityItem>> cache;
+    private LoadingCache<GavWithType, DependencyInfo> cache;
 
     private int cacheCapacity;
 
@@ -27,7 +27,7 @@ public class ComponentCache {
         cache = buildCache(vulnService);
     }
 
-    public LoadingCache<GavWithType, List<VulnerabilityItem>> getCache() {
+    public LoadingCache<GavWithType, DependencyInfo> getCache() {
         return cache;
     }
 
@@ -35,24 +35,30 @@ public class ComponentCache {
         cache = buildCache(vulnService);
     }
 
-    public LoadingCache<GavWithType, List<VulnerabilityItem>> buildCache(VulnerabilityDataService vulnService) {
+    public LoadingCache<GavWithType, DependencyInfo> buildCache(VulnerabilityDataService vulnService/*, LicenseDataService licenseDataService*/) {
         return CacheBuilder.newBuilder().maximumSize(cacheCapacity).expireAfterWrite(1, TimeUnit.HOURS)
-                .build(new CacheLoader<GavWithType, List<VulnerabilityItem>>() {
+                .build(new CacheLoader<GavWithType, DependencyInfo>() {
                     @Override
-                    public List<VulnerabilityItem> load(final GavWithType gav)
+                    public DependencyInfo load(final GavWithType gav)
                             throws ComponentLookupNotFoundException, IOException, URISyntaxException, BDRestException, UnexpectedHubResponseException,
                             VersionDoesNotExistException {
                         if (vulnService != null) {
                             List<VulnerabilityItem> vulns = vulnService.getVulnsFromComponent(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
-                            if (vulns != null) {
-                                return vulns;
-                            }
-                            throw new ComponentLookupNotFoundException(
+                            
+                            if (vulns == null) {
+                                throw new ComponentLookupNotFoundException(
                                     "Hub could not find vulnerabilities for component " + gav.getGav() + " with type " + gav.getType());
+                            }
+                            
+                            
                         } else {
                             throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
                         }
+                        
+                        /*if ()*/
+                        
+                        //dummy return
                     }
                 });
     }

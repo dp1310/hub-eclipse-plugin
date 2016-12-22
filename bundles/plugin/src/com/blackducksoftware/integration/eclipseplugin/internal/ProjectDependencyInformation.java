@@ -20,7 +20,7 @@ public class ProjectDependencyInformation {
 
     private final ComponentCache componentCache;
 
-    private final Map<String, Map<Gav, List<VulnerabilityItem>>> projectInfo = new HashMap<>();
+    private final Map<String, Map<Gav, DependencyInfo>> projectInfo = new HashMap<>();
 
     private final ProjectInformationService projService;
 
@@ -58,7 +58,7 @@ public class ProjectDependencyInformation {
 
     public void addProject(String projectName) {
         final GavWithType[] gavs = projService.getMavenAndGradleDependencies(projectName);
-        final Map<Gav, List<VulnerabilityItem>> deps = new ConcurrentHashMap<>();
+        final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
         for (final GavWithType gav : gavs) {
             try {
                 deps.put(gav.getGav(), componentCache.getCache().get(gav));
@@ -74,7 +74,7 @@ public class ProjectDependencyInformation {
     }
 
     public void addWarningToProject(final String projectName, final GavWithType gav) {
-        final Map<Gav, List<VulnerabilityItem>> deps = projectInfo.get(projectName);
+        final Map<Gav, DependencyInfo> deps = projectInfo.get(projectName);
         if (deps != null) {
             try {
                 deps.put(gav.getGav(), componentCache.getCache().get(gav));
