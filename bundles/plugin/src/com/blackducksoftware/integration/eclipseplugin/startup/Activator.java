@@ -32,6 +32,7 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.Projec
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
 import com.blackducksoftware.integration.hub.api.HubServicesFactory;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
+import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
@@ -76,9 +77,11 @@ public class Activator extends AbstractUIPlugin {
         if (hubConnection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
-            componentCache = new ComponentCache(vulnService, COMPONENT_CACHE_CAPACITY);
+            LicenseDataService licenseService = new LicenseDataService(hubConnection);
+            
+            componentCache = new ComponentCache(vulnService, licenseService, COMPONENT_CACHE_CAPACITY);
         } else {
-            componentCache = new ComponentCache(null, COMPONENT_CACHE_CAPACITY);
+            componentCache = new ComponentCache(null, null, COMPONENT_CACHE_CAPACITY);
         }
         information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         final PreferencesService defaultPrefService = new PreferencesService(
