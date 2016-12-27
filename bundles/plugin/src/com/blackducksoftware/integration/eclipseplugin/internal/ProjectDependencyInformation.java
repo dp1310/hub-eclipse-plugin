@@ -13,6 +13,7 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.Workspace
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.hub.api.HubServicesFactory;
 import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
@@ -96,7 +97,7 @@ public class ProjectDependencyInformation {
     }
 
     public void removeWarningFromProject(final String projectName, final Gav gav) {
-        final Map<Gav, List<VulnerabilityItem>> dependencies = projectInfo.get(projectName);
+        final Map<Gav, DependencyInfo> dependencies = projectInfo.get(projectName);
         if (dependencies != null) {
             dependencies.remove(gav);
             if (componentView != null) {
@@ -110,7 +111,7 @@ public class ProjectDependencyInformation {
     }
 
     public Gav[] getAllDependencyGavs(final String projectName) {
-        final Map<Gav, List<VulnerabilityItem>> dependencyInfo = projectInfo.get(projectName);
+        final Map<Gav, DependencyInfo> dependencyInfo = projectInfo.get(projectName);
         if (dependencyInfo != null) {
             return dependencyInfo.keySet().toArray(new Gav[dependencyInfo.keySet().size()]);
         } else {
@@ -118,12 +119,24 @@ public class ProjectDependencyInformation {
         }
     }
 
+    //TODO deprecate
     public Map<Gav, List<VulnerabilityItem>> getVulnMap(String projectName) {
-        return projectInfo.get(projectName);
+        Map<Gav, List<VulnerabilityItem>> vulnMap = new HashMap<Gav, List<VulnerabilityItem>>();
+    	
+    	Map<Gav, DependencyInfo> projDepInfo = projectInfo.get(projectName);
+        for(Map.Entry<Gav, DependencyInfo> entry : projDepInfo.entrySet()) {
+        	vulnMap.put(entry.getKey(), entry.getValue().getVulnList());
+        }
+    	
+    	return vulnMap;
+    }
+    
+    public Map<Gav, DependencyInfo> getDependencyInfoMap(String projectName) {
+    	return projectInfo.get(projectName);
     }
 
     public void renameProject(String oldName, String newName) {
-        Map<Gav, List<VulnerabilityItem>> info = projectInfo.get(oldName);
+        Map<Gav, DependencyInfo> info = projectInfo.get(oldName);
         projectInfo.put(newName, info);
         projectInfo.remove(oldName);
     }
@@ -132,10 +145,11 @@ public class ProjectDependencyInformation {
         if (connection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(connection);
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
-            componentCache.setVulnService(vulnService);
+            LicenseDataService licenseService = new LicenseDataService(connection);
+            componentCache.setVulnService(vulnService, licenseService);
             addAllProjects();
         } else {
-            componentCache.setVulnService(null);
+            componentCache.setVulnService(null, null);
         }
     }
 

@@ -8,11 +8,12 @@ import java.util.concurrent.TimeUnit;
 import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
-import com.blackducksoftware.integration.hub.api.component.version.LicensesInfo;
+import com.blackducksoftware.integration.hub.api.component.version.LicenseInfo;
 import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
 import com.blackducksoftware.integration.hub.exception.VersionDoesNotExistException;
 import com.google.common.cache.CacheBuilder;
@@ -33,18 +34,18 @@ public class ComponentCache {
     public LoadingCache<GavWithType, DependencyInfo> getCache() {
         return cache;
     }
-/*
-    public void setVulnService(VulnerabilityDataService vulnService) {
-        cache = buildCache(vulnService);
+
+    public void setVulnService(VulnerabilityDataService vulnService, LicenseDataService licenseService) {
+        cache = buildCache(vulnService, licenseService);
     }
-*/
+
     public LoadingCache<GavWithType, DependencyInfo> buildCache(VulnerabilityDataService vulnService, LicenseDataService licenseService) {
         return CacheBuilder.newBuilder().maximumSize(cacheCapacity).expireAfterWrite(1, TimeUnit.HOURS)
                 .build(new CacheLoader<GavWithType, DependencyInfo>() {
                     @Override
                     public DependencyInfo load(final GavWithType gav)
                             throws ComponentLookupNotFoundException, IOException, URISyntaxException, BDRestException, UnexpectedHubResponseException,
-                            VersionDoesNotExistException {
+                            VersionDoesNotExistException, LicenseLookupNotFoundException, HubIntegrationException {
                         
                     	List<VulnerabilityItem> vulns = null;
                     	if (vulnService != null) {
@@ -59,9 +60,9 @@ public class ComponentCache {
                             throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
                         }
                         
-                    	LicensesInfo licensesInfo = null;
+                    	LicenseInfo licensesInfo = null;
                         if (licenseService != null) {
-                        	licensesInfo = licenseService.getLicensesInfo(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
+                        	licensesInfo = licenseService.getLicensesInfoFromCompVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
                         	
                         	if(licensesInfo == null) {
@@ -72,7 +73,6 @@ public class ComponentCache {
                         	throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
                         }
                         
-                        //dummy return
                         return new DependencyInfo(vulns, licensesInfo);
                     }
                 });
