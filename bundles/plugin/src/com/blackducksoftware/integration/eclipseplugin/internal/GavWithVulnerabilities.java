@@ -14,7 +14,7 @@ package com.blackducksoftware.integration.eclipseplugin.internal;
 import java.util.List;
 
 import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 
 public class GavWithVulnerabilities {
     private final Gav gav;

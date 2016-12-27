@@ -30,10 +30,12 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.JavaPr
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.NewJavaProjectListener;
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.ProjectDependenciesChangedListener;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
-import com.blackducksoftware.integration.hub.api.HubServicesFactory;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class Activator extends AbstractUIPlugin {
@@ -76,7 +78,8 @@ public class Activator extends AbstractUIPlugin {
         getInitialHubConnection();
         if (hubConnection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
-            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
+            //TODO logging
+            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
             LicenseDataService licenseService = new LicenseDataService(hubConnection);
             
             componentCache = new ComponentCache(vulnService, licenseService, COMPONENT_CACHE_CAPACITY);
@@ -126,7 +129,7 @@ public class Activator extends AbstractUIPlugin {
         }
     }
 
-    public void updateHubConnection(RestConnection connection) {
+    public void updateHubConnection(RestConnection connection) throws HubIntegrationException {
         hubConnection = connection;
         information.updateCache(connection);
     }

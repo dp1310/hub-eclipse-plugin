@@ -24,7 +24,7 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentVulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
-import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 
 public class ComponentTreeViewContentProvider implements ITreeContentProvider {
 

@@ -11,10 +11,12 @@ import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
-import com.blackducksoftware.integration.hub.api.HubServicesFactory;
-import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class ProjectDependencyInformation {
@@ -141,10 +143,11 @@ public class ProjectDependencyInformation {
         projectInfo.remove(oldName);
     }
 
-    public void updateCache(RestConnection connection) {
+    public void updateCache(RestConnection connection) throws HubIntegrationException {
         if (connection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(connection);
-            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
+            //TODO logging
+            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
             LicenseDataService licenseService = new LicenseDataService(connection);
             componentCache.setVulnService(vulnService, licenseService);
             addAllProjects();

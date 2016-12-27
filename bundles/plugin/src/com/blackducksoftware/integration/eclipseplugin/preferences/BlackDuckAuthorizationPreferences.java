@@ -27,6 +27,7 @@ import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationVal
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.TestHubCredentialsSelectionListener;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class BlackDuckAuthorizationPreferences extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -147,7 +148,7 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
                         validator));
     }
 
-    private void storeValues() {
+    private void storeValues() throws HubIntegrationException {
         final IPreferenceStore prefStore = getPreferenceStore();
         final StringFieldEditor[] editors = new StringFieldEditor[] { hubUsername, hubURL, hubTimeout, proxyUsername,
                 proxyHost, proxyPort, ignoredProxyHosts };
@@ -178,12 +179,22 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
 
     @Override
     public void performApply() {
-        storeValues();
+        try {
+			storeValues();
+		} catch (HubIntegrationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
     public boolean performOk() {
-        storeValues();
+        try {
+			storeValues();
+		} catch (HubIntegrationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         if (super.performOk()) {
             return true;
         } else {

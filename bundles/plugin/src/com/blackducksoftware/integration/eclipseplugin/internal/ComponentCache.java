@@ -9,13 +9,13 @@ import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
 import com.blackducksoftware.integration.hub.api.component.version.LicenseInfo;
-import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
-import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+//import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-import com.blackducksoftware.integration.hub.exception.VersionDoesNotExistException;
+//import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
+//import com.blackducksoftware.integration.hub.exception.VersionDoesNotExistException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -44,12 +44,12 @@ public class ComponentCache {
                 .build(new CacheLoader<GavWithType, DependencyInfo>() {
                     @Override
                     public DependencyInfo load(final GavWithType gav)
-                            throws ComponentLookupNotFoundException, IOException, URISyntaxException, BDRestException, UnexpectedHubResponseException,
-                            VersionDoesNotExistException, LicenseLookupNotFoundException, HubIntegrationException {
+                            throws ComponentLookupNotFoundException, IOException, URISyntaxException,
+                            LicenseLookupNotFoundException, HubIntegrationException {
                         
                     	List<VulnerabilityItem> vulns = null;
                     	if (vulnService != null) {
-                            vulns = vulnService.getVulnsFromComponent(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
+                            vulns = vulnService.getVulnsFromComponentVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
                             
                             if (vulns == null) {

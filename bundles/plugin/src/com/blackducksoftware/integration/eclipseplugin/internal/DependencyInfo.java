@@ -6,7 +6,7 @@ import java.util.Map;
 import com.blackducksoftware.integration.build.Gav;
 import com.blackducksoftware.integration.hub.api.component.version.License;
 import com.blackducksoftware.integration.hub.api.component.version.LicenseInfo;
-import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 
 public class DependencyInfo {
 	
