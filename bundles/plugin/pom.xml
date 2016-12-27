@@ -29,11 +29,6 @@
       <version>2.2.1</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>com.blackducksoftware.integration</groupId>
-      <artifactId>integration-common</artifactId>
-      <version>4.1.0</version>
-    </dependency>
   </dependencies>
 
   <build>
