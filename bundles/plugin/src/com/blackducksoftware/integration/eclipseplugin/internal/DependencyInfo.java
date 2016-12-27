@@ -4,16 +4,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.blackducksoftware.integration.build.Gav;
+import com.blackducksoftware.integration.hub.api.component.version.License;
+import com.blackducksoftware.integration.hub.api.component.version.LicensesInfo;
 import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
 
 public class DependencyInfo {
 	
 	private List<VulnerabilityItem> vulnList;
-	private List<License> licenses;
+	private LicensesInfo licensesInfo;
 	
-	public DependencyInfo(List<VulnerabilityItem> vulnList, String license){
+	public DependencyInfo(List<VulnerabilityItem> vulnList, LicensesInfo licensesInfo){
 		this.vulnList = vulnList;
-		this.license = license;
+		this.setLicensesInfo(licensesInfo);
 	}
 
 	public List<VulnerabilityItem> getVulnList() {
@@ -24,13 +26,14 @@ public class DependencyInfo {
 		this.vulnList = vulnList;
 	}
 
-	public String getLicense() {
-		return license;
+	public LicensesInfo getLicensesInfo() {
+		return licensesInfo;
 	}
 
-	public void setLicense(String license) {
-		this.license = license;
+	public void setLicensesInfo(LicensesInfo licensesInfo) {
+		this.licensesInfo = licensesInfo;
 	}
+
 	
 	
 	
