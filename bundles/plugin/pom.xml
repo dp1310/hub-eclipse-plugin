@@ -29,6 +29,25 @@
       <version>2.2.1</version>
       <scope>compile</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.4.2</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-urlconnection</artifactId>
+      <version>3.4.2</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio</artifactId>
+      <version>1.11.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -89,6 +108,30 @@
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
+
+                <!-- Transitive dependencies from hub-common DO NOT resolve when using tycho/MANIFEST-first build approach
+                     (as eclipse plugins do), see https://wiki.eclipse.org/Tycho/How_Tos/Dependency_on_pom-first_artifacts
+                -->
+                <artifactItem>
+                  <groupId>com.squareup.okhttp3</groupId>
+                  <artifactId>okhttp</artifactId>
+                  <version>3.4.2</version>
+                  <type>jar</type>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.squareup.okhttp3</groupId>
+                  <artifactId>okhttp-urlconnection</artifactId>
+                  <version>3.4.2</version>
+                  <type>jar</type>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>com.squareup.okio</groupId>
+                  <artifactId>okio</artifactId>
+                  <version>1.11.0</version>
+                  <type>jar</type>
+                </artifactItem>
+
               </artifactItems>
             </configuration>
           </execution>
