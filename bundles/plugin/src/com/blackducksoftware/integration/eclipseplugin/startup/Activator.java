@@ -80,7 +80,7 @@ public class Activator extends AbstractUIPlugin {
             HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
             //TODO logging
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
-            LicenseDataService licenseService = new LicenseDataService(hubConnection);
+            LicenseDataService licenseService = servicesFactory.createLicenseDataService();
             
             componentCache = new ComponentCache(vulnService, licenseService, COMPONENT_CACHE_CAPACITY);
         } else {

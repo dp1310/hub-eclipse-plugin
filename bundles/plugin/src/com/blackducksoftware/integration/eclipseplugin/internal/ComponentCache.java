@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
-import com.blackducksoftware.integration.hub.api.component.version.LicenseInfo;
+import com.blackducksoftware.integration.hub.api.component.version.SimpleLicense;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
@@ -60,12 +60,12 @@ public class ComponentCache {
                             throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
                         }
                         
-                    	LicenseInfo licensesInfo = null;
+                    	SimpleLicense sLicense = null;
                         if (licenseService != null) {
-                        	licensesInfo = licenseService.getLicensesInfoFromCompVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
+                        	sLicense = licenseService.getSimpleLicenseFromComponent(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
                         	
-                        	if(licensesInfo == null) {
+                        	if(sLicense == null) {
                         		throw new LicenseLookupNotFoundException(
                         			"Hub could not find license information for component " + gav.getGav() + " with type " + gav.getType());
                         	}
@@ -73,7 +73,7 @@ public class ComponentCache {
                         	throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
                         }
                         
-                        return new DependencyInfo(vulns, licensesInfo);
+                        return new DependencyInfo(vulns, sLicense);
                     }
                 });
     }
