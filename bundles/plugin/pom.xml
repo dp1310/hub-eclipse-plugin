@@ -48,6 +48,18 @@
       <version>1.11.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -117,12 +129,14 @@
                   <artifactId>okhttp</artifactId>
                   <version>3.4.2</version>
                   <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.squareup.okhttp3</groupId>
                   <artifactId>okhttp-urlconnection</artifactId>
                   <version>3.4.2</version>
                   <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
 
                 <artifactItem>
@@ -130,6 +144,24 @@
                   <artifactId>okio</artifactId>
                   <version>1.11.0</version>
                   <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>org.apache.commons</groupId>
+                  <artifactId>commons-lang3</artifactId>
+                  <version>3.0</version>
+                  <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+
+                <!-- Collections4 -->
+                <artifactItem>
+                  <groupId>org.apache.commons</groupId>
+                  <artifactId>commons-collections4</artifactId>
+                  <version>4.0</version>
+                  <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
 
               </artifactItems>
