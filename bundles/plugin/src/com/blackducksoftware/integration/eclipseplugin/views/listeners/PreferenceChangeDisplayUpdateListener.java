@@ -15,7 +15,7 @@ public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeLis
 
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
-        if (componentView.getComponentViewer() != null) {
+        if (componentView.getDependencyTableViewer() != null) {
             componentView.resetInput();
         }
     }
