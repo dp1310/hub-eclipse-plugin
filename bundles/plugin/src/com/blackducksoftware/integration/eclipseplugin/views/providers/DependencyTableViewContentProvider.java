@@ -64,4 +64,18 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
         return ERR_UNKNOWN_INPUT;
 	}
 
+	public String getInputProject() {
+		return inputProject;
+	}
+
+	public IPreferenceStore getPreferenceStore() {
+		return preferenceStore;
+	}
+
+	public ProjectDependencyInformation getProjectInformation() {
+		return projectInformation;
+	}
+	
+	
+
 }
