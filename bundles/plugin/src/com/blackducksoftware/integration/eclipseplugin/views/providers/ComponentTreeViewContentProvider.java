@@ -28,6 +28,7 @@ import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.Tre
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParentLicense;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParentVuln;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 
 public class ComponentTreeViewContentProvider implements ITreeContentProvider {
@@ -96,6 +97,9 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
         if (element instanceof VulnerabilityWithParentGav) {
             return true;
         }
+        if (element instanceof ComplexLicense) {
+        	return true;
+        }
         return false;
     }
     
@@ -115,6 +119,13 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
             InformationItemWithParentVulnerability severity = new InformationItemWithParentVulnerability("Severity: " + vulnItem.getSeverity(), vulnItem);
             return new InformationItemWithParentVulnerability[] { description, severity, baseScore };
         }
+        
+        if (parentElement instanceof ComplexLicense) {
+        	ComplexLicense complexLicense = ((ComplexLicense)parentElement);
+        	return new Object[]{};
+        	//TODO finish implementation
+        }
+        
         return null;
     }
     
@@ -129,6 +140,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
         if (element instanceof InformationItemWithParentVulnerability) {
             return ((InformationItemWithParentVulnerability) element).getVuln();
         }
+        //TODO implement ComplexLicense
         return null;
     }
 }
