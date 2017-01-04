@@ -71,6 +71,7 @@ public class ProjectDependencyInformation {
                  * thrown, info associated with that gav is inaccessible, and so don't put any
                  * information related to said gav into hashmap associated with the project
                  */
+            	System.out.println(e.getStackTrace());
             }
         }
         projectInfo.put(projectName, deps);

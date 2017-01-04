@@ -10,10 +10,21 @@ import org.eclipse.swt.widgets.TableColumn;
  * Eclipse 4 Plug-in Development by Example.pdf pg. 102
  */
 public abstract class DependencyTreeViewLabelProvider extends ColumnLabelProvider {
-	public abstract String getText(Object object);
+	public abstract String getText(Object input);
 	public abstract String getTitle();
 	public int getWidth() {
 		return 250;
+	}
+	
+	public TableViewerColumn addColumnTo(TableViewer viewer, int width) {
+		TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		TableColumn column = tableViewerColumn.getColumn();
+		column.setMoveable(true);
+		column.setResizable(true);
+		column.setText(getTitle());
+		column.setWidth(width);
+		tableViewerColumn.setLabelProvider(this);
+		return tableViewerColumn;
 	}
 	
 	public TableViewerColumn addColumnTo(TableViewer viewer) {

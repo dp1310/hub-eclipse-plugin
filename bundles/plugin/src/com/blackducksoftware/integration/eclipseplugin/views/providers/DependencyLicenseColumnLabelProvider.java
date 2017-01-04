@@ -21,7 +21,7 @@ public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabe
 	public String getText(Object input) {
 		if (input instanceof GavWithParentProject) {
             Map<Gav, DependencyInfo> dependencyInfoMap = dependencyTableViewCp.getProjectInformation().getDependencyInfoMap(dependencyTableViewCp.getInputProject());
-			String text = "" + dependencyInfoMap.get((GavWithParentProject)input).getSimpleLicense().getLicenseDisplay();
+			String text = "" + dependencyInfoMap.get(((GavWithParentProject)input).getGav()).getSimpleLicense().getLicenseDisplay();
             return text;
         }
         if (input instanceof String) {
