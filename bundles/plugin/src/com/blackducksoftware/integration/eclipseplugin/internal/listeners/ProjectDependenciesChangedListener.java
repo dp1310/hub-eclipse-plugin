@@ -124,6 +124,8 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
     private void visitChildren(final IJavaElementDelta delta) {
         for (final IJavaElementDelta c : delta.getAffectedChildren()) {
             visit(c);
+            //TODO remove
+            System.out.println("child affected");
         }
     }
 

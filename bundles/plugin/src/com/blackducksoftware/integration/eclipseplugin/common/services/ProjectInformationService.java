@@ -50,6 +50,8 @@ public class ProjectInformationService {
                  */
             }
         }
+        //TODO remove
+        System.out.println(numBinary);
         return numBinary;
     }
 
