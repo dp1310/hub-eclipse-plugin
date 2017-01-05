@@ -26,7 +26,7 @@ public class TreeViewerParentLicense extends TreeViewerParent {
 		children[0] = ("Type: " + sLicense.getComplexLicense().getType().toString());
 		
 		for(int i=0; i<numLicense; i++) {
-			children[i+1] = parentLicense.getLicenses().get(i);
+			children[i+1] = new ComplexLicenseWithParentGav(gavWithParentProject.getGav(), parentLicense.getLicenses().get(i));
 		}
 		
 		return children;

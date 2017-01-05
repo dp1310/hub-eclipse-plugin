@@ -19,7 +19,9 @@ import org.eclipse.swt.graphics.Image;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PathsToIconFiles;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComplexLicenseWithParentGav;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentComplexLicense;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentVulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParent;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
@@ -44,8 +46,11 @@ public class ComponentTreeViewLabelProvider extends LabelProvider implements ISt
         if (input instanceof InformationItemWithParentVulnerability) {
             return ((InformationItemWithParentVulnerability) input).getInformationItem();
         }
-        if (input instanceof ComplexLicense) {
-        	return ((ComplexLicense)input).getName();
+        if (input instanceof ComplexLicenseWithParentGav) {
+        	return ((ComplexLicenseWithParentGav)input).getComplexLicense().getName();
+        }
+        if (input instanceof InformationItemWithParentComplexLicense) {
+        	return ((InformationItemWithParentComplexLicense)input).getInformationItem();
         }
         if (input instanceof String) {
             return (String) input;

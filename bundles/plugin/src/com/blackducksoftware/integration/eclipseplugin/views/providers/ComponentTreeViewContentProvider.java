@@ -22,7 +22,9 @@ import com.blackducksoftware.integration.build.Gav;
 import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComplexLicenseWithParentGav;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentComplexLicense;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentVulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParent;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParentLicense;
@@ -97,7 +99,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
         if (element instanceof VulnerabilityWithParentGav) {
             return true;
         }
-        if (element instanceof ComplexLicense) {
+        if (element instanceof ComplexLicenseWithParentGav) {
         	return true;
         }
         return false;
@@ -120,10 +122,13 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
             return new InformationItemWithParentVulnerability[] { description, severity, baseScore };
         }
         
-        if (parentElement instanceof ComplexLicense) {
-        	ComplexLicense complexLicense = ((ComplexLicense)parentElement);
-        	return new Object[]{};
-        	//TODO finish implementation
+        if (parentElement instanceof ComplexLicenseWithParentGav) {
+        	ComplexLicense complexLicense = ((ComplexLicenseWithParentGav)parentElement).getComplexLicense();
+        	InformationItemWithParentComplexLicense codeSharing = new InformationItemWithParentComplexLicense(
+        			"Code Sharing: " + complexLicense.getCodeSharing(), complexLicense);
+        	InformationItemWithParentComplexLicense ownership = new InformationItemWithParentComplexLicense(
+        			"Ownership: " + complexLicense.getOwnership(), complexLicense);
+        	return new Object[]{codeSharing, ownership};
         }
         
         return null;
@@ -140,7 +145,12 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
         if (element instanceof InformationItemWithParentVulnerability) {
             return ((InformationItemWithParentVulnerability) element).getVuln();
         }
-        //TODO implement ComplexLicense
+        if (element instanceof ComplexLicenseWithParentGav) {
+        	return ((ComplexLicenseWithParentGav)element).getGav();
+        }
+        if (element instanceof InformationItemWithParentComplexLicense) {
+        	return ((InformationItemWithParentComplexLicense)element).getComplexLicense();
+        }
         return null;
     }
 }
