@@ -40,7 +40,8 @@ public class ComponentTreeViewLabelProvider extends LabelProvider implements ISt
     	}
     	
         if (input instanceof VulnerabilityWithParentGav) {
-            String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnerabilityName();
+            //TODO hperlink impl
+        	String text = "<a href=" + "http://www.reddit.com/" + ">" + "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnerabilityName() + "</a>";
             return text;
         }
         if (input instanceof InformationItemWithParentVulnerability) {
