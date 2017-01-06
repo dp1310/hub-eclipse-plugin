@@ -12,6 +12,7 @@ import com.blackducksoftware.integration.hub.api.component.version.SimpleLicense
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
 //import com.blackducksoftware.integration.hub.exception.BDRestException;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 //import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
@@ -47,9 +48,9 @@ public class ComponentCache {
                             throws ComponentLookupNotFoundException, IOException, URISyntaxException,
                             LicenseLookupNotFoundException, HubIntegrationException {
                         
-                    	List<VulnerabilityItem> vulns = null;
+                    	List<VulnerabilityItemPlusLink> vulns = null;
                     	if (vulnService != null) {
-                            vulns = vulnService.getVulnsFromComponentVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
+                            vulns = vulnService.getVulnsPlusLinkFromComponentVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
                             
                             if (vulns == null) {

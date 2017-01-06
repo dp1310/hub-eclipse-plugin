@@ -4,18 +4,19 @@ import java.util.List;
 
 import com.blackducksoftware.integration.hub.api.component.version.SimpleLicense;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
 
 public class DependencyInfo {
 	
-	private final List<VulnerabilityItem> vulnList;
+	private final List<VulnerabilityItemPlusLink> vulnList;
 	private final SimpleLicense simpleLicense;
 	
-	public DependencyInfo(final List<VulnerabilityItem> vulnList, final SimpleLicense simpleLicense){
+	public DependencyInfo(final List<VulnerabilityItemPlusLink> vulnList, final SimpleLicense simpleLicense){
 		this.vulnList = vulnList;
 		this.simpleLicense = simpleLicense;
 	}
 
-	public List<VulnerabilityItem> getVulnList() {
+	public List<VulnerabilityItemPlusLink> getVulnList() {
 		return vulnList;
 	}
 

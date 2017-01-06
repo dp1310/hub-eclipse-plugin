@@ -7,6 +7,7 @@ import com.blackducksoftware.integration.build.Gav;
 import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
 
 public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabelProvider {
 
@@ -19,7 +20,7 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
 	@Override
 	public String getText(Object input) {
 		if (input instanceof GavWithParentProject) {
-            Map<Gav, List<VulnerabilityItem>> vulnsMap = dependencyTableViewCp.getProjectInformation().getVulnMap(dependencyTableViewCp.getInputProject());
+            Map<Gav, List<VulnerabilityItemPlusLink>> vulnsMap = dependencyTableViewCp.getProjectInformation().getVulnMap(dependencyTableViewCp.getInputProject());
 			String text = "" + vulnsMap.get(((GavWithParentProject)input).getGav()).size();
             return text;
         }

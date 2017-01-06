@@ -12,6 +12,7 @@ import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependenc
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
 
 public class DependencyTableViewContentProvider implements IStructuredContentProvider {
 
@@ -51,7 +52,7 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                     GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
                     for (int i = 0; i < gavs.length; i++) {
                         Gav gav = gavs[i];
-                        Map<Gav, List<VulnerabilityItem>> vulnMap = projectInformation.getVulnMap(projectName);
+                        Map<Gav, List<VulnerabilityItemPlusLink>> vulnMap = projectInformation.getVulnMap(projectName);
                         boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
                         gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
                     }

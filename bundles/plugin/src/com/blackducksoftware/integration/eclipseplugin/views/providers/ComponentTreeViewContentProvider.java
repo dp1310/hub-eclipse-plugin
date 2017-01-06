@@ -113,7 +113,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
     	}
     	
         if (parentElement instanceof VulnerabilityWithParentGav) {
-            VulnerabilityItem vulnItem = ((VulnerabilityWithParentGav) parentElement).getVuln();
+            VulnerabilityItem vulnItem = ((VulnerabilityWithParentGav) parentElement).getVuln().getVulnItem();
             InformationItemWithParentVulnerability baseScore = new InformationItemWithParentVulnerability(
                     "Base Score: " + Double.toString(vulnItem.getBaseScore()), vulnItem);
             InformationItemWithParentVulnerability description = new InformationItemWithParentVulnerability("Description: " + vulnItem.getDescription(),
