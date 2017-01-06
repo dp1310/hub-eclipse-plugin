@@ -1,5 +1,6 @@
 package com.blackducksoftware.integration.eclipseplugin.views.listeners;
 
+import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -25,10 +26,14 @@ public class TreeDoubleClickListener implements IDoubleClickListener {
 			VulnerabilityWithParentGav vulnWithGav = (VulnerabilityWithParentGav)selectedObject;
 			System.out.println("link activated");
 			String link = vulnWithGav.getVuln().getLink();
-			IWebBrowser brower;
+			IWebBrowser browser;
+
+			//Authenticate first
+			
 			try {
-				brower = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
-				brower.openURL(new URL(link));
+				//browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
+				browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
+				browser.openURL(new URL("https://" + link));
 			} catch (PartInitException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
