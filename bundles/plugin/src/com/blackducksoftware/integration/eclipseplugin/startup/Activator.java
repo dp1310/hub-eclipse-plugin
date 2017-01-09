@@ -86,7 +86,7 @@ public class Activator extends AbstractUIPlugin {
         } else {
             componentCache = new ComponentCache(null, null, COMPONENT_CACHE_CAPACITY);
         }
-        information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        information = new ProjectDependencyInformation(projService, workspaceService, componentCache, hubConnection);
         final PreferencesService defaultPrefService = new PreferencesService(
                 getDefault().getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPrefService, information);

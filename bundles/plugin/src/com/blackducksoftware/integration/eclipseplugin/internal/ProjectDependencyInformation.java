@@ -31,12 +31,15 @@ public class ProjectDependencyInformation {
     private final WorkspaceInformationService workspaceService;
 
     private VulnerabilityView componentView;
+    
+    private RestConnection hubConnection;
 
     public ProjectDependencyInformation(final ProjectInformationService projService, WorkspaceInformationService workspaceService,
-            ComponentCache componentCache) {
+            ComponentCache componentCache, RestConnection hubConnection) {
         this.projService = projService;
         this.workspaceService = workspaceService;
         this.componentCache = componentCache;
+        this.hubConnection = hubConnection;
     }
 
     public void setComponentView(final VulnerabilityView componentView) {
@@ -156,6 +159,10 @@ public class ProjectDependencyInformation {
         } else {
             componentCache.setVulnService(null, null);
         }
+    }
+    
+    public RestConnection getHubConnection() {
+    	return this.hubConnection;
     }
 
 }
