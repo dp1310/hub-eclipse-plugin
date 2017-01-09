@@ -89,23 +89,23 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 						SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
 				                SecurePreferencesFactory.getDefault());
 						IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
-						String username = prefStore.getDefaultString(PreferenceNames.HUB_USERNAME);
+						String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
 						System.out.println("Username: " + username);
 						String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
-						String hubUrl = prefStore.getDefaultString(PreferenceNames.HUB_URL);
-						String proxyUsername = prefStore.getDefaultString(PreferenceNames.PROXY_USERNAME);
+						String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
+						String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
 						String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
-						String proxyPort = prefStore.getDefaultString(PreferenceNames.PROXY_PORT);
-						String proxyHost = prefStore.getDefaultString(PreferenceNames.PROXY_HOST);
-						String ignoredProxyHosts = prefStore.getDefaultString(PreferenceNames.IGNORED_PROXY_HOSTS);
-						String timeout = prefStore.getDefaultString(PreferenceNames.HUB_TIMEOUT);
+						String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
+						String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
+						String ignoredProxyHosts = prefStore.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
+						String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
 						this.setHubServerConfigBuilderFields(hubServerConfigBuilder, username, password, hubUrl, proxyUsername, proxyPassword, proxyPort, proxyHost, ignoredProxyHosts, timeout);
 						HubServerConfig hubServerConfig = hubServerConfigBuilder.build();
 						
 						System.out.println("Proxy Host: " + hubServerConfig.getProxyInfo().getHost());
 						System.out.println("Proxy Port: " + hubServerConfig.getProxyInfo().getPort());
 						System.out.println("Username:   " + hubServerConfig.getGlobalCredentials().getUsername());
-						//phoneHomeService.phoneHome(hubServerConfig, hubScanConfig, hubVersion);
+						phoneHomeService.phoneHome(hubServerConfig, hubScanConfig, hubVersion);
 					} catch (HubIntegrationException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
