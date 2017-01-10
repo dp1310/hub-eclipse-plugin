@@ -153,7 +153,7 @@ public class ProjectDependencyInformation {
             HubServicesFactory servicesFactory = new HubServicesFactory(connection);
             //TODO logging
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
-            LicenseDataService licenseService = servicesFactory.createLicenseDataService();
+            LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
             componentCache.setVulnService(vulnService, licenseService);
             addAllProjects();
         } else {

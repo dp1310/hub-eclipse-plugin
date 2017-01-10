@@ -13,6 +13,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComplexLicenseWithParentGav;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
 
 public class TreeDoubleClickListener implements IDoubleClickListener {
@@ -29,11 +30,14 @@ public class TreeDoubleClickListener implements IDoubleClickListener {
 			IWebBrowser browser;
 
 			//Authenticate first
+			/*
+			 * Currently, the hub will "redirect" calls only if authenticated, proper redirection will come in hub 3.5 (maybe)
+			 */
 			
 			try {
 				//browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
 				browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
-				browser.openURL(new URL("https://" + link));
+				browser.openURL(new URL(link));
 			} catch (PartInitException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -41,6 +45,14 @@ public class TreeDoubleClickListener implements IDoubleClickListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			
+			return;
+			
+		}
+		
+		if(selectedObject instanceof ComplexLicenseWithParentGav) {
+			ComplexLicenseWithParentGav cLicenseWithGav = (ComplexLicenseWithParentGav)selectedObject;
+			//String link = cLicenseWithGav.getComplexLicense();
 		}
 	}
 
