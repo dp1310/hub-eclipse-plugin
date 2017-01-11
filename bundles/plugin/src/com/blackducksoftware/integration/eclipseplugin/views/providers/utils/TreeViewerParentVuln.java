@@ -6,13 +6,13 @@ import java.util.List;
 import com.blackducksoftware.integration.eclipseplugin.internal.Vulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.DependencyTableViewContentProvider;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 
 public class TreeViewerParentVuln extends TreeViewerParent {
 	
-	private final List<VulnerabilityItemPlusLink> vulns;
+	private final List<VulnerabilityItemPlusMeta> vulns;
 	
-	public TreeViewerParentVuln(String dispName, GavWithParentProject gavWithParentProj, List<VulnerabilityItemPlusLink> vulns) {
+	public TreeViewerParentVuln(String dispName, GavWithParentProject gavWithParentProj, List<VulnerabilityItemPlusMeta> vulns) {
 		super(dispName, gavWithParentProj);
 		this.vulns = vulns;
 	}
@@ -28,8 +28,8 @@ public class TreeViewerParentVuln extends TreeViewerParent {
 			return DependencyTableViewContentProvider.NO_VULNERABILITIES_TO_SHOW;
 		}
 
-        List<VulnerabilityItemPlusLink> vulnList = vulns;
-        Iterator<VulnerabilityItemPlusLink> vulnIt = vulnList.iterator();
+        List<VulnerabilityItemPlusMeta> vulnList = vulns;
+        Iterator<VulnerabilityItemPlusMeta> vulnIt = vulnList.iterator();
         VulnerabilityWithParentGav[] vulnsWithGavs = new VulnerabilityWithParentGav[vulnList.size()];
         int i = 0;
         while (vulnIt.hasNext()) {

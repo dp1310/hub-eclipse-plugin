@@ -94,7 +94,7 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
             return ((InformationItemWithParentVulnerability) input).getInformationItem();
         }
         if (input instanceof ComplexLicenseWithParentGav) {
-        	return ((ComplexLicenseWithParentGav)input).getComplexLicense().getName();
+        	return ((ComplexLicenseWithParentGav)input).getComplexLicensePlusMeta().getComplexLicense().getName();
         }
         if (input instanceof InformationItemWithParentComplexLicense) {
         	return ((InformationItemWithParentComplexLicense)input).getInformationItem();

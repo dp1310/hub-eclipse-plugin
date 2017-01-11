@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.Tre
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParentVuln;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicensePlusMeta;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 
 public class ComponentTreeViewContentProvider implements ITreeContentProvider {
@@ -123,7 +124,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
         }
         
         if (parentElement instanceof ComplexLicenseWithParentGav) {
-        	ComplexLicense complexLicense = ((ComplexLicenseWithParentGav)parentElement).getComplexLicense();
+        	ComplexLicense complexLicense = ((ComplexLicenseWithParentGav)parentElement).getComplexLicensePlusMeta().getComplexLicense();
         	InformationItemWithParentComplexLicense codeSharing = new InformationItemWithParentComplexLicense(
         			"Code Sharing: " + complexLicense.getCodeSharing(), complexLicense);
         	InformationItemWithParentComplexLicense ownership = new InformationItemWithParentComplexLicense(

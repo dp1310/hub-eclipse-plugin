@@ -22,7 +22,7 @@ import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestServ
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
@@ -82,6 +82,7 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 						String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
 						String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
 //						System.out.println("version: " + eclipseProduct.getId() + " - " + eclipseProduct.getName() + " - " + eclipseProduct.getApplication() + " - " + eclipseProduct.getDescription() + " - " + eclipseVersion);
+						//FIXME new Phone Home method
 						HubScanConfig hubScanConfig = new HubScanConfig(null, null, null, null, null, 0, null, false, null, ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion, false);
 						
 						HubServerConfigBuilder hubServerConfigBuilder = new HubServerConfigBuilder();
@@ -115,7 +116,7 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                     GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
                     for (int i = 0; i < gavs.length; i++) {
                         Gav gav = gavs[i];
-                        Map<Gav, List<VulnerabilityItemPlusLink>> vulnMap = projectInformation.getVulnMap(projectName);
+                        Map<Gav, List<VulnerabilityItemPlusMeta>> vulnMap = projectInformation.getVulnMap(projectName);
                         boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
                         gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
                     }

@@ -17,11 +17,25 @@
     <output-dir>./target/dependencies</output-dir>
   </properties>
 
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>apache.snapshots</id>
+      <name>Apache Development Snapshot Repository</name>
+      <url>https://repository.apache.org/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>5.4.3-SNAPSHOT</version>
+      <version>6.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
@@ -29,7 +43,7 @@
       <version>2.2.1</version>
       <scope>compile</scope>
     </dependency>
-
+    <!--
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
@@ -59,7 +73,7 @@
       <artifactId>commons-collections4</artifactId>
       <version>4.0</version>
     </dependency>
-
+-->
   </dependencies>
 
   <build>
@@ -70,13 +84,18 @@
         <version>2.10</version>
         <executions>
           <execution>
-            <id>unpack</id>
+            <id>unpack-dependencies</id>
             <!-- bound to initialize because these items need to be unpacked before any compilation occurs -->
             <phase>initialize</phase>
             <goals>
-              <goal>unpack</goal>
+              <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
+              <outputDirectory>${output-dir}</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <excludes>**\/*.java</excludes>
+              <!--
               <artifactItems>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
@@ -92,6 +111,8 @@
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
+-->
+              <!--
                 <artifactItem>
                   <groupId>org.restlet.jse</groupId>
                   <artifactId>org.restlet.ext.httpclient</artifactId>
@@ -121,9 +142,9 @@
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
 
-                <!-- Transitive dependencies from hub-common DO NOT resolve when using tycho/MANIFEST-first build approach
+                <!- - Transitive dependencies from hub-common DO NOT resolve when using tycho/MANIFEST-first build approach
                      (as eclipse plugins do), see https://wiki.eclipse.org/Tycho/How_Tos/Dependency_on_pom-first_artifacts
-                -->
+                - ->
                 <artifactItem>
                   <groupId>com.squareup.okhttp3</groupId>
                   <artifactId>okhttp</artifactId>
@@ -155,7 +176,7 @@
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
 
-                <!-- Collections4 -->
+                <!- - Collections4 - ->
                 <artifactItem>
                   <groupId>org.apache.commons</groupId>
                   <artifactId>commons-collections4</artifactId>
@@ -164,7 +185,7 @@
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
 
-                <!-- TODO remove snapshot when 1.3.1 is released -->
+                <!- - TODO remove snapshot when 1.3.1 is released - ->
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>phone-home-api</artifactId>
@@ -172,8 +193,10 @@
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
-
+-->
+              <!--
               </artifactItems>
+-->
             </configuration>
           </execution>
         </executions>

@@ -8,21 +8,19 @@ import java.util.concurrent.TimeUnit;
 import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
-import com.blackducksoftware.integration.hub.api.component.version.SimpleLicense;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicensePlusMeta;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusLink;
-//import com.blackducksoftware.integration.hub.exception.BDRestException;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-//import com.blackducksoftware.integration.hub.exception.UnexpectedHubResponseException;
-//import com.blackducksoftware.integration.hub.exception.VersionDoesNotExistException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 public class ComponentCache {
 
+	//FIXME GavWithType has been removed
     private LoadingCache<GavWithType, DependencyInfo> cache;
 
     private int cacheCapacity;
@@ -48,9 +46,9 @@ public class ComponentCache {
                             throws ComponentLookupNotFoundException, IOException, URISyntaxException,
                             LicenseLookupNotFoundException, HubIntegrationException {
                         
-                    	List<VulnerabilityItemPlusLink> vulns = null;
+                    	List<VulnerabilityItemPlusMeta> vulns = null;
                     	if (vulnService != null) {
-                            vulns = vulnService.getVulnsPlusLinkFromComponentVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
+                            vulns = vulnService.getVulnsPlusMetaFromComponentVersion(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
                             
                             if (vulns == null) {
@@ -61,9 +59,9 @@ public class ComponentCache {
                             throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
                         }
                         
-                    	SimpleLicense sLicense = null;
+                    	ComplexLicensePlusMeta sLicense = null;
                         if (licenseService != null) {
-                        	sLicense = licenseService.getSimpleLicenseFromComponent(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
+                        	sLicense = licenseService.getComplexLicensePlusMetaFromComponent(gav.getType().toString().toLowerCase(), gav.getGav().getGroupId(),
                                     gav.getGav().getArtifactId(), gav.getGav().getVersion());
                         	
                         	if(sLicense == null) {
