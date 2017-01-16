@@ -11,13 +11,11 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class ProjectDependenciesChangedListener implements IElementChangedListener {
     private final ProjectDependencyInformation information;
@@ -74,11 +72,12 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             final String OSSpecificFilepath = el.getPath().toOSString();
             if (depService.isGradleDependency(OSSpecificFilepath)) {
                 final Gav gav = extractor.getGradlePathGav(OSSpecificFilepath);
-                information.addWarningToProject(projName, new GavWithType(gav, GavTypeEnum.MAVEN));
+                // TODO: No hardcoded strings.
+                information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             } else if (depService.isMavenDependency(OSSpecificFilepath)) {
                 final String mavenPath = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toOSString();
                 final Gav gav = extractor.getMavenPathGav(OSSpecificFilepath, mavenPath);
-                information.addWarningToProject(projName, new GavWithType(gav, GavTypeEnum.MAVEN));
+                information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
     }
@@ -124,7 +123,7 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
     private void visitChildren(final IJavaElementDelta delta) {
         for (final IJavaElementDelta c : delta.getAffectedChildren()) {
             visit(c);
-            //TODO remove
+            // TODO remove
             System.out.println("child affected");
         }
     }

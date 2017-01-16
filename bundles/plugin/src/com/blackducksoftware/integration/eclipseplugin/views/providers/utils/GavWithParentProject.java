@@ -11,7 +11,7 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 
-import com.blackducksoftware.integration.build.Gav;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class GavWithParentProject {
 

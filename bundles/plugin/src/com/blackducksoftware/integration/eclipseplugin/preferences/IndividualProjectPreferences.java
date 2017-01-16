@@ -1,7 +1,6 @@
 package com.blackducksoftware.integration.eclipseplugin.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -19,65 +18,66 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
  */
 public class IndividualProjectPreferences extends PreferencePage implements IWorkbenchPreferencePage {
 
-	private final String projectId;
-	private BooleanFieldEditor displayWarnings;
+    // private final String projectId;
 
-	public IndividualProjectPreferences(final String id) {
-		super();
-		projectId = id;
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-	}
+    private BooleanFieldEditor displayWarnings;
 
-	public IndividualProjectPreferences(final String id, final String title) {
-		super(title);
-		projectId = id;
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-	}
+    public IndividualProjectPreferences(final String id) {
+        super();
+        // projectId = id;
+        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+    }
 
-	public IndividualProjectPreferences(final String id, final String title, final ImageDescriptor image) {
-		super(title, image);
-		projectId = id;
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-	}
+    public IndividualProjectPreferences(final String id, final String title) {
+        super(title);
+        // projectId = id;
+        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+    }
 
-	@Override
-	public void init(final IWorkbench workbench) {
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-	}
+    public IndividualProjectPreferences(final String id, final String title, final ImageDescriptor image) {
+        super(title, image);
+        // projectId = id;
+        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+    }
 
-	@Override
-	protected Control createContents(final Composite parent) {
-		final Composite displayWarningsComposite = new Composite(parent, SWT.LEFT);
-		displayWarningsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		displayWarningsComposite.setLayout(new GridLayout());
-		// implement this
-		return displayWarningsComposite;
-	}
+    @Override
+    public void init(final IWorkbench workbench) {
+        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+    }
 
-	@Override
-	public void performApply() {
-		storeValues();
-	}
+    @Override
+    protected Control createContents(final Composite parent) {
+        final Composite displayWarningsComposite = new Composite(parent, SWT.LEFT);
+        displayWarningsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        displayWarningsComposite.setLayout(new GridLayout());
+        // TODO: implement this
+        return displayWarningsComposite;
+    }
 
-	@Override
-	public boolean performOk() {
-		if (super.performOk()) {
-			storeValues();
-			return true;
-		} else {
-			return false;
-		}
-	}
+    @Override
+    public void performApply() {
+        storeValues();
+    }
 
-	private void storeValues() {
-		final IPreferenceStore prefStore = getPreferenceStore();
-		// implement this
-	}
+    @Override
+    public boolean performOk() {
+        if (super.performOk()) {
+            storeValues();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	@Override
-	protected void performDefaults() {
-		displayWarnings.loadDefault();
-		super.performDefaults();
-	}
+    private void storeValues() {
+        // final IPreferenceStore prefStore = getPreferenceStore();
+        // TODO: implement this
+    }
+
+    @Override
+    protected void performDefaults() {
+        displayWarnings.loadDefault();
+        super.performDefaults();
+    }
 
 }

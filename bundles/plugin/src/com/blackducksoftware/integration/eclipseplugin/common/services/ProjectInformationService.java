@@ -9,11 +9,9 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class ProjectInformationService {
 
@@ -50,7 +48,7 @@ public class ProjectInformationService {
                  */
             }
         }
-        //TODO remove
+        // TODO remove
         System.out.println(numBinary);
         return numBinary;
     }
@@ -82,13 +80,13 @@ public class ProjectInformationService {
         return dependencyFilepaths;
     }
 
-    public GavWithType[] getMavenAndGradleDependencies(final String projectName) {
+    public Gav[] getMavenAndGradleDependencies(final String projectName) {
         if (projectName.equals("")) {
-            return new GavWithType[0];
+            return new Gav[0];
         }
         final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
         if (project == null) {
-            return new GavWithType[0];
+            return new Gav[0];
         }
         if (isJavaProject(project)) {
             final IJavaProject javaProject = JavaCore.create(project);
@@ -100,10 +98,10 @@ public class ProjectInformationService {
             } catch (final JavaModelException e) {
                 // if exception thrown when getting filepaths to source and binary dependencies, assume
                 // there are no dependencies
-                return new GavWithType[0];
+                return new Gav[0];
             }
         } else {
-            return new GavWithType[0];
+            return new Gav[0];
         }
     }
 
@@ -118,20 +116,20 @@ public class ProjectInformationService {
         return numDeps;
     }
 
-    public GavWithType[] getGavsFromFilepaths(final String[] dependencyFilepaths) {
+    public Gav[] getGavsFromFilepaths(final String[] dependencyFilepaths) {
         final int numDeps = getNumMavenAndGradleDependencies(dependencyFilepaths);
-        final GavWithType[] gavsWithType = new GavWithType[numDeps];
+        final Gav[] gavsWithType = new Gav[numDeps];
         int gavsIndex = 0;
         for (String dependencyFilepath : dependencyFilepaths) {
             if (dependencyInformationService.isMavenDependency(dependencyFilepath)) {
                 final Gav gav = extractor.getMavenPathGav(dependencyFilepath,
                         JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toString());
-
-                gavsWithType[gavsIndex] = new GavWithType(gav, GavTypeEnum.MAVEN);
+                // TODO: No hardcoded strings
+                gavsWithType[gavsIndex] = new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
                 gavsIndex++;
             } else if (dependencyInformationService.isGradleDependency(dependencyFilepath)) {
                 final Gav gav = extractor.getGradlePathGav(dependencyFilepath);
-                gavsWithType[gavsIndex] = new GavWithType(gav, GavTypeEnum.MAVEN);
+                gavsWithType[gavsIndex] = new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
                 gavsIndex++;
             }
         }

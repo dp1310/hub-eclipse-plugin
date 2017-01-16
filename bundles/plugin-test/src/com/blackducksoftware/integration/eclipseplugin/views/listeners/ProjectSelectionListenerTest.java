@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.ui.IWorkbenchPart;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class ProjectSelectionListenerTest {
     IProject project;
 
     @Mock
-    TreeViewer tree;
+    TableViewer table;
 
     @Mock
     IProjectDescription description;
@@ -55,7 +55,7 @@ public class ProjectSelectionListenerTest {
         Mockito.when(adaptable.getAdapter(IProject.class)).thenReturn(project);
         Mockito.when(project.getDescription()).thenReturn(description);
         Mockito.when(description.getName()).thenReturn(PROJECT_NAME);
-        Mockito.when(view.getComponentViewer()).thenReturn(tree);
+        Mockito.when(view.getDependencyTableViewer()).thenReturn(table);
     }
 
     @Test

@@ -25,38 +25,37 @@ import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.Inf
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentVulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParent;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicense;
 
 public class ComponentTreeViewLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
     @Override
     public String getText(Object input) {
-//        if (input instanceof GavWithParentProject) {
-//            String text = "Component: " + ((GavWithParentProject) input).getGav().toString();
-//            return text;
-//        }
-    	if (input instanceof TreeViewerParent) {
-    		return ((TreeViewerParent)input).getDispName();
-    	}
-    	
+        // if (input instanceof GavWithParentProject) {
+        // String text = "Component: " + ((GavWithParentProject) input).getGav().toString();
+        // return text;
+        // }
+        if (input instanceof TreeViewerParent) {
+            return ((TreeViewerParent) input).getDispName();
+        }
+
         if (input instanceof VulnerabilityWithParentGav) {
-            //TODO hperlink impl
-        	String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnItem().getVulnerabilityName() + "</a>";
+            // TODO hperlink impl
+            String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnItem().getVulnerabilityName() + "</a>";
             return text;
         }
         if (input instanceof InformationItemWithParentVulnerability) {
             return ((InformationItemWithParentVulnerability) input).getInformationItem();
         }
         if (input instanceof ComplexLicenseWithParentGav) {
-        	return ((ComplexLicenseWithParentGav)input).getComplexLicensePlusMeta().getComplexLicense().getName();
+            return ((ComplexLicenseWithParentGav) input).getComplexLicensePlusMeta().getComplexLicense().getName();
         }
         if (input instanceof InformationItemWithParentComplexLicense) {
-        	return ((InformationItemWithParentComplexLicense)input).getInformationItem();
+            return ((InformationItemWithParentComplexLicense) input).getInformationItem();
         }
         if (input instanceof String) {
             return (String) input;
         }
-        
+
         return "";
     }
 

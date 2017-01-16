@@ -19,13 +19,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ JavaCore.class })
@@ -68,7 +66,7 @@ public class ProjectDependenciesChangedListenerTest {
     Gav gradleGav, mavenGav;
 
     @Mock
-    GavWithType gradleGavWithType, mavenGavWithType;
+    Gav gradleGavWithType, mavenGavWithType;
 
     private final String PROJECT_NAME = "project name";
 
@@ -118,8 +116,8 @@ public class ProjectDependenciesChangedListenerTest {
         Mockito.when(mavenRepoPath.toOSString()).thenReturn(MAVEN_REPO_PATH_OS_STRING);
         Mockito.when(extractor.getMavenPathGav(MAVEN_PATH_OS_STRING, MAVEN_REPO_PATH_OS_STRING)).thenReturn(mavenGav);
         Mockito.when(extractor.getGradlePathGav(GRADLE_PATH_OS_STRING)).thenReturn(gradleGav);
-        Mockito.when(gradleGavWithType.getGav()).thenReturn(gradleGav);
-        Mockito.when(mavenGavWithType.getGav()).thenReturn(mavenGav);
+        Mockito.when(gradleGavWithType).thenReturn(gradleGav);
+        Mockito.when(mavenGavWithType).thenReturn(mavenGav);
     }
 
     @Test
@@ -148,9 +146,11 @@ public class ProjectDependenciesChangedListenerTest {
         final ProjectDependenciesChangedListener listener = new ProjectDependenciesChangedListener(information,
                 extractor, depService);
         listener.elementChanged(e);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, new GavWithType(mavenGav, GavTypeEnum.MAVEN));
+        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME,
+                new Gav("maven", mavenGav.getGroupId(), mavenGav.getArtifactId(), mavenGav.getVersion()));
         Mockito.verify(information, Mockito.times(1)).removeWarningFromProject(PROJECT_NAME, mavenGav);
-        Mockito.verify(information, Mockito.times(1)).addWarningToProject(PROJECT_NAME, new GavWithType(gradleGav, GavTypeEnum.MAVEN));
+        Mockito.verify(information, Mockito.times(1)).addWarningToProject(PROJECT_NAME,
+                new Gav("maven", gradleGav.getGroupId(), gradleGav.getArtifactId(), gradleGav.getVersion()));
         Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, gradleGav);
         Mockito.verify(extractor, Mockito.times(0)).getGradlePathGav(NON_BINARY_PATH_OS_STRING);
         Mockito.verify(extractor, Mockito.times(0)).getMavenPathGav(NON_BINARY_PATH_OS_STRING,

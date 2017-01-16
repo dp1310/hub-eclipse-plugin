@@ -6,19 +6,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.log.IntBufferedLogger;
-import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
 
 public class ProjectDependencyInformation {
 
@@ -31,7 +29,7 @@ public class ProjectDependencyInformation {
     private final WorkspaceInformationService workspaceService;
 
     private VulnerabilityView componentView;
-    
+
     private RestConnection hubConnection;
 
     public ProjectDependencyInformation(final ProjectInformationService projService, WorkspaceInformationService workspaceService,
@@ -64,28 +62,28 @@ public class ProjectDependencyInformation {
     }
 
     public void addProject(String projectName) {
-        final GavWithType[] gavs = projService.getMavenAndGradleDependencies(projectName);
+        final Gav[] gavs = projService.getMavenAndGradleDependencies(projectName);
         final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
-        for (final GavWithType gav : gavs) {
+        for (final Gav gav : gavs) {
             try {
-                deps.put(gav.getGav(), componentCache.getCache().get(gav));
+                deps.put(gav, componentCache.getCache().get(gav));
             } catch (final ExecutionException e) {
                 /*
                  * Thrown if exception occurs when accessing key gav from cache. If an exception is
                  * thrown, info associated with that gav is inaccessible, and so don't put any
                  * information related to said gav into hashmap associated with the project
                  */
-            	System.out.println(e.getStackTrace());
+                System.out.println(e.getStackTrace());
             }
         }
         projectInfo.put(projectName, deps);
     }
 
-    public void addWarningToProject(final String projectName, final GavWithType gav) {
+    public void addWarningToProject(final String projectName, final Gav gav) {
         final Map<Gav, DependencyInfo> deps = projectInfo.get(projectName);
         if (deps != null) {
             try {
-                deps.put(gav.getGav(), componentCache.getCache().get(gav));
+                deps.put(gav, componentCache.getCache().get(gav));
                 if (componentView != null) {
                     componentView.resetInput();
                 }
@@ -126,20 +124,20 @@ public class ProjectDependencyInformation {
         }
     }
 
-    //TODO deprecate
+    // TODO deprecate
     public Map<Gav, List<VulnerabilityItemPlusMeta>> getVulnMap(String projectName) {
-        Map<Gav, List<VulnerabilityItemPlusMeta>> vulnMap = new HashMap<Gav, List<VulnerabilityItemPlusMeta>>();
-    	
-    	Map<Gav, DependencyInfo> projDepInfo = projectInfo.get(projectName);
-        for(Map.Entry<Gav, DependencyInfo> entry : projDepInfo.entrySet()) {
-        	vulnMap.put(entry.getKey(), entry.getValue().getVulnList());
+        Map<Gav, List<VulnerabilityItemPlusMeta>> vulnMap = new HashMap<>();
+
+        Map<Gav, DependencyInfo> projDepInfo = projectInfo.get(projectName);
+        for (Map.Entry<Gav, DependencyInfo> entry : projDepInfo.entrySet()) {
+            vulnMap.put(entry.getKey(), entry.getValue().getVulnList());
         }
-    	
-    	return vulnMap;
+
+        return vulnMap;
     }
-    
+
     public Map<Gav, DependencyInfo> getDependencyInfoMap(String projectName) {
-    	return projectInfo.get(projectName);
+        return projectInfo.get(projectName);
     }
 
     public void renameProject(String oldName, String newName) {
@@ -151,7 +149,7 @@ public class ProjectDependencyInformation {
     public void updateCache(RestConnection connection) throws HubIntegrationException {
         if (connection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(connection);
-            //TODO logging
+            // TODO logging
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
             LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
             componentCache.setVulnService(vulnService, licenseService);
@@ -160,9 +158,9 @@ public class ProjectDependencyInformation {
             componentCache.setVulnService(null, null);
         }
     }
-    
+
     public RestConnection getHubConnection() {
-    	return this.hubConnection;
+        return this.hubConnection;
     }
 
 }

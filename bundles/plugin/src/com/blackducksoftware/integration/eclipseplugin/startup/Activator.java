@@ -12,7 +12,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
@@ -30,13 +29,14 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.JavaPr
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.NewJavaProjectListener;
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.ProjectDependenciesChangedListener;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.log.IntBufferedLogger;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
 
 public class Activator extends AbstractUIPlugin {
 
@@ -67,9 +67,9 @@ public class Activator extends AbstractUIPlugin {
 
     @Override
     public void start(final BundleContext context) throws Exception {
-    	
-    	//TODO add phone-home here, will miss first run through due to missing credentials
-    	
+
+        // TODO add phone-home here, will miss first run through due to missing credentials
+
         super.start(context);
         System.out.println("STARTING HUB ECLIPSE PLUGIN");
         plugin = this;
@@ -81,10 +81,10 @@ public class Activator extends AbstractUIPlugin {
         getInitialHubConnection();
         if (hubConnection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
-            //TODO logging
+            // TODO logging
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
             LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
-            
+
             componentCache = new ComponentCache(vulnService, licenseService, COMPONENT_CACHE_CAPACITY);
         } else {
             componentCache = new ComponentCache(null, null, COMPONENT_CACHE_CAPACITY);

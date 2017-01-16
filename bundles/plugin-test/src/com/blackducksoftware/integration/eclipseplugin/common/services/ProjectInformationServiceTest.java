@@ -22,11 +22,9 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ JavaCore.class, ResourcesPlugin.class })
@@ -60,7 +58,7 @@ public class ProjectInformationServiceTest {
     Gav mavenGav1, mavenGav2, gradleGav1, gradleGav2;
 
     @Mock
-    GavWithType mavenGavWithType1, mavenGavWithType2, gradleGavWithType1, gradleGavWithType2;
+    Gav mavenGavWithType1, mavenGavWithType2, gradleGavWithType1, gradleGavWithType2;
 
     private final String MAVEN_1 = "maven1";
 
@@ -224,14 +222,14 @@ public class ProjectInformationServiceTest {
     }
 
     private void prepareGavsWithType() {
-        Mockito.when(mavenGavWithType1.getGav()).thenReturn(mavenGav1);
-        Mockito.when(mavenGavWithType2.getGav()).thenReturn(mavenGav2);
-        Mockito.when(gradleGavWithType1.getGav()).thenReturn(gradleGav1);
-        Mockito.when(gradleGavWithType2.getGav()).thenReturn(gradleGav2);
-        Mockito.when(mavenGavWithType1.getType()).thenReturn(GavTypeEnum.MAVEN);
-        Mockito.when(mavenGavWithType2.getType()).thenReturn(GavTypeEnum.MAVEN);
-        Mockito.when(gradleGavWithType1.getType()).thenReturn(GavTypeEnum.MAVEN);
-        Mockito.when(gradleGavWithType2.getType()).thenReturn(GavTypeEnum.MAVEN);
+        Mockito.when(mavenGavWithType1).thenReturn(mavenGav1);
+        Mockito.when(mavenGavWithType2).thenReturn(mavenGav2);
+        Mockito.when(gradleGavWithType1).thenReturn(gradleGav1);
+        Mockito.when(gradleGavWithType2).thenReturn(gradleGav2);
+        Mockito.when(mavenGavWithType1.getNamespace()).thenReturn("maven");
+        Mockito.when(mavenGavWithType2.getNamespace()).thenReturn("maven");
+        Mockito.when(gradleGavWithType1.getNamespace()).thenReturn("maven");
+        Mockito.when(gradleGavWithType2.getNamespace()).thenReturn("maven");
     }
 
     @Test
@@ -254,10 +252,13 @@ public class ProjectInformationServiceTest {
         Mockito.when(mavenPath.toString()).thenReturn(MAVEN_REPO_PATH);
         prepareExtractor();
         final String[] dependencies = new String[] { MAVEN_1, MAVEN_2, GRADLE_1, GRADLE_2, NOT_GRAVEN_1, NOT_GRAVEN_2 };
-        final GavWithType[] gavs = service.getGavsFromFilepaths(dependencies);
-        final GavWithType[] expectedGavMessages = new GavWithType[] { new GavWithType(MAVEN_1_GAV, GavTypeEnum.MAVEN),
-                new GavWithType(MAVEN_2_GAV, GavTypeEnum.MAVEN), new GavWithType(GRADLE_1_GAV, GavTypeEnum.MAVEN),
-                new GavWithType(GRADLE_2_GAV, GavTypeEnum.MAVEN) };
+        final Gav[] gavs = service.getGavsFromFilepaths(dependencies);
+        final Gav[] expectedGavMessages = new Gav[] {
+                new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
+                new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion()),
+                new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
+                new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion())
+        };
         assertArrayEquals("Not getting gavs from filepaths correctly", expectedGavMessages, gavs);
     }
 
@@ -275,9 +276,12 @@ public class ProjectInformationServiceTest {
             prepareGavsWithType();
             final IPackageFragmentRoot[] roots = new IPackageFragmentRoot[] { mavenRoot1, mavenRoot2, gradleRoot1,
                     gradleRoot2 };
-            final GavWithType[] expectedGavMessages = new GavWithType[] { new GavWithType(MAVEN_1_GAV, GavTypeEnum.MAVEN),
-                    new GavWithType(MAVEN_2_GAV, GavTypeEnum.MAVEN), new GavWithType(GRADLE_1_GAV, GavTypeEnum.MAVEN),
-                    new GavWithType(GRADLE_2_GAV, GavTypeEnum.MAVEN) };
+            final Gav[] expectedGavMessages = new Gav[] {
+                    new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
+                    new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion()),
+                    new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
+                    new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion())
+            };
             Mockito.when(ResourcesPlugin.getWorkspace()).thenReturn(workspace);
             Mockito.when(workspace.getRoot()).thenReturn(workspaceRoot);
             Mockito.when(workspaceRoot.getProject(TEST_PROJECT_NAME)).thenReturn(testProject);
@@ -286,9 +290,9 @@ public class ProjectInformationServiceTest {
             Mockito.when(JavaCore.getClasspathVariable(ClasspathVariables.MAVEN)).thenReturn(mavenPath);
             Mockito.when(mavenPath.toString()).thenReturn(MAVEN_REPO_PATH);
             Mockito.when(testJavaProject.getPackageFragmentRoots()).thenReturn(roots);
-            final GavWithType[] noDeps = service.getMavenAndGradleDependencies("");
-            assertArrayEquals(new GavWithType[0], noDeps);
-            final GavWithType[] deps = service.getMavenAndGradleDependencies(TEST_PROJECT_NAME);
+            final Gav[] noDeps = service.getMavenAndGradleDependencies("");
+            assertArrayEquals(new Gav[0], noDeps);
+            final Gav[] deps = service.getMavenAndGradleDependencies(TEST_PROJECT_NAME);
             assertArrayEquals(expectedGavMessages, deps);
         } catch (final CoreException e) {
         }
