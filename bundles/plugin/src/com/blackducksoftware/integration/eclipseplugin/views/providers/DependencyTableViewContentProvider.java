@@ -24,7 +24,6 @@ import com.blackducksoftware.integration.hub.dataservice.vulnerability.Vulnerabi
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.scan.HubScanConfig;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntBufferedLogger;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
@@ -82,9 +81,6 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                         // System.out.println("version: " + eclipseProduct.getId() + " - " + eclipseProduct.getName() +
                         // " - " + eclipseProduct.getApplication() + " - " + eclipseProduct.getDescription() + " - " +
                         // eclipseVersion);
-                        // FIXME new Phone Home method
-                        HubScanConfig hubScanConfig = new HubScanConfig(null, null, null, null, null, 0, null, false, null, ThirdPartyName.ECLIPSE,
-                                eclipseVersion, pluginVersion, false);
 
                         HubServerConfigBuilder hubServerConfigBuilder = new HubServerConfigBuilder();
 
@@ -108,7 +104,7 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                         System.out.println("Proxy Host: " + hubServerConfig.getProxyInfo().getHost());
                         System.out.println("Proxy Port: " + hubServerConfig.getProxyInfo().getPort());
                         System.out.println("Username:   " + hubServerConfig.getGlobalCredentials().getUsername());
-                        phoneHomeService.phoneHome(hubServerConfig, hubScanConfig, hubVersion);
+                        phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion, hubVersion);
                     } catch (HubIntegrationException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
