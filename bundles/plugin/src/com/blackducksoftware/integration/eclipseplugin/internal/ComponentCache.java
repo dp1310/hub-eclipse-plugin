@@ -60,7 +60,7 @@ public class ComponentCache {
 
                         ComplexLicensePlusMeta sLicense = null;
                         if (licenseService != null) {
-                            sLicense = licenseService.getComplexLicensePlusMetaFromComponent(gav.toString().toLowerCase(), gav.getGroupId(),
+                            sLicense = licenseService.getComplexLicensePlusMetaFromComponent(gav.getNamespace().toString().toLowerCase(), gav.getGroupId(),
                                     gav.getArtifactId(), gav.getVersion());
 
                             if (sLicense == null) {

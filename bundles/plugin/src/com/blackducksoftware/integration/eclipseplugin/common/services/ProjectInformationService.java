@@ -49,7 +49,7 @@ public class ProjectInformationService {
             }
         }
         // TODO remove
-        System.out.println(numBinary);
+        System.out.println("getNumBinaryDependencies: " + numBinary);
         return numBinary;
     }
 
