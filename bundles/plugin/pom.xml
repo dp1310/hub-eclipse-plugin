@@ -75,7 +75,7 @@
           <execution>
             <id>unpack</id>
             <!-- bound to initialize because these items need to be unpacked before any compilation occurs -->
-            <phase>initialize</phase>
+            <phase>validate</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
