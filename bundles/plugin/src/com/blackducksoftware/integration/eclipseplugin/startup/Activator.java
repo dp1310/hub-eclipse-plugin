@@ -84,10 +84,8 @@ public class Activator extends AbstractUIPlugin {
             // TODO logging
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
             LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
-            System.out.println("Hub connection not null");
             componentCache = new ComponentCache(vulnService, licenseService, COMPONENT_CACHE_CAPACITY);
         } else {
-            System.out.println("!!! HUB CONNECTION NULL");
             componentCache = new ComponentCache(null, null, COMPONENT_CACHE_CAPACITY);
         }
         information = new ProjectDependencyInformation(projService, workspaceService, componentCache, hubConnection);

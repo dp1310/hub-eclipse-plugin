@@ -65,9 +65,6 @@ public class ProjectDependenciesChangedListenerTest {
     @Mock
     Gav gradleGav, mavenGav;
 
-    @Mock
-    Gav gradleGavWithType, mavenGavWithType;
-
     private final String PROJECT_NAME = "project name";
 
     private final String GRADLE_PATH_OS_STRING = "gradle";
@@ -77,6 +74,18 @@ public class ProjectDependenciesChangedListenerTest {
     private final String NON_BINARY_PATH_OS_STRING = "non-binary";
 
     private final String MAVEN_REPO_PATH_OS_STRING = "maven repo";
+
+    private final String MAVEN_ARTIFACT_STRING = "maven artifact";
+
+    private final String MAVEN_GROUP_STRING = "maven group";
+
+    private final String MAVEN_VERSION_STRING = "maven version";
+
+    private final String GRADLE_ARTIFACT_STRING = "gradle artifact";
+
+    private final String GRADLE_GROUP_STRING = "gradle group";
+
+    private final String GRADLE_VERSION_STRING = "gradle version";
 
     private void setUpAllStubs() throws CoreException {
         Mockito.when(model.getElementType()).thenReturn(IJavaElement.JAVA_MODEL);
@@ -116,8 +125,12 @@ public class ProjectDependenciesChangedListenerTest {
         Mockito.when(mavenRepoPath.toOSString()).thenReturn(MAVEN_REPO_PATH_OS_STRING);
         Mockito.when(extractor.getMavenPathGav(MAVEN_PATH_OS_STRING, MAVEN_REPO_PATH_OS_STRING)).thenReturn(mavenGav);
         Mockito.when(extractor.getGradlePathGav(GRADLE_PATH_OS_STRING)).thenReturn(gradleGav);
-        Mockito.when(gradleGavWithType).thenReturn(gradleGav);
-        Mockito.when(mavenGavWithType).thenReturn(mavenGav);
+        Mockito.when(mavenGav.getGroupId()).thenReturn(MAVEN_GROUP_STRING);
+        Mockito.when(mavenGav.getArtifactId()).thenReturn(MAVEN_ARTIFACT_STRING);
+        Mockito.when(mavenGav.getVersion()).thenReturn(MAVEN_VERSION_STRING);
+        Mockito.when(gradleGav.getGroupId()).thenReturn(GRADLE_GROUP_STRING);
+        Mockito.when(gradleGav.getArtifactId()).thenReturn(GRADLE_ARTIFACT_STRING);
+        Mockito.when(gradleGav.getVersion()).thenReturn(GRADLE_VERSION_STRING);
     }
 
     @Test
@@ -127,8 +140,8 @@ public class ProjectDependenciesChangedListenerTest {
         final ProjectDependenciesChangedListener listener = new ProjectDependenciesChangedListener(information,
                 extractor, depService);
         listener.elementChanged(e);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, gradleGavWithType);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, mavenGavWithType);
+        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, gradleGav);
+        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, mavenGav);
         Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, gradleGav);
         Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, mavenGav);
     }

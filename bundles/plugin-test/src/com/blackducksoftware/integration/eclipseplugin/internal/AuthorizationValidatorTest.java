@@ -37,21 +37,11 @@ public class AuthorizationValidatorTest {
     IllegalArgumentException illegalArgumentException;
 
     @Mock
-    URISyntaxException uriSyntaxException;
-
-    @Mock
-    BDRestException bdRestException;
-
-    @Mock
     EncryptionException encryptionException;
 
     private final String ERROR_MSG = "ValidationResults error message";
 
     private final String ILLEGAL_ARGUMENT_EXCEPTION_MSG = "illegal argument exception message";
-
-    private final String URI_SYNTAX_EXCEPTION_MSG = "URI syntax exception message";
-
-    private final String BD_REST_EXCEPTION_MSG = "BD rest exception message";
 
     private final String ENCRYPTION_EXCEPTION_MSG = "encryption exception message";
 
@@ -85,30 +75,6 @@ public class AuthorizationValidatorTest {
         Mockito.doThrow(illegalArgumentException).when(connectionService).getCredentialsRestConnection(config);
         final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
         assertEquals(ILLEGAL_ARGUMENT_EXCEPTION_MSG, message);
-    }
-
-    @Test
-    public void testURISyntaxExceptionThrown()
-            throws IllegalArgumentException, URISyntaxException, BDRestException, EncryptionException, HubIntegrationException {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(results.isSuccess()).thenReturn(true);
-        Mockito.when(builder.build()).thenReturn(config);
-        Mockito.when(uriSyntaxException.getMessage()).thenReturn(URI_SYNTAX_EXCEPTION_MSG);
-        Mockito.doThrow(uriSyntaxException).when(connectionService).getCredentialsRestConnection(config);
-        final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
-        assertEquals(URI_SYNTAX_EXCEPTION_MSG, message);
-    }
-
-    @Test
-    public void testBDRestExceptionThrown()
-            throws IllegalArgumentException, URISyntaxException, BDRestException, EncryptionException, HubIntegrationException {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(results.isSuccess()).thenReturn(true);
-        Mockito.when(builder.build()).thenReturn(config);
-        Mockito.when(bdRestException.getMessage()).thenReturn(BD_REST_EXCEPTION_MSG);
-        Mockito.doThrow(bdRestException).when(connectionService).getCredentialsRestConnection(config);
-        final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
-        assertEquals(BD_REST_EXCEPTION_MSG, message);
     }
 
     @Test

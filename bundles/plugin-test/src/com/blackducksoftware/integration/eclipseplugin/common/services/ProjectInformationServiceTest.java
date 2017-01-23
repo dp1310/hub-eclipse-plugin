@@ -57,9 +57,6 @@ public class ProjectInformationServiceTest {
     @Mock
     Gav mavenGav1, mavenGav2, gradleGav1, gradleGav2;
 
-    @Mock
-    Gav mavenGavWithType1, mavenGavWithType2, gradleGavWithType1, gradleGavWithType2;
-
     private final String MAVEN_1 = "maven1";
 
     private final String MAVEN_2 = "maven2";
@@ -222,14 +219,10 @@ public class ProjectInformationServiceTest {
     }
 
     private void prepareGavsWithType() {
-        Mockito.when(mavenGavWithType1).thenReturn(mavenGav1);
-        Mockito.when(mavenGavWithType2).thenReturn(mavenGav2);
-        Mockito.when(gradleGavWithType1).thenReturn(gradleGav1);
-        Mockito.when(gradleGavWithType2).thenReturn(gradleGav2);
-        Mockito.when(mavenGavWithType1.getNamespace()).thenReturn("maven");
-        Mockito.when(mavenGavWithType2.getNamespace()).thenReturn("maven");
-        Mockito.when(gradleGavWithType1.getNamespace()).thenReturn("maven");
-        Mockito.when(gradleGavWithType2.getNamespace()).thenReturn("maven");
+        Mockito.when(mavenGav1.getNamespace()).thenReturn("maven");
+        Mockito.when(mavenGav2.getNamespace()).thenReturn("maven");
+        Mockito.when(gradleGav1.getNamespace()).thenReturn("maven");
+        Mockito.when(gradleGav2.getNamespace()).thenReturn("maven");
     }
 
     @Test
@@ -256,8 +249,8 @@ public class ProjectInformationServiceTest {
         final Gav[] expectedGavMessages = new Gav[] {
                 new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
                 new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion()),
-                new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
-                new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion())
+                new Gav("maven", GRADLE_1_GAV.getGroupId(), GRADLE_1_GAV.getArtifactId(), GRADLE_1_GAV.getVersion()),
+                new Gav("maven", GRADLE_2_GAV.getGroupId(), GRADLE_2_GAV.getArtifactId(), GRADLE_2_GAV.getVersion())
         };
         assertArrayEquals("Not getting gavs from filepaths correctly", expectedGavMessages, gavs);
     }
@@ -279,8 +272,8 @@ public class ProjectInformationServiceTest {
             final Gav[] expectedGavMessages = new Gav[] {
                     new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
                     new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion()),
-                    new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
-                    new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion())
+                    new Gav("maven", GRADLE_1_GAV.getGroupId(), GRADLE_1_GAV.getArtifactId(), GRADLE_1_GAV.getVersion()),
+                    new Gav("maven", GRADLE_2_GAV.getGroupId(), GRADLE_2_GAV.getArtifactId(), GRADLE_2_GAV.getVersion())
             };
             Mockito.when(ResourcesPlugin.getWorkspace()).thenReturn(workspace);
             Mockito.when(workspace.getRoot()).thenReturn(workspaceRoot);

@@ -25,9 +25,6 @@ public class ProjectDependencyInformationTest {
     Gav gav1, gav2, gav3;
 
     @Mock
-    Gav gavWithType1, gavWithType2, gavWithType3;
-
-    @Mock
     DependencyInfo vulnerabilities1, vulnerabilities2, vulnerabilities3;
 
     @Mock
@@ -44,12 +41,9 @@ public class ProjectDependencyInformationTest {
 
     private void prepareCache() throws ExecutionException {
         Mockito.when(componentCache.getCache()).thenReturn(cache);
-        Mockito.when(gavWithType1).thenReturn(gav1);
-        Mockito.when(gavWithType2).thenReturn(gav2);
-        Mockito.when(gavWithType3).thenReturn(gav3);
-        Mockito.when(cache.get(gavWithType1)).thenReturn(vulnerabilities1);
-        Mockito.when(cache.get(gavWithType2)).thenReturn(vulnerabilities2);
-        Mockito.when(cache.get(gavWithType3)).thenReturn(vulnerabilities3);
+        Mockito.when(cache.get(gav1)).thenReturn(vulnerabilities1);
+        Mockito.when(cache.get(gav2)).thenReturn(vulnerabilities2);
+        Mockito.when(cache.get(gav3)).thenReturn(vulnerabilities3);
     }
 
     private boolean containsGav(final Gav[] gavs, final Gav gav) {
@@ -64,7 +58,7 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testAddingProject() throws ExecutionException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gavWithType1, gavWithType2, gavWithType3 });
+        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2, gav3 });
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
         projInfo.addNewProject(proj);
         final Gav[] gavs = projInfo.getAllDependencyGavs(proj);
@@ -76,13 +70,13 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testAddingDependency() throws ExecutionException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gavWithType1, gavWithType2 });
+        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2 });
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
         projInfo.addNewProject(proj);
         assertTrue(projInfo.containsProject(proj));
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertFalse(containsGav(gavsBefore, gav3));
-        projInfo.addWarningToProject(proj, gavWithType3);
+        projInfo.addWarningToProject(proj, gav3);
         final Gav[] gavsAfter = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavsAfter, gav3));
     }
@@ -90,7 +84,7 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testRemovingDependency() throws ExecutionException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gavWithType1, gavWithType2, gavWithType3 });
+        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2, gav3 });
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
         projInfo.addNewProject(proj);
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
@@ -103,7 +97,7 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testRemovingProject() throws ExecutionException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gavWithType1, gavWithType2 });
+        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2 });
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
         projInfo.addNewProject(proj);
         assertTrue(projInfo.containsProject(proj));
