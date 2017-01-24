@@ -40,6 +40,14 @@
     </repository>
   </repositories>
 
+  <dependencies>
+    <dependency>
+      <groupId>com.blackducksoftware.integration</groupId>
+      <artifactId>hub-common</artifactId>
+      <version>6.1.2-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
