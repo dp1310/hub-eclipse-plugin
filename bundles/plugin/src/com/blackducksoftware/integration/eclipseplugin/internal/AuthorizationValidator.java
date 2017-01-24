@@ -6,6 +6,7 @@ import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class AuthorizationValidator {
     private final HubRestConnectionService connectionService;
@@ -26,39 +27,24 @@ public class AuthorizationValidator {
         setHubServerConfigBuilderFields(builder, username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
                 proxyHost, ignoredProxyHosts, timeout);
 
-        // final ValidationResults results = builder.buildResults();
-        // final ValidationResults results = builder.createValidator().assertValid();
-        // if (results.isSuccess()) {
-        // try {
-        // RestConnection connection = connectionService.getCredentialsRestConnection(results.getConstructedObject());
-        // return new AuthorizationResponse(connection, LOGIN_SUCCESS_MESSAGE);
-        // } catch (final IllegalArgumentException e) {
-        // return new AuthorizationResponse(e.getMessage());
-        // } catch (final URISyntaxException e) {
-        // return new AuthorizationResponse(e.getMessage());
-        // } catch (final BDRestException e) {
-        // return new AuthorizationResponse(e.getMessage());
-        // } catch (final EncryptionException e) {
-        // return new AuthorizationResponse(e.getMessage());
-        // }
-        //
-        // }
-
-        try {
-            HubServerConfig config = builder.build();
-            RestConnection connection = connectionService.getCredentialsRestConnection(config);
-            return new AuthorizationResponse(connection, LOGIN_SUCCESS_MESSAGE);
-        } catch (IllegalStateException e) {
-            return new AuthorizationResponse(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return new AuthorizationResponse(e.getMessage());
-        } catch (EncryptionException e) {
-            return new AuthorizationResponse(e.getMessage());
-        } catch (HubIntegrationException e) {
-            return new AuthorizationResponse(e.getMessage());
+        final ValidationResults results = builder.createValidator().assertValid();
+        if (results.isSuccess()) {
+            try {
+                HubServerConfig config = builder.build();
+                RestConnection connection = connectionService.getCredentialsRestConnection(config);
+                return new AuthorizationResponse(connection, LOGIN_SUCCESS_MESSAGE);
+            } catch (IllegalStateException e) {
+                return new AuthorizationResponse(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                return new AuthorizationResponse(e.getMessage());
+            } catch (EncryptionException e) {
+                return new AuthorizationResponse(e.getMessage());
+            } catch (HubIntegrationException e) {
+                return new AuthorizationResponse(e.getMessage());
+            }
         }
 
-        // return new AuthorizationResponse(results.getAllResultString(ValidationResultEnum.ERROR));
+        return new AuthorizationResponse(results.getAllResultString());
     }
 
     private void setHubServerConfigBuilderFields(final HubServerConfigBuilder builder, final String username,

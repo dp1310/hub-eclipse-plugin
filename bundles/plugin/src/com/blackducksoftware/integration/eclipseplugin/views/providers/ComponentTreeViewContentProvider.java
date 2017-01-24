@@ -57,7 +57,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
      */
     @Override
     public Object[] getElements(Object input) {
-        if (input == null) {
+        if (input == null || input.equals("")) {
             return new Object[] { "No component selected" };
         }
 

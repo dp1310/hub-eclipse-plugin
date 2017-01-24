@@ -19,7 +19,6 @@ import com.google.common.cache.LoadingCache;
 
 public class ComponentCache {
 
-    // FIXME GavWithType has been removed
     private LoadingCache<Gav, DependencyInfo> cache;
 
     private int cacheCapacity;
