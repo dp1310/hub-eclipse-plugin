@@ -23,7 +23,6 @@ import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeData
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntBufferedLogger;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
@@ -65,8 +64,8 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                 if (Activator.getDefault().hasActiveHubConnection()) {
                     // Phone Home
                     try {
-                        RestConnection hubConnection = projectInformation.getHubConnection();
-                        System.out.println("Hub Connection: " + hubConnection.toString());
+                        // RestConnection hubConnection = projectInformation.getHubConnection();
+                        // System.out.println("Hub Connection: " + hubConnection.toString());
                         HubServicesFactory factory = new HubServicesFactory(projectInformation.getHubConnection());
                         PhoneHomeDataService phoneHomeService = factory.createPhoneHomeDataService(new IntBufferedLogger());
                         // get version

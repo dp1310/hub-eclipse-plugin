@@ -65,7 +65,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
             GavWithParentProject gavWithParentProject = (GavWithParentProject) input;
             String projectName = gavWithParentProject.getParentProject();
             // inputProject = projectName;
-            if (projectName.equals("")) {
+            if (projectName == null || projectName.equals("")) {
                 return NO_SELECTED_PROJECT;
             }
             boolean isActivated = preferenceStore.getBoolean(projectName);

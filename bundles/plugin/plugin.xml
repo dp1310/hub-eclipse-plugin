@@ -141,6 +141,8 @@
    </extension>
    <!-- Commands linked to Package/Project Explorer context menu items via commandId tag (id > commandId) -->
    <!-- defaultHandler.execute() is the method that is called when these commands execute -->
+   <!-- Views -->
+   <!-- Preference Pages -->
    <extension
          point="org.eclipse.ui.commands">
       <!-- Corresponds to "Open Black Duck Vulnerability View" menu item -->
@@ -162,7 +164,6 @@
       		name="Open Project Preferences">
       </command>
    </extension>
-   <!-- Views -->
    <extension
          point="org.eclipse.ui.views">
       <!-- Items in the same category show up in the same folder in the "Show View" dialog -->
@@ -181,7 +182,6 @@
             restorable="true">
       </view>
    </extension>
-   <!-- Preference Pages -->
    <extension
          point="org.eclipse.ui.preferencePages">
       <!-- Parent Black Duck preference page -->
