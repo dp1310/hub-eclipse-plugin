@@ -66,7 +66,7 @@
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>hub-common</artifactId>
-                  <version>7.0.2-SNAPSHOT</version>
+                  <version>7.0.3-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
@@ -187,13 +187,6 @@
                   <groupId>org.eclipse.tycho</groupId>
                   <artifactId>org.eclipse.osgi</artifactId>
                   <version>3.11.0.v20160603-1336</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.google.guava</groupId>
-                  <artifactId>guava</artifactId>
-                  <version>19.0</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>

@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
@@ -89,8 +89,8 @@ public class ProjectDependencyInformation {
         final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
         for (final Gav gav : gavs) {
             try {
-                deps.put(gav, componentCache.getCache().get(gav));
-            } catch (final ExecutionException e) {
+                deps.put(gav, componentCache.get(gav));
+            } catch (final IntegrationException e) {
                 /*
                  * Thrown if exception occurs when accessing key gav from cache. If an exception is
                  * thrown, info associated with that gav is inaccessible, and so don't put any
@@ -106,11 +106,11 @@ public class ProjectDependencyInformation {
         final Map<Gav, DependencyInfo> deps = projectInfo.get(projectName);
         if (deps != null) {
             try {
-                deps.put(gav, componentCache.getCache().get(gav));
+                deps.put(gav, componentCache.get(gav));
                 if (componentView != null) {
                     componentView.resetInput();
                 }
-            } catch (ExecutionException e) {
+            } catch (IntegrationException e) {
                 /*
                  * Thrown if exception occurs when accessing key gav from cache. If an exception is
                  * thrown, info associated with that gav is inaccessible, and so don't put any

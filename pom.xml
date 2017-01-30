@@ -44,7 +44,7 @@
     <dependency>
       <groupId>com.blackducksoftware.integration</groupId>
       <artifactId>hub-common</artifactId>
-      <version>7.0.2-SNAPSHOT</version>
+      <version>7.0.3-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

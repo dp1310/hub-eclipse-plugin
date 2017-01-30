@@ -29,6 +29,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -70,7 +71,7 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
 
     private StringFieldEditor proxyHost;
 
-    private IntegerFieldEditor proxyPort;
+    private StringFieldEditor proxyPort;
 
     private StringFieldEditor ignoredProxyHosts;
 
@@ -139,7 +140,28 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
         proxyPassword.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         proxyHost = new StringFieldEditor(PreferenceNames.PROXY_HOST, PROXY_HOST_LABEL, authComposite);
         performFieldEditorSetup(authComposite, proxyHost);
-        proxyPort = new IntegerFieldEditor(PreferenceNames.PROXY_PORT, PROXY_PORT_LABEL, authComposite);
+        // String field editor w/ integer validation, we can make this a separate class if we need to.
+        proxyPort = new StringFieldEditor(PreferenceNames.PROXY_PORT, PROXY_PORT_LABEL, authComposite) {
+            @Override
+            protected boolean checkState() {
+                setErrorMessage(JFaceResources.getString("IntegerFieldEditor.errorMessage"));
+                Text text = getTextControl();
+                if (text == null) {
+                    return false;
+                }
+                String intString = text.getText();
+                if (intString.isEmpty()) {
+                    clearErrorMessage();
+                    return true;
+                }
+                try {
+                    Integer.valueOf(intString).intValue();
+                } catch (NumberFormatException nfe) {
+                    showErrorMessage();
+                }
+                return false;
+            }
+        };
         performFieldEditorSetup(authComposite, proxyPort);
         ignoredProxyHosts = new StringFieldEditor(PreferenceNames.IGNORED_PROXY_HOSTS, IGNORED_PROXY_HOSTS_LABEL,
                 authComposite);
@@ -203,21 +225,21 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
     @Override
     public void performApply() {
         try {
-			storeValues();
-		} catch (HubIntegrationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            storeValues();
+        } catch (HubIntegrationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override
     public boolean performOk() {
         try {
-			storeValues();
-		} catch (HubIntegrationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            storeValues();
+        } catch (HubIntegrationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         if (super.performOk()) {
             return true;
         } else {

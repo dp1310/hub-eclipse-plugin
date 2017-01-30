@@ -83,7 +83,7 @@
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>hub-common</artifactId>
-                  <version>7.0.2-SNAPSHOT</version>
+                  <version>7.0.3-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
@@ -111,14 +111,7 @@
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>integration-common</artifactId>
-                  <version>5.0.1</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.google.guava</groupId>
-                  <artifactId>guava</artifactId>
-                  <version>20.0</version>
+                  <version>5.0.2</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>

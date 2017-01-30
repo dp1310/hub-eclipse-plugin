@@ -47,7 +47,7 @@ public class TestHubCredentialsSelectionListener implements SelectionListener {
 
     private final StringFieldEditor proxyHost;
 
-    private final IntegerFieldEditor proxyPort;
+    private final StringFieldEditor proxyPort;
 
     private final StringFieldEditor ignoredProxyHosts;
 
@@ -57,7 +57,7 @@ public class TestHubCredentialsSelectionListener implements SelectionListener {
 
     public TestHubCredentialsSelectionListener(final StringFieldEditor hubUsername, final Text hubPassword,
             final StringFieldEditor hubURL, final IntegerFieldEditor hubTimeout, final StringFieldEditor proxyUsername,
-            final Text proxyPassword, final StringFieldEditor proxyHost, final IntegerFieldEditor proxyPort,
+            final Text proxyPassword, final StringFieldEditor proxyHost, final StringFieldEditor proxyPort,
             final StringFieldEditor ignoredProxyHosts, final Text connectionMessageText,
             final AuthorizationValidator validator) {
         this.hubUsername = hubUsername;
