@@ -34,8 +34,8 @@ import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.Gav
 
 public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLabelProvider implements IStyledLabelProvider {
 
-	@Override
-	public String getText(Object input) {
+    @Override
+    public String getText(Object input) {
         if (input instanceof GavWithParentProject) {
             String text = "" + ((GavWithParentProject) input).getGav().toString();
             return text;
@@ -44,13 +44,13 @@ public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLa
             return (String) input;
         }
         return "";
-	}
+    }
 
-	@Override
-	public String getTitle() {
-		return "Component";
-	}
-	
+    @Override
+    public String getTitle() {
+        return "Component";
+    }
+
     @Override
     public Image getImage(Object input) {
         if (input instanceof GavWithParentProject) {

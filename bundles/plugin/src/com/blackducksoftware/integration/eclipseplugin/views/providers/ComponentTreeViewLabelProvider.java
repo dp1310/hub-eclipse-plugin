@@ -59,7 +59,7 @@ public class ComponentTreeViewLabelProvider extends LabelProvider implements ISt
             return ((InformationItemWithParentVulnerability) input).getInformationItem();
         }
         if (input instanceof ComplexLicenseWithParentGav) {
-            return ((ComplexLicenseWithParentGav) input).getComplexLicensePlusMeta().getComplexLicense().getName();
+            return ((ComplexLicenseWithParentGav) input).getComplexLicenseModel().getComplexLicenseItem().getName();
         }
         if (input instanceof InformationItemWithParentComplexLicense) {
             return ((InformationItemWithParentComplexLicense) input).getInformationItem();

@@ -33,9 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicensePlusMeta;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
+import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 
@@ -129,9 +129,9 @@ public class ComponentCache {
             throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
         }
 
-        ComplexLicensePlusMeta sLicense = null;
+        ComplexLicenseModel sLicense = null;
         if (licenseService != null) {
-            sLicense = licenseService.getComplexLicensePlusMetaFromComponent(gav.getNamespace().toString().toLowerCase(), gav.getGroupId(),
+            sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toString().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
 
             if (sLicense == null) {
