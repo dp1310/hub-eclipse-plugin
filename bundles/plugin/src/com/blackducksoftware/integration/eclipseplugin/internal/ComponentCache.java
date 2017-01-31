@@ -117,7 +117,7 @@ public class ComponentCache {
 
         List<VulnerabilityItemPlusMeta> vulns = null;
         if (vulnService != null) {
-            vulns = vulnService.getVulnsPlusMetaFromComponentVersion(gav.getNamespace().toString().toLowerCase(), gav.getGroupId(),
+            vulns = vulnService.getVulnsPlusMetaFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
 
             if (vulns == null) {
@@ -131,7 +131,7 @@ public class ComponentCache {
 
         ComplexLicenseModel sLicense = null;
         if (licenseService != null) {
-            sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toString().toLowerCase(), gav.getGroupId(),
+            sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
 
             if (sLicense == null) {

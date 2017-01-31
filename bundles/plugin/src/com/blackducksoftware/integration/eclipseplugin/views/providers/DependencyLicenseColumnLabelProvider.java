@@ -28,6 +28,7 @@ import java.util.Map;
 import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.hub.dataservice.license.ComplexLicenseParser;
 
 public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabelProvider {
 
@@ -42,7 +43,8 @@ public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabe
         if (input instanceof GavWithParentProject) {
             Map<Gav, DependencyInfo> dependencyInfoMap = dependencyTableViewCp.getProjectInformation()
                     .getDependencyInfoMap(dependencyTableViewCp.getInputProject());
-            String text = "" + dependencyInfoMap.get(((GavWithParentProject) input).getGav()).getSimpleLicense().getLicenseDisplay();
+            String text = ""
+                    + new ComplexLicenseParser(dependencyInfoMap.get(((GavWithParentProject) input).getGav()).getSimpleLicense().getComplexLicenseItem());
             return text;
         }
         if (input instanceof String) {
