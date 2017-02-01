@@ -24,8 +24,10 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
@@ -33,8 +35,13 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.Classpat
 public class DependencyInformationService {
 
     public boolean isMavenDependency(final String filePath) {
-        final String m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toString();
-        final String[] m2RepoSegments = m2Repo.split(StringEscapeUtils.escapeJava(File.separator));
+        final IPath m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN);
+        final String device = m2Repo.getDevice();
+        String osString = m2Repo.toOSString();
+        if (device != null) {
+            osString = osString.replaceFirst(device, "");
+        }
+        final String[] m2RepoSegments = osString.split(StringEscapeUtils.escapeJava(File.separator));
         final String[] filePathSegments = filePath.split(StringEscapeUtils.escapeJava(File.separator));
         if (filePathSegments.length < m2RepoSegments.length) {
             return false;

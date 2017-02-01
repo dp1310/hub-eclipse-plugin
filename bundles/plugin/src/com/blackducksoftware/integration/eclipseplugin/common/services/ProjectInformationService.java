@@ -145,8 +145,14 @@ public class ProjectInformationService {
         int gavsIndex = 0;
         for (String dependencyFilepath : dependencyFilepaths) {
             if (dependencyInformationService.isMavenDependency(dependencyFilepath)) {
+                final IPath m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN);
+                final String device = m2Repo.getDevice();
+                String osString = m2Repo.toOSString();
+                if (device != null) {
+                    osString = osString.replaceFirst(device, "");
+                }
                 final Gav gav = extractor.getMavenPathGav(dependencyFilepath,
-                        JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toString());
+                		osString);
                 // TODO: No hardcoded strings
                 gavsWithType[gavsIndex] = new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
                 gavsIndex++;
