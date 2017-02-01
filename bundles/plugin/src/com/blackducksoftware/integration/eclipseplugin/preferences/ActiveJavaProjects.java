@@ -47,7 +47,7 @@ public class ActiveJavaProjects extends PreferencePage implements IWorkbenchPref
 
     @Override
     public void init(final IWorkbench workbench) {
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
     }
 
     @Override

@@ -83,8 +83,6 @@ public class Activator extends AbstractUIPlugin {
 
     private SecurePreferencesService securePrefService;
 
-    private RestConnection hubConnection;
-
     public Activator() {
     }
 
@@ -101,7 +99,7 @@ public class Activator extends AbstractUIPlugin {
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
-        getInitialHubConnection();
+        final RestConnection hubConnection = getInitialHubConnection();
         if (hubConnection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
             // TODO logging
@@ -113,7 +111,7 @@ public class Activator extends AbstractUIPlugin {
         }
         information = new ProjectDependencyInformation(projService, workspaceService, componentCache, hubConnection);
         final PreferencesService defaultPrefService = new PreferencesService(
-                getDefault().getPreferenceStore());
+                getPlugin().getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPrefService, information);
         defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPrefService, workspaceService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
@@ -131,8 +129,8 @@ public class Activator extends AbstractUIPlugin {
         return information;
     }
 
-    public void getInitialHubConnection() {
-        IPreferenceStore prefs = getDefault().getPreferenceStore();
+    public RestConnection getInitialHubConnection() throws HubIntegrationException {
+        IPreferenceStore prefs = getPlugin().getPreferenceStore();
         String hubURL = prefs.getString(PreferenceNames.HUB_URL);
         String hubUsername = prefs.getString(PreferenceNames.HUB_USERNAME);
         String hubPassword = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
@@ -148,19 +146,14 @@ public class Activator extends AbstractUIPlugin {
         AuthorizationResponse response = validator.validateCredentials(hubUsername, hubPassword, hubURL, proxyUsername, proxyPassword, proxyPort, proxyHost,
                 ignoredProxyHosts, hubTimeout);
         if (response.getConnection() != null) {
-            hubConnection = response.getConnection();
+            return response.getConnection();
         } else {
-            hubConnection = null;
+            return null;
         }
     }
 
     public void updateHubConnection(RestConnection connection) throws HubIntegrationException {
-        hubConnection = connection;
         information.updateCache(connection);
-    }
-
-    public boolean hasActiveHubConnection() {
-        return hubConnection != null;
     }
 
     @Override
@@ -173,7 +166,7 @@ public class Activator extends AbstractUIPlugin {
         super.stop(context);
     }
 
-    public static Activator getDefault() {
+    public static Activator getPlugin() {
         return plugin;
     }
 

@@ -63,15 +63,9 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 
     public static final String[] NO_HUB_CONNECTION = new String[] { "Cannot display vulnerabilities because you are not currently connected to the Hub" };
 
-    private final IPreferenceStore preferenceStore;
-
-    private final ProjectDependencyInformation projectInformation;
-
     private String inputProject;
 
-    public DependencyTableViewContentProvider(IPreferenceStore preferenceStore, ProjectDependencyInformation projectInformation) {
-        this.preferenceStore = preferenceStore;
-        this.projectInformation = projectInformation;
+    public DependencyTableViewContentProvider() {
     }
 
     @Override
@@ -82,14 +76,14 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
             if (projectName.equals("")) {
                 return NO_SELECTED_PROJECT;
             }
-            boolean isActivated = preferenceStore.getBoolean(projectName);
+            boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
-                if (Activator.getDefault().hasActiveHubConnection()) {
-                    // Phone Home
-                    try {
+                // Phone Home
+                try {
+                    if (Activator.getPlugin().getProjectInformation().hasActiveHubConnection()) {
                         // RestConnection hubConnection = projectInformation.getHubConnection();
                         // System.out.println("Hub Connection: " + hubConnection.toString());
-                        HubServicesFactory factory = new HubServicesFactory(projectInformation.getHubConnection());
+                        HubServicesFactory factory = new HubServicesFactory(Activator.getPlugin().getProjectInformation().getHubConnection());
                         PhoneHomeDataService phoneHomeService = factory.createPhoneHomeDataService(new IntBufferedLogger());
                         // get version
                         HubVersionRequestService hubVersionRequestService = factory.createHubVersionRequestService();
@@ -108,7 +102,7 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 
                         SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
                                 SecurePreferencesFactory.getDefault());
-                        IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
+                        IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
                         String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
                         System.out.println("Username: " + username);
                         String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
@@ -127,21 +121,21 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                         System.out.println("Proxy Port: " + hubServerConfig.getProxyInfo().getPort());
                         System.out.println("Username:   " + hubServerConfig.getGlobalCredentials().getUsername());
                         phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion, hubVersion);
-                    } catch (HubIntegrationException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
 
-                    final Gav[] gavs = projectInformation.getAllDependencyGavs(projectName);
-                    GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
-                    for (int i = 0; i < gavs.length; i++) {
-                        Gav gav = gavs[i];
-                        Map<Gav, List<VulnerabilityItemPlusMeta>> vulnMap = projectInformation.getVulnMap(projectName);
-                        boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
-                        gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
+                        final Gav[] gavs = Activator.getPlugin().getProjectInformation().getAllDependencyGavs(projectName);
+                        GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
+                        for (int i = 0; i < gavs.length; i++) {
+                            Gav gav = gavs[i];
+                            Map<Gav, List<VulnerabilityItemPlusMeta>> vulnMap = Activator.getPlugin().getProjectInformation().getVulnMap(projectName);
+                            boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
+                            gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
+                        }
+                        return gavsWithParents;
                     }
-                    return gavsWithParents;
+                } catch (HubIntegrationException e) {
+                    throw new RuntimeException(e);
                 }
+
                 return NO_HUB_CONNECTION;
             }
             return PROJECT_NOT_ACTIVATED;
@@ -154,11 +148,11 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
     }
 
     public IPreferenceStore getPreferenceStore() {
-        return preferenceStore;
+        return Activator.getPlugin().getPreferenceStore();
     }
 
     public ProjectDependencyInformation getProjectInformation() {
-        return projectInformation;
+        return Activator.getPlugin().getProjectInformation();
     }
 
     // TODO figure out a better place to put (also in AuthorizationValidator), WET AF

@@ -50,7 +50,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
 
 	@Override
 	public void init(final IWorkbench workbench) {
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		setPreferenceStore(Activator.getPlugin().getPreferenceStore());
 	}
 
 	@Override

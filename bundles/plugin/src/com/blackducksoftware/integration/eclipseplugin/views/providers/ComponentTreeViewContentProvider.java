@@ -23,11 +23,9 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
-import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComplexLicenseWithParentGav;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
@@ -42,10 +40,6 @@ import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem
 
 public class ComponentTreeViewContentProvider implements ITreeContentProvider {
 
-    private final IPreferenceStore preferenceStore;
-
-    private final ProjectDependencyInformation projectInformation;
-
     // private String inputProject;
 
     public static final String[] NO_SELECTED_PROJECT = new String[] { "No open project currently selected" };
@@ -59,9 +53,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
 
     public static final String[] NO_HUB_CONNECTION = new String[] { "Cannot display vulnerabilities because you are not currently connected to the Hub" };
 
-    public ComponentTreeViewContentProvider(IPreferenceStore preferenceStore, ProjectDependencyInformation projectInformation) {
-        this.preferenceStore = preferenceStore;
-        this.projectInformation = projectInformation;
+    public ComponentTreeViewContentProvider() {
     }
 
     /*
@@ -80,10 +72,11 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
             if (projectName == null || projectName.equals("")) {
                 return NO_SELECTED_PROJECT;
             }
-            boolean isActivated = preferenceStore.getBoolean(projectName);
+            boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
-                if (Activator.getDefault().hasActiveHubConnection()) {
-                    DependencyInfo depInfo = projectInformation.getDependencyInfoMap(projectName).get(gavWithParentProject.getGav());
+                if (Activator.getPlugin().getProjectInformation().hasActiveHubConnection()) {
+                    DependencyInfo depInfo = Activator.getPlugin().getProjectInformation().getDependencyInfoMap(projectName)
+                            .get(gavWithParentProject.getGav());
 
                     TreeViewerParentVuln parentVuln = new TreeViewerParentVuln("Vulnerabilities", gavWithParentProject, depInfo.getVulnList());
                     TreeViewerParentLicense parentLicense = new TreeViewerParentLicense("License(s)", gavWithParentProject, depInfo.getSimpleLicense());

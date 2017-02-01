@@ -108,7 +108,7 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
                 SecurePreferencesFactory.getDefault());
         validator = new AuthorizationValidator(new HubRestConnectionService(), new HubServerConfigBuilder());
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
     }
 
     @Override
@@ -205,7 +205,7 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
         AuthorizationResponse authResponse = validator.validateCredentials(hubUsername.getStringValue(), hubPassword.getText(), hubURL.getStringValue(),
                 proxyUsername.getStringValue(), proxyPassword.getText(), proxyPort.getStringValue(), proxyHost.getStringValue(),
                 ignoredProxyHosts.getStringValue(), hubTimeout.getStringValue());
-        Activator.getDefault().updateHubConnection(authResponse.getConnection());
+        Activator.getPlugin().updateHubConnection(authResponse.getConnection());
     }
 
     private void createLabel(final Composite parent, final Composite composite,
@@ -227,8 +227,7 @@ public class BlackDuckAuthorizationPreferences extends PreferencePage implements
         try {
             storeValues();
         } catch (HubIntegrationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

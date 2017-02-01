@@ -170,6 +170,7 @@ public class ProjectDependencyInformation {
     }
 
     public void updateCache(RestConnection connection) throws HubIntegrationException {
+        this.hubConnection = connection;
         if (connection != null) {
             HubServicesFactory servicesFactory = new HubServicesFactory(connection);
             // TODO logging
@@ -184,6 +185,10 @@ public class ProjectDependencyInformation {
 
     public RestConnection getHubConnection() {
         return this.hubConnection;
+    }
+
+    public boolean hasActiveHubConnection() {
+        return this.hubConnection != null;
     }
 
 }

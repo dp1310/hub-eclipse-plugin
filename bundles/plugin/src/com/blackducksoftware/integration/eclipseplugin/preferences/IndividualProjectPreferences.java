@@ -48,24 +48,24 @@ public class IndividualProjectPreferences extends PreferencePage implements IWor
     public IndividualProjectPreferences(final String id) {
         super();
         // projectId = id;
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
     }
 
     public IndividualProjectPreferences(final String id, final String title) {
         super(title);
         // projectId = id;
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
     }
 
     public IndividualProjectPreferences(final String id, final String title, final ImageDescriptor image) {
         super(title, image);
         // projectId = id;
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
     }
 
     @Override
     public void init(final IWorkbench workbench) {
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
     }
 
     @Override
