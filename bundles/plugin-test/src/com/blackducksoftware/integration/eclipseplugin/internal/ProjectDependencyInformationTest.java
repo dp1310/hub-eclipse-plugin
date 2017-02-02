@@ -26,6 +26,8 @@ package com.blackducksoftware.integration.eclipseplugin.internal;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -75,9 +77,9 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testAddingProject() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2, gav3 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
-        projInfo.addNewProject(proj);
+        projInfo.inspectProject(proj, true);
         final Gav[] gavs = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavs, gav1));
         assertTrue(containsGav(gavs, gav2));
@@ -87,9 +89,9 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testAddingDependency() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
-        projInfo.addNewProject(proj);
+        projInfo.inspectProject(proj, true);
         assertTrue(projInfo.containsProject(proj));
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertFalse(containsGav(gavsBefore, gav3));
@@ -101,9 +103,9 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testRemovingDependency() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2, gav3 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
-        projInfo.addNewProject(proj);
+        projInfo.inspectProject(proj, true);
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavsBefore, gav3));
         projInfo.removeWarningFromProject(proj, gav3);
@@ -114,9 +116,9 @@ public class ProjectDependencyInformationTest {
     @Test
     public void testRemovingProject() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new Gav[] { gav1, gav2 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
-        projInfo.addNewProject(proj);
+        projInfo.inspectProject(proj, true);
         assertTrue(projInfo.containsProject(proj));
         projInfo.removeProject(proj);
         assertFalse(projInfo.containsProject(proj));

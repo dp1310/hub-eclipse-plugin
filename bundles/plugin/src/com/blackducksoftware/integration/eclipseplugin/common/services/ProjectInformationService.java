@@ -23,6 +23,10 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -48,15 +52,7 @@ public class ProjectInformationService {
         this.extractor = extractor;
     }
 
-    public boolean isJavaProject(final IProject project) {
-        try {
-            return project.hasNature(JavaCore.NATURE_ID);
-        } catch (final CoreException e) {
-            return false; // CoreException means project is closed/ doesn't exist
-        }
-    }
-
-    public int getNumBinaryDependencies(final IPackageFragmentRoot[] packageFragmentRoots) {
+    public int getNumBinaryDependencies(final List<IPackageFragmentRoot> packageFragmentRoots) {
         int numBinary = 0;
         for (final IPackageFragmentRoot root : packageFragmentRoots) {
             try {
@@ -71,97 +67,101 @@ public class ProjectInformationService {
                  */
             }
         }
-        // TODO remove
-        System.out.println("getNumBinaryDependencies: " + numBinary);
         return numBinary;
     }
 
-    public String[] getBinaryDependencyFilepaths(final IPackageFragmentRoot[] packageFragmentRoots) {
-        final int numBinary = getNumBinaryDependencies(packageFragmentRoots);
-        final String[] dependencyFilepaths = new String[numBinary];
-        int i = 0;
+    public List<Gav> getGavsFromFilepaths(List<String> mavenAndGradleFilePaths) {
+        List<Gav> gavs = new ArrayList<>();
+        for (String filePath : mavenAndGradleFilePaths) {
+            Gav tempGav = getGavFromFilepath(filePath);
+            if (tempGav != null)
+                gavs.add(tempGav);
+        }
+        return gavs;
+    }
+
+    public Gav getGavFromFilepath(String dependencyFilepath) {
+        if (dependencyInformationService.isMavenDependency(dependencyFilepath)) {
+            final IPath m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN);
+            final String device = m2Repo.getDevice();
+            String osString = m2Repo.toOSString();
+            if (device != null) {
+                osString = osString.replaceFirst(device, "");
+            }
+            final Gav gav = extractor.getMavenPathGav(dependencyFilepath,
+                    osString);
+            // TODO: No hardcoded strings
+            return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
+        } else if (dependencyInformationService.isGradleDependency(dependencyFilepath)) {
+            final Gav gav = extractor.getGradlePathGav(dependencyFilepath);
+            return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
+        } else {
+            return null;
+        }
+    }
+
+    public List<String> getProjectDependencyFilePaths(final String projectName) {
+        final IJavaProject javaProject = getJavaProject(projectName);
+        try {
+            IPackageFragmentRoot[] packageFragmentRoots = javaProject.getPackageFragmentRoots();
+            final List<String> dependencyFilepaths = getBinaryDependencyFilepaths(Arrays.asList(packageFragmentRoots));
+            return dependencyFilepaths;
+        } catch (final JavaModelException e) {
+            // if exception thrown when getting filepaths to source and binary dependencies, assume
+            // there are no dependencies
+        }
+        return Arrays.asList();
+    }
+
+    public List<String> getBinaryDependencyFilepaths(final List<IPackageFragmentRoot> packageFragmentRoots) {
+        final ArrayList<String> dependencyFilepaths = new ArrayList<>();
         for (final IPackageFragmentRoot root : packageFragmentRoots) {
-            try {
-                if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-                    final IPath path = root.getPath();
-                    final String device = path.getDevice();
-                    String osString = path.toOSString();
-                    if (device != null) {
-                        osString = osString.replaceFirst(device, "");
-                    }
-                    dependencyFilepaths[i] = osString;
-                    i++;
-                }
-            } catch (final JavaModelException e) {
-                /*
-                 * If root does not exist or exception occurs while accessing
-                 * resource, do not add its filepath to the list of binary
-                 * dependency filepaths
-                 */
+            String tempStr = getBinaryDependencyFilepath(root);
+            if (tempStr != null) {
+                dependencyFilepaths.add(tempStr);
             }
         }
         return dependencyFilepaths;
     }
 
-    public Gav[] getMavenAndGradleDependencies(final String projectName) {
-        if (projectName.equals("")) {
-            return new Gav[0];
-        }
-        final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-        if (project == null) {
-            return new Gav[0];
-        }
-        if (isJavaProject(project)) {
-            final IJavaProject javaProject = JavaCore.create(project);
-            IPackageFragmentRoot[] packageFragmentRoots;
-            try {
-                packageFragmentRoots = javaProject.getPackageFragmentRoots();
-                final String[] dependencyFilepaths = getBinaryDependencyFilepaths(packageFragmentRoots);
-                return getGavsFromFilepaths(dependencyFilepaths);
-            } catch (final JavaModelException e) {
-                // if exception thrown when getting filepaths to source and binary dependencies, assume
-                // there are no dependencies
-                return new Gav[0];
-            }
-        } else {
-            return new Gav[0];
-        }
-    }
-
-    public int getNumMavenAndGradleDependencies(final String[] dependencyFilepaths) {
-        int numDeps = 0;
-        for (final String filepath : dependencyFilepaths) {
-            if (dependencyInformationService.isMavenDependency(filepath)
-                    || dependencyInformationService.isGradleDependency(filepath)) {
-                numDeps++;
-            }
-        }
-        return numDeps;
-    }
-
-    public Gav[] getGavsFromFilepaths(final String[] dependencyFilepaths) {
-        final int numDeps = getNumMavenAndGradleDependencies(dependencyFilepaths);
-        final Gav[] gavsWithType = new Gav[numDeps];
-        int gavsIndex = 0;
-        for (String dependencyFilepath : dependencyFilepaths) {
-            if (dependencyInformationService.isMavenDependency(dependencyFilepath)) {
-                final IPath m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN);
-                final String device = m2Repo.getDevice();
-                String osString = m2Repo.toOSString();
+    public String getBinaryDependencyFilepath(final IPackageFragmentRoot packageFragmentRoot) {
+        try {
+            if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
+                final IPath path = packageFragmentRoot.getPath();
+                final String device = path.getDevice();
+                String osString = path.toOSString();
                 if (device != null) {
                     osString = osString.replaceFirst(device, "");
                 }
-                final Gav gav = extractor.getMavenPathGav(dependencyFilepath,
-                		osString);
-                // TODO: No hardcoded strings
-                gavsWithType[gavsIndex] = new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
-                gavsIndex++;
-            } else if (dependencyInformationService.isGradleDependency(dependencyFilepath)) {
-                final Gav gav = extractor.getGradlePathGav(dependencyFilepath);
-                gavsWithType[gavsIndex] = new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
-                gavsIndex++;
+                return (osString);
+            }
+        } catch (final JavaModelException e) {
+            /*
+             * If root does not exist or exception occurs while accessing
+             * resource, do not add its filepath to the list of binary
+             * dependency filepaths
+             */
+        }
+        return null;
+    }
+
+    public IJavaProject getJavaProject(final String projectName) {
+        if (!projectName.equals("")) {
+            final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+            if (project != null) {
+                if (isJavaProject(project)) {
+                    return JavaCore.create(project);
+                }
             }
         }
-        return gavsWithType;
+        return null;
+    }
+
+    public boolean isJavaProject(final IProject project) {
+        try {
+            return project.hasNature(JavaCore.NATURE_ID);
+        } catch (final CoreException e) {
+            return false; // CoreException means project is closed/ doesn't exist
+        }
     }
 }

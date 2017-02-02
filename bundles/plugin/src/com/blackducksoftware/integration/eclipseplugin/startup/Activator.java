@@ -122,7 +122,7 @@ public class Activator extends AbstractUIPlugin {
         getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
         JavaCore.addElementChangedListener(depsChangedListener);
         defaultPrefService.setDefaultConfig();
-        information.addAllProjects();
+        information.inspectAllProjects();
     }
 
     public ProjectDependencyInformation getProjectInformation() {

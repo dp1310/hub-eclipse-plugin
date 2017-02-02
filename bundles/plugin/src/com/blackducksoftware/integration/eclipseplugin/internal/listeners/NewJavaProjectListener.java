@@ -68,12 +68,12 @@ public class NewJavaProjectListener implements IResourceChangeListener {
                                         if ((delta.getFlags() | IResourceDelta.MOVED_FROM) != 0 && delta.getMovedFromPath() != null) {
                                             String[] movedFromPath = delta.getMovedFromPath().toOSString().split(StringEscapeUtils.escapeJava(File.separator));
                                             String oldProjectName = movedFromPath[movedFromPath.length - 1];
-                                            information.addProject(projectName);
+                                            information.inspectProject(projectName, true);
                                             if (service.isActivated(oldProjectName)) {
                                                 service.activateProject(projectName);
                                             }
                                         } else {
-                                            information.addNewProject(projectName);
+                                            information.inspectProject(projectName, true);
                                         }
                                     }
                                 } catch (final CoreException e) {

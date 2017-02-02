@@ -28,6 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.Job;
+
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
@@ -71,35 +77,74 @@ public class ProjectDependencyInformation {
         componentView = null;
     }
 
-    public void addNewProject(final String projectName) {
-        if (!projectInfo.containsKey(projectName)) {
-            addProject(projectName);
-        }
-    }
-
-    public void addAllProjects() {
-        String[] projects = workspaceService.getJavaProjectNames();
-        for (String project : projects) {
-            addProject(project);
-        }
-    }
-
-    public void addProject(String projectName) {
-        final Gav[] gavs = projService.getMavenAndGradleDependencies(projectName);
-        final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
-        for (final Gav gav : gavs) {
-            try {
-                deps.put(gav, componentCache.get(gav));
-            } catch (final IntegrationException e) {
-                /*
-                 * Thrown if exception occurs when accessing key gav from cache. If an exception is
-                 * thrown, info associated with that gav is inaccessible, and so don't put any
-                 * information related to said gav into hashmap associated with the project
-                 */
-                // e.printStackTrace();
+    public void inspectAllProjects() {
+        Job job = new Job("Black Duck Hub inspecting all projects") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                String[] projects = workspaceService.getJavaProjectNames();
+                SubMonitor subMonitor = SubMonitor.convert(monitor, projects.length);
+                int i = 1;
+                subMonitor.setTaskName("Inspecting projects");
+                subMonitor.split(1).done();
+                for (String project : projects) {
+                    subMonitor.setTaskName(String.format("Inspecting project %1$d/%2$d", i, projects.length));
+                    Job subJob = inspectProject(project, false);
+                    subJob.schedule();
+                    try {
+                        subJob.join();
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        throw new RuntimeException(e);
+                    }
+                    i++;
+                    subMonitor.split(1).done();
+                }
+                return Status.OK_STATUS;
             }
+        };
+        job.schedule();
+    }
+
+    public Job inspectProject(String projectName, final boolean inspectIfNew) {
+        if (inspectIfNew && projectInfo.containsKey(projectName)) {
+            return null;
         }
-        projectInfo.put(projectName, deps);
+        Job job = new Job("Black Duck Hub inspecting " + projectName) {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
+                SubMonitor subMonitor = SubMonitor.convert(monitor, 100000);
+                subMonitor.setTaskName("Gathering dependencies");
+                final List<String> dependencyFilepaths = projService.getProjectDependencyFilePaths(projectName);
+                subMonitor.split(30000).done();
+                for (String filePath : dependencyFilepaths) {
+                    subMonitor.setTaskName(String.format("Inspecting %1$s", filePath));
+                    Gav gav = projService.getGavFromFilepath(filePath);
+                    if (gav != null) {
+                        try {
+                            deps.put(gav, componentCache.get(gav));
+                        } catch (final IntegrationException e) {
+                            /*
+                             * Thrown if exception occurs when accessing key gav from cache. If an exception is
+                             * thrown, info associated with that gav is inaccessible, and so don't put any
+                             * information related to said gav into hashmap associated with the project
+                             */
+                            // e.printStackTrace();
+                        }
+                        if (dependencyFilepaths.size() < 70000) {
+                            subMonitor.split(70000 / dependencyFilepaths.size()).done();
+                        }
+                    }
+                    if (dependencyFilepaths.size() >= 70000) {
+                        subMonitor.split(70000).done();
+                    }
+                }
+                subMonitor.setTaskName("Caching inspection result");
+                projectInfo.put(projectName, deps);
+                return Status.OK_STATUS;
+            }
+        };
+        return job;
     }
 
     public void addWarningToProject(final String projectName, final Gav gav) {
@@ -177,7 +222,7 @@ public class ProjectDependencyInformation {
             VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
             LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
             componentCache.setVulnService(vulnService, licenseService);
-            addAllProjects();
+            inspectAllProjects();
         } else {
             componentCache.setVulnService(null, null);
         }
