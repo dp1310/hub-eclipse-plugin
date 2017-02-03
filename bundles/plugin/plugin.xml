@@ -168,7 +168,7 @@
          point="org.eclipse.ui.views">
       <!-- Items in the same category show up in the same folder in the "Show View" dialog -->
       <category
-      		name="Black Duck"
+      		name="Black Duck Hub"
       		id="com.blackducksoftware.integration.eclipseplugin.views"
       >
       </category>
@@ -188,7 +188,13 @@
       <page
             class="com.blackducksoftware.integration.eclipseplugin.preferences.BlackDuckPreferences"
             id="BlackDuck"
-            name="Black Duck">
+            name="Black Duck Hub">
+      </page>
+      <page
+            category="BlackDuck"
+            class="com.blackducksoftware.integration.eclipseplugin.preferences.PreferenceDefaults"
+            id="DefaultConfig"
+            name="Inspection Default Settings">
       </page>
       <!-- Preference page indicating which projects Black Duck scan is activated for -->
       <page
@@ -198,19 +204,7 @@
       		category="BlackDuck">
       </page>
       <!-- Preference page with Black Duck default settings -->
-      <page
-      		class="com.blackducksoftware.integration.eclipseplugin.preferences.PreferenceDefaults"
-      		id="DefaultConfig"
-      		name="Black Duck Default Settings"
-      		category="BlackDuck">
-      </page>
       <!-- Preference page with Hub authorization settings -->
-      <page
-      		class="com.blackducksoftware.integration.eclipseplugin.preferences.BlackDuckAuthorizationPreferences"
-      		id="HubAuthorization"
-      		name="Black Duck Authorization Settings"
-      		category="BlackDuck">
-      </page>
       
    </extension>
 </plugin>

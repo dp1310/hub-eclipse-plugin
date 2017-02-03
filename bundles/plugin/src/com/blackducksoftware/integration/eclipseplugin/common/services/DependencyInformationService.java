@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.core.runtime.IPath;

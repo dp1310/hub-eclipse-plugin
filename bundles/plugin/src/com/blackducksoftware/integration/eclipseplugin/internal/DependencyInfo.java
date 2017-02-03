@@ -25,21 +25,21 @@ package com.blackducksoftware.integration.eclipseplugin.internal;
 
 import java.util.List;
 
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 
 public class DependencyInfo {
 
-    private final List<VulnerabilityItemPlusMeta> vulnList;
+    private final List<VulnerabilityItem> vulnList;
 
     private final ComplexLicenseModel simpleLicense;
 
-    public DependencyInfo(final List<VulnerabilityItemPlusMeta> vulnList, final ComplexLicenseModel simpleLicense) {
+    public DependencyInfo(final List<VulnerabilityItem> vulnList, final ComplexLicenseModel simpleLicense) {
         this.vulnList = vulnList;
         this.simpleLicense = simpleLicense;
     }
 
-    public List<VulnerabilityItemPlusMeta> getVulnList() {
+    public List<VulnerabilityItem> getVulnList() {
         return vulnList;
     }
 

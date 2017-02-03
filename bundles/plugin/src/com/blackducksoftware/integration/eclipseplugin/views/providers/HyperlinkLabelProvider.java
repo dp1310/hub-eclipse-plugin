@@ -39,12 +39,16 @@ import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
 
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComplexLicenseWithParentGav;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.HubHyperlink;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentComplexLicense;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentVulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParent;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
 
 public class HyperlinkLabelProvider extends StyledCellLabelProvider {
     HubHyperlink link;
@@ -71,10 +75,8 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
                     brower = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
                     brower.openURL(new URL(link.getHref().toString()));
                 } catch (PartInitException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 } catch (MalformedURLException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
 
@@ -101,14 +103,23 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
     }
 
     private String getDisplayText(Object input) {
+
         if (input instanceof TreeViewerParent) {
             return ((TreeViewerParent) input).getDispName();
         }
 
         if (input instanceof VulnerabilityWithParentGav) {
+            // TODO replace with new version of retrieving meta
+            String link;
+            try {
+                HubServicesFactory serviceFactory = new HubServicesFactory(Activator.getPlugin().getProjectInformation().getHubConnection());
+                link = serviceFactory.createMetaService(new IntBufferedLogger()).getHref(((VulnerabilityWithParentGav) input).getVuln());
+            } catch (HubIntegrationException e) {
+                throw new RuntimeException(e);
+            }
             // TODO hyperlink impl
-            String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnItem().getVulnerabilityName()
-                    + " - " + ((VulnerabilityWithParentGav) input).getVuln().getLink();
+            String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnerabilityName()
+                    + " - " + link;
             return text;
         }
         if (input instanceof InformationItemWithParentVulnerability) {

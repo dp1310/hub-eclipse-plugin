@@ -33,11 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 
 public class ComponentCache {
 
@@ -115,9 +115,9 @@ public class ComponentCache {
             throws ComponentLookupNotFoundException, IOException, URISyntaxException,
             LicenseLookupNotFoundException, IntegrationException {
 
-        List<VulnerabilityItemPlusMeta> vulns = null;
+        List<VulnerabilityItem> vulns = null;
         if (vulnService != null) {
-            vulns = vulnService.getVulnsPlusMetaFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+            vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
 
             if (vulns == null) {

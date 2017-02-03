@@ -38,10 +38,10 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectIn
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityItemPlusMeta;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -193,8 +193,8 @@ public class ProjectDependencyInformation {
     }
 
     // TODO deprecate
-    public Map<Gav, List<VulnerabilityItemPlusMeta>> getVulnMap(String projectName) {
-        Map<Gav, List<VulnerabilityItemPlusMeta>> vulnMap = new HashMap<>();
+    public Map<Gav, List<VulnerabilityItem>> getVulnMap(String projectName) {
+        Map<Gav, List<VulnerabilityItem>> vulnMap = new HashMap<>();
 
         Map<Gav, DependencyInfo> projDepInfo = projectInfo.get(projectName);
         for (Map.Entry<Gav, DependencyInfo> entry : projDepInfo.entrySet()) {

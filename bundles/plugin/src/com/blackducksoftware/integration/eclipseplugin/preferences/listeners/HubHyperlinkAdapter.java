@@ -34,25 +34,23 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 
 public class HubHyperlinkAdapter extends HyperlinkAdapter {
-	private final String url;
-	
-	public HubHyperlinkAdapter(final String url) {
-		this.url = url;
-	}
-	
-	@Override
-	public void linkActivated(HyperlinkEvent e) {
-		System.out.println("going to Url: " + url);
-		
-		try {
-			final IWebBrowser brower = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
-			brower.openURL(new URL(this.url));
-		} catch (PartInitException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
+    private final String url;
+
+    public HubHyperlinkAdapter(final String url) {
+        this.url = url;
+    }
+
+    @Override
+    public void linkActivated(HyperlinkEvent e) {
+        System.out.println("going to Url: " + url);
+
+        try {
+            final IWebBrowser brower = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
+            brower.openURL(new URL(this.url));
+        } catch (PartInitException e1) {
+            e1.printStackTrace();
+        } catch (MalformedURLException e1) {
+            e1.printStackTrace();
+        }
+    }
 }

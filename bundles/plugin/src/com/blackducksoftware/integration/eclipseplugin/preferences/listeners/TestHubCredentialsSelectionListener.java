@@ -23,54 +23,21 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences.listeners;
 
-import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 
-import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationValidator;
+import com.blackducksoftware.integration.eclipseplugin.preferences.services.HubAuthorizationConfig;
 
 public class TestHubCredentialsSelectionListener implements SelectionListener {
 
-    private final StringFieldEditor hubUsername;
-
-    private final Text hubPassword;
-
-    private final StringFieldEditor hubURL;
-
-    private final IntegerFieldEditor hubTimeout;
-
-    private final StringFieldEditor proxyUsername;
-
-    private final Text proxyPassword;
-
-    private final StringFieldEditor proxyHost;
-
-    private final StringFieldEditor proxyPort;
-
-    private final StringFieldEditor ignoredProxyHosts;
+    private final HubAuthorizationConfig hubAuthorizationConfig;
 
     private final Text connectionMessageText;
 
-    private final AuthorizationValidator validator;
-
-    public TestHubCredentialsSelectionListener(final StringFieldEditor hubUsername, final Text hubPassword,
-            final StringFieldEditor hubURL, final IntegerFieldEditor hubTimeout, final StringFieldEditor proxyUsername,
-            final Text proxyPassword, final StringFieldEditor proxyHost, final StringFieldEditor proxyPort,
-            final StringFieldEditor ignoredProxyHosts, final Text connectionMessageText,
-            final AuthorizationValidator validator) {
-        this.hubUsername = hubUsername;
-        this.hubPassword = hubPassword;
-        this.hubURL = hubURL;
-        this.hubTimeout = hubTimeout;
-        this.proxyUsername = proxyUsername;
-        this.proxyPassword = proxyPassword;
-        this.proxyHost = proxyHost;
-        this.proxyPort = proxyPort;
-        this.ignoredProxyHosts = ignoredProxyHosts;
+    public TestHubCredentialsSelectionListener(HubAuthorizationConfig hubAuthorizationConfig, final Text connectionMessageText) {
+        this.hubAuthorizationConfig = hubAuthorizationConfig;
         this.connectionMessageText = connectionMessageText;
-        this.validator = validator;
     }
 
     @Override
@@ -86,10 +53,7 @@ public class TestHubCredentialsSelectionListener implements SelectionListener {
     }
 
     private String attemptToConnect() {
-        return validator.validateCredentials(hubUsername.getStringValue(), hubPassword.getText(),
-                hubURL.getStringValue(), proxyUsername.getStringValue(), proxyPassword.getText(),
-                proxyPort.getStringValue(), proxyHost.getStringValue(), ignoredProxyHosts.getStringValue(),
-                hubTimeout.getStringValue()).getResponseMessage();
+        return hubAuthorizationConfig.validateCredentialFields().getResponseMessage();
     }
 
 }

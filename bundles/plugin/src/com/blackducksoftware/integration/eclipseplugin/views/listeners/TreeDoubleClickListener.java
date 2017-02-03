@@ -33,7 +33,11 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
 
 public class TreeDoubleClickListener implements IDoubleClickListener {
 
@@ -45,7 +49,14 @@ public class TreeDoubleClickListener implements IDoubleClickListener {
         if (selectedObject instanceof VulnerabilityWithParentGav) {
             VulnerabilityWithParentGav vulnWithGav = (VulnerabilityWithParentGav) selectedObject;
             System.out.println("link activated");
-            String link = vulnWithGav.getVuln().getLink();
+            // TODO: Replace w/ new method for Meta
+            String link;
+            try {
+                HubServicesFactory serviceFactory = new HubServicesFactory(Activator.getPlugin().getProjectInformation().getHubConnection());
+                link = serviceFactory.createMetaService(new IntBufferedLogger()).getHref(vulnWithGav.getVuln());
+            } catch (HubIntegrationException e) {
+                throw new RuntimeException(e);
+            }
             IWebBrowser browser;
 
             // Authenticate first
