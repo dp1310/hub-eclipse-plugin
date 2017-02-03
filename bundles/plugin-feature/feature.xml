@@ -3,8 +3,7 @@
       id="hub.eclipse.plugin.feature"
       label="Black Duck Hub Plugin for Eclipse"
       version="1.0.0.qualifier"
-      provider-name="Black Duck Software"
-      nl="en">
+      provider-name="Black Duck Software">
 
    <description url="https://github.com/blackducksoftware/hub-eclipse-plugin">
       Black Duck Hub plugin for Eclipse.
