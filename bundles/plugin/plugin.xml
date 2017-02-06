@@ -194,15 +194,9 @@
             category="BlackDuck"
             class="com.blackducksoftware.integration.eclipseplugin.preferences.PreferenceDefaults"
             id="DefaultConfig"
-            name="Inspection Default Settings">
+            name="Inspection Settings">
       </page>
       <!-- Preference page indicating which projects Black Duck scan is activated for -->
-      <page
-      		class="com.blackducksoftware.integration.eclipseplugin.preferences.ActiveJavaProjects"
-      		id="ActiveJavaProjects"
-      		name="Active Java Projects"
-      		category="BlackDuck">
-      </page>
       <!-- Preference page with Black Duck default settings -->
       <!-- Preference page with Hub authorization settings -->
       

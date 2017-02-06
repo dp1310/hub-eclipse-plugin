@@ -53,13 +53,13 @@ public class HubAuthorizationConfig {
 
     private StringFieldEditor ignoredProxyHostsField;
 
-    public final String HUB_USERNAME_LABEL = "Hub Username";
+    public final String HUB_USERNAME_LABEL = "Username";
 
-    public final String HUB_PASSWORD_LABEL = "Hub Password";
+    public final String HUB_PASSWORD_LABEL = "Password";
 
-    public final String HUB_URL_LABEL = "Hub Instance URL";
+    public final String HUB_URL_LABEL = "Instance URL";
 
-    public final String HUB_TIMEOUT_LABEL = "Hub Timeout in Seconds";
+    public final String HUB_TIMEOUT_LABEL = "Timeout in Seconds";
 
     public final String PROXY_USERNAME_LABEL = "Proxy Username";
 

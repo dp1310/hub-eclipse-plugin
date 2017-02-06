@@ -58,7 +58,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
 
     private HubAuthorizationConfig hubAuthorizationConfig;
 
-    private final String TEST_HUB_CREDENTIALS_TEXT = "Test Hub Credentials";
+    private final String TEST_HUB_CREDENTIALS_TEXT = "Test Connection";
 
     private final int NUM_COLUMNS = 2;
 
