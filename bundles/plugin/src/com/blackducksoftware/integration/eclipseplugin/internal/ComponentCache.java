@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
@@ -47,26 +48,16 @@ public class ComponentCache {
 
     private ConcurrentHashMap<Gav, Timestamp> cacheKeyTTL;
 
-    private VulnerabilityDataService vulnService;
-
-    private LicenseDataService licenseService;
-
     private Timestamp oldestKeyAge;
 
     private int cacheCapacity;
 
-    public ComponentCache(final VulnerabilityDataService vulnService, final LicenseDataService licenseService, final int cacheCapacity) {
+    public ComponentCache(final int cacheCapacity) {
         this.cacheCapacity = cacheCapacity;
-        cache = buildCache(vulnService, licenseService);
+        cache = buildCache();
     }
 
-    public void setVulnService(VulnerabilityDataService vulnService, LicenseDataService licenseService) {
-        cache = buildCache(vulnService, licenseService);
-    }
-
-    private ConcurrentHashMap<Gav, DependencyInfo> buildCache(VulnerabilityDataService vulnService, LicenseDataService licenseService) {
-        this.vulnService = vulnService;
-        this.licenseService = licenseService;
+    private ConcurrentHashMap<Gav, DependencyInfo> buildCache() {
         cache = new ConcurrentHashMap<>();
         cacheKeyTTL = new ConcurrentHashMap<>();
         return cache;
@@ -115,6 +106,7 @@ public class ComponentCache {
             throws ComponentLookupNotFoundException, IOException, URISyntaxException,
             LicenseLookupNotFoundException, IntegrationException {
 
+        VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
         if (vulnService != null) {
             vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
@@ -130,6 +122,7 @@ public class ComponentCache {
         }
 
         ComplexLicenseModel sLicense = null;
+        LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
         if (licenseService != null) {
             sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());

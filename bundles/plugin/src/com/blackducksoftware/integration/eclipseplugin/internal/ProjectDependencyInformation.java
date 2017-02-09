@@ -28,24 +28,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
 
+import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
+import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
+import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
+import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
-import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.log.IntBufferedLogger;
+import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class ProjectDependencyInformation {
 
@@ -59,14 +69,11 @@ public class ProjectDependencyInformation {
 
     private VulnerabilityView componentView;
 
-    private RestConnection hubConnection;
-
     public ProjectDependencyInformation(final ProjectInformationService projService, WorkspaceInformationService workspaceService,
-            ComponentCache componentCache, RestConnection hubConnection) {
+            ComponentCache componentCache) {
         this.projService = projService;
         this.workspaceService = workspaceService;
         this.componentCache = componentCache;
-        this.hubConnection = hubConnection;
     }
 
     public void setComponentView(final VulnerabilityView componentView) {
@@ -77,10 +84,52 @@ public class ProjectDependencyInformation {
         componentView = null;
     }
 
+    public void phoneHome() throws HubIntegrationException {
+        PhoneHomeDataService phoneHomeService = Activator.getPlugin().getConnectionService().getPhoneHomeDataService();
+        // get version
+        HubVersionRequestService hubVersionRequestService = Activator.getPlugin().getConnectionService().getHubVersionRequestService();
+        String hubVersion = hubVersionRequestService.getHubVersion();
+        // get hubServerConfig
+
+        // create hubScanConfig
+        IProduct eclipseProduct = Platform.getProduct();
+        String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
+        String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
+
+        AuthorizationValidator authorizationValidator = new AuthorizationValidator(Activator.getPlugin().getConnectionService(), new HubServerConfigBuilder());
+
+        SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
+                SecurePreferencesFactory.getDefault());
+        IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
+
+        String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
+        String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
+        String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
+        String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
+        String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
+        String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
+        String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
+        String ignoredProxyHosts = prefStore.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
+        String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
+        authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
+                proxyUsername, proxyPassword, proxyPort,
+                proxyHost, ignoredProxyHosts, timeout);
+        HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
+
+        phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion,
+                pluginVersion, hubVersion);
+
+    }
+
     public void inspectAllProjects() {
         Job job = new Job("Black Duck Hub inspecting all projects") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    phoneHome();
+                } catch (HubIntegrationException e1) {
+                    // Do nothing
+                }
                 String[] projects = workspaceService.getJavaProjectNames();
                 SubMonitor subMonitor = SubMonitor.convert(monitor, projects.length);
                 int i = 1;
@@ -215,25 +264,9 @@ public class ProjectDependencyInformation {
     }
 
     public void updateCache(RestConnection connection) throws HubIntegrationException {
-        this.hubConnection = connection;
-        if (connection != null) {
-            HubServicesFactory servicesFactory = new HubServicesFactory(connection);
-            // TODO logging
-            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
-            LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
-            componentCache.setVulnService(vulnService, licenseService);
+        if (Activator.getPlugin().updateConnection(connection).hasActiveHubConnection()) {
             inspectAllProjects();
-        } else {
-            componentCache.setVulnService(null, null);
         }
-    }
-
-    public RestConnection getHubConnection() {
-        return this.hubConnection;
-    }
-
-    public boolean hasActiveHubConnection() {
-        return this.hubConnection != null;
     }
 
 }

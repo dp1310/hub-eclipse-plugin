@@ -74,7 +74,7 @@ public class ComponentTreeViewContentProvider implements ITreeContentProvider {
             }
             boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
-                if (Activator.getPlugin().getProjectInformation().hasActiveHubConnection()) {
+                if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
                     DependencyInfo depInfo = Activator.getPlugin().getProjectInformation().getDependencyInfoMap(projectName)
                             .get(gavWithParentProject.getGav());
 

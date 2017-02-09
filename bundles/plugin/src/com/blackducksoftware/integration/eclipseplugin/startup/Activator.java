@@ -54,12 +54,8 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.Projec
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
-import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.log.IntBufferedLogger;
 
 public class Activator extends AbstractUIPlugin {
 
@@ -68,6 +64,8 @@ public class Activator extends AbstractUIPlugin {
     private final int COMPONENT_CACHE_CAPACITY = 10000;
 
     private static Activator plugin;
+
+    private HubRestConnectionService connectionService;
 
     private ProjectDependencyInformation information;
 
@@ -99,17 +97,9 @@ public class Activator extends AbstractUIPlugin {
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
-        final RestConnection hubConnection = getInitialHubConnection();
-        if (hubConnection != null) {
-            HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
-            // TODO logging
-            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService(new IntBufferedLogger());
-            LicenseDataService licenseService = servicesFactory.createLicenseDataService(new IntBufferedLogger());
-            componentCache = new ComponentCache(vulnService, licenseService, COMPONENT_CACHE_CAPACITY);
-        } else {
-            componentCache = new ComponentCache(null, null, COMPONENT_CACHE_CAPACITY);
-        }
-        information = new ProjectDependencyInformation(projService, workspaceService, componentCache, hubConnection);
+        connectionService = new HubRestConnectionService(getInitialHubConnection());
+        componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY);
+        information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         final PreferencesService defaultPrefService = new PreferencesService(
                 getPlugin().getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPrefService, information);
@@ -127,6 +117,15 @@ public class Activator extends AbstractUIPlugin {
 
     public ProjectDependencyInformation getProjectInformation() {
         return information;
+    }
+
+    public HubRestConnectionService updateConnection(RestConnection restConnection) {
+        connectionService = new HubRestConnectionService(restConnection);
+        return connectionService;
+    }
+
+    public HubRestConnectionService getConnectionService() {
+        return connectionService;
     }
 
     public RestConnection getInitialHubConnection() throws HubIntegrationException {

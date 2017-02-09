@@ -90,11 +90,10 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
         final Composite activeComposite = new Composite(defaultsComposite, SWT.LEFT);
         final GridData indentGrid = new GridData();
-        // Default used by FieldEditor
-        indentGrid.horizontalIndent = 8;
+        indentGrid.horizontalIndent = ((GridData) activateByDefault.getRadioBoxControl(defaultsComposite).getLayoutData()).horizontalIndent;
         activeComposite.setLayoutData(indentGrid);
         activeComposite.setLayout(new GridLayout());
-        activeProjectPreferences = new BooleanFieldEditor[names.length + 60];
+        activeProjectPreferences = new BooleanFieldEditor[names.length];
         for (int i = 0; i < names.length; i++) {
             final BooleanFieldEditor isActive = new BooleanFieldEditor(names[i], names[i], activeComposite);
             isActive.setPage(this);
@@ -121,10 +120,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
     @Override
     public boolean performOk() {
         storeValues();
-        if (super.performOk()) {
-            return true;
-        }
-        return false;
+        return super.performOk();
     }
 
     @Override

@@ -26,29 +26,14 @@ package com.blackducksoftware.integration.eclipseplugin.views.providers;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IProduct;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 
-import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
-import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
-import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.log.IntBufferedLogger;
-import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class DependencyTableViewContentProvider implements IStructuredContentProvider {
 
@@ -79,63 +64,19 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
             boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
                 // Phone Home
-                try {
-                    if (Activator.getPlugin().getProjectInformation().hasActiveHubConnection()) {
-                        // RestConnection hubConnection = projectInformation.getHubConnection();
-                        // System.out.println("Hub Connection: " + hubConnection.toString());
-                        HubServicesFactory factory = new HubServicesFactory(Activator.getPlugin().getProjectInformation().getHubConnection());
-                        PhoneHomeDataService phoneHomeService = factory.createPhoneHomeDataService(new IntBufferedLogger());
-                        // get version
-                        HubVersionRequestService hubVersionRequestService = factory.createHubVersionRequestService();
-                        String hubVersion = hubVersionRequestService.getHubVersion();
-                        // get hubServerConfig
+                if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
 
-                        // create hubScanConfig
-                        IProduct eclipseProduct = Platform.getProduct();
-                        String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
-                        String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
-                        // System.out.println("version: " + eclipseProduct.getId() + " - " + eclipseProduct.getName() +
-                        // " - " + eclipseProduct.getApplication() + " - " + eclipseProduct.getDescription() + " - " +
-                        // eclipseVersion);
-
-                        HubServerConfigBuilder hubServerConfigBuilder = new HubServerConfigBuilder();
-
-                        SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
-                                SecurePreferencesFactory.getDefault());
-                        IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
-                        String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
-                        System.out.println("Username: " + username);
-                        String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
-                        String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
-                        String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
-                        String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
-                        String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
-                        String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
-                        String ignoredProxyHosts = prefStore.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
-                        String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
-                        this.setHubServerConfigBuilderFields(hubServerConfigBuilder, username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
-                                proxyHost, ignoredProxyHosts, timeout);
-                        HubServerConfig hubServerConfig = hubServerConfigBuilder.build();
-
-                        System.out.println("Proxy Host: " + hubServerConfig.getProxyInfo().getHost());
-                        System.out.println("Proxy Port: " + hubServerConfig.getProxyInfo().getPort());
-                        System.out.println("Username:   " + hubServerConfig.getGlobalCredentials().getUsername());
-                        phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion, hubVersion);
-
-                        final Gav[] gavs = Activator.getPlugin().getProjectInformation().getAllDependencyGavs(projectName);
-                        GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
-                        for (int i = 0; i < gavs.length; i++) {
-                            Gav gav = gavs[i];
-                            Map<Gav, List<VulnerabilityItem>> vulnMap = Activator.getPlugin().getProjectInformation().getVulnMap(projectName);
-                            boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
-                            gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
-                        }
-                        return gavsWithParents;
+                    final Gav[] gavs = Activator.getPlugin().getProjectInformation().getAllDependencyGavs(projectName);
+                    GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
+                    for (int i = 0; i < gavs.length; i++) {
+                        Gav gav = gavs[i];
+                        Map<Gav, List<VulnerabilityItem>> vulnMap = Activator.getPlugin().getProjectInformation().getVulnMap(projectName);
+                        boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
+                        gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
                     }
-                } catch (HubIntegrationException e) {
-                    throw new RuntimeException(e);
-                }
+                    return gavsWithParents;
 
+                }
                 return NO_HUB_CONNECTION;
             }
             return PROJECT_NOT_ACTIVATED;
@@ -153,21 +94,6 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 
     public ProjectDependencyInformation getProjectInformation() {
         return Activator.getPlugin().getProjectInformation();
-    }
-
-    // TODO figure out a better place to put (also in AuthorizationValidator), WET AF
-    private void setHubServerConfigBuilderFields(final HubServerConfigBuilder builder, final String username,
-            final String password, final String hubUrl, final String proxyUsername, final String proxyPassword,
-            final String proxyPort, final String proxyHost, final String ignoredProxyHosts, final String timeout) {
-        builder.setUsername(username);
-        builder.setPassword(password);
-        builder.setHubUrl(hubUrl);
-        builder.setTimeout(timeout);
-        builder.setProxyUsername(proxyUsername);
-        builder.setProxyPassword(proxyPassword);
-        builder.setProxyHost(proxyHost);
-        builder.setProxyPort(proxyPort);
-        builder.setIgnoredProxyHosts(ignoredProxyHosts);
     }
 
 }

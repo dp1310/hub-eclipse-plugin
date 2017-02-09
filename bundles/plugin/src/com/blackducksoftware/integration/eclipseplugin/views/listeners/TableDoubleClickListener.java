@@ -34,39 +34,40 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.VulnerabilityWithParentGav;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.service.HubServicesFactory;
-import com.blackducksoftware.integration.log.IntBufferedLogger;
 
-public class TreeDoubleClickListener implements IDoubleClickListener {
+public class TableDoubleClickListener implements IDoubleClickListener {
 
     @Override
     public void doubleClick(DoubleClickEvent event) {
-        // TreeViewer viewer = (TreeViewer) event.getViewer();
         IStructuredSelection selection = (IStructuredSelection) event.getSelection();
         Object selectedObject = selection.getFirstElement();
-        if (selectedObject instanceof VulnerabilityWithParentGav) {
-            VulnerabilityWithParentGav vulnWithGav = (VulnerabilityWithParentGav) selectedObject;
-            System.out.println("link activated");
-            // TODO: Replace w/ new method for Meta
+        if (selectedObject instanceof GavWithParentProject) {
+            Gav selectedGav = ((GavWithParentProject) selectedObject).getGav();
             String link;
             try {
-                HubServicesFactory serviceFactory = new HubServicesFactory(Activator.getPlugin().getProjectInformation().getHubConnection());
-                link = serviceFactory.createMetaService(new IntBufferedLogger()).getHref(vulnWithGav.getVuln());
+                ComponentVersion selectedComponentVersion = Activator.getPlugin().getConnectionService().getComponentDataService()
+                        .getExactComponentVersionFromComponent(selectedGav.getNamespace(), selectedGav.getGroupId(),
+                                selectedGav.getArtifactId(),
+                                selectedGav.getVersion());
+                // Final solution, will work once the redirect is set up
+                link = Activator.getPlugin().getConnectionService().getMetaService().getHref(selectedComponentVersion);
+
+                // But for now...
+                String versionID = link.substring(link.lastIndexOf("/") + 1);
+                link = Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl().toString();
+                link = link + "/#versions/id:" + versionID + "/view:overview";
             } catch (HubIntegrationException e) {
                 throw new RuntimeException(e);
             }
             IWebBrowser browser;
 
             // Authenticate first
-            /*
-             * Currently, the hub will "redirect" calls only if authenticated, proper redirection will come in hub 3.5
-             * (maybe)
-             */
 
             try {
-                // browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(SWT.NONE, null, null, null);
                 browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
                 browser.openURL(new URL(link));
             } catch (PartInitException e1) {
@@ -78,12 +79,6 @@ public class TreeDoubleClickListener implements IDoubleClickListener {
             return;
 
         }
-
-        // TODO: Figure out if this is important
-        // if (selectedObject instanceof ComplexLicenseWithParentGav) {
-        // ComplexLicenseWithParentGav cLicenseWithGav = (ComplexLicenseWithParentGav) selectedObject;
-        // // String link = cLicenseWithGav.getComplexLicense();
-        // }
     }
 
 }

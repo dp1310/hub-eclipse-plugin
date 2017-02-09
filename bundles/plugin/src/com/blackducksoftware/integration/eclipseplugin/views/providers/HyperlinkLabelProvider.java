@@ -112,7 +112,7 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
             // TODO replace with new version of retrieving meta
             String link;
             try {
-                HubServicesFactory serviceFactory = new HubServicesFactory(Activator.getPlugin().getProjectInformation().getHubConnection());
+                HubServicesFactory serviceFactory = new HubServicesFactory(Activator.getPlugin().getConnectionService().getRestConnection());
                 link = serviceFactory.createMetaService(new IntBufferedLogger()).getHref(((VulnerabilityWithParentGav) input).getVuln());
             } catch (HubIntegrationException e) {
                 throw new RuntimeException(e);

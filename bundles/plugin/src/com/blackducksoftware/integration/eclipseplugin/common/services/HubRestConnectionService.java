@@ -24,16 +24,105 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.hub.api.item.MetaService;
+import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.dataservice.component.ComponentDataService;
+import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
+import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
+import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.hub.service.HubServicesFactory;
+import com.blackducksoftware.integration.log.IntBufferedLogger;
+import com.blackducksoftware.integration.log.IntLogger;
 
-/*
- * Wrapper class for testing purposes
- */
 public class HubRestConnectionService {
+
+    private final HubServicesFactory hubServicesFactory;
+
+    private final IntLogger logger;
+
+    private final RestConnection restConnection;
+
+    private LicenseDataService licenseDataService;
+
+    private VulnerabilityDataService vulnerabilityDataService;
+
+    private ComponentDataService componentDataService;
+
+    private MetaService metaService;
+
+    private PhoneHomeDataService phoneHomeDataService;
+
+    private HubVersionRequestService hubVersionRequestService;
+
+    public HubRestConnectionService() {
+        restConnection = null;
+        this.logger = new IntBufferedLogger();
+        hubServicesFactory = null;
+    }
+
+    public HubRestConnectionService(RestConnection restConnection) {
+        this.restConnection = restConnection;
+        this.logger = new IntBufferedLogger();
+        this.hubServicesFactory = new HubServicesFactory(restConnection);
+    }
+
     public CredentialsRestConnection getCredentialsRestConnection(final HubServerConfig config)
             throws IllegalArgumentException, EncryptionException, HubIntegrationException {
         return new CredentialsRestConnection(config);
     }
+
+    public LicenseDataService getLicenseDataService() {
+        if (licenseDataService == null) {
+            licenseDataService = hubServicesFactory.createLicenseDataService(logger);
+        }
+        return licenseDataService;
+    }
+
+    public VulnerabilityDataService getVulnerabilityDataService() {
+        if (vulnerabilityDataService == null) {
+            vulnerabilityDataService = hubServicesFactory.createVulnerabilityDataService(logger);
+        }
+        return vulnerabilityDataService;
+    }
+
+    public ComponentDataService getComponentDataService() {
+        if (componentDataService == null) {
+            componentDataService = hubServicesFactory.createComponentDataService(logger);
+        }
+        return componentDataService;
+    }
+
+    public MetaService getMetaService() {
+        if (metaService == null) {
+            metaService = hubServicesFactory.createMetaService(logger);
+        }
+        return metaService;
+    }
+
+    public PhoneHomeDataService getPhoneHomeDataService() {
+        if (phoneHomeDataService == null) {
+            phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService(logger);
+        }
+        return phoneHomeDataService;
+    }
+
+    public HubVersionRequestService getHubVersionRequestService() {
+        if (hubVersionRequestService == null) {
+            hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+        }
+        return hubVersionRequestService;
+    }
+
+    public RestConnection getRestConnection() {
+        return restConnection;
+    }
+
+    public boolean hasActiveHubConnection() {
+        return restConnection != null;
+    }
+
 }

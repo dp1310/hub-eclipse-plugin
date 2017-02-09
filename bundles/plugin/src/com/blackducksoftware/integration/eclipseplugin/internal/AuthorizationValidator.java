@@ -47,7 +47,7 @@ public class AuthorizationValidator {
     public AuthorizationResponse validateCredentials(final String username, final String password, final String hubUrl,
             final String proxyUsername, final String proxyPassword, final String proxyPort, final String proxyHost,
             final String ignoredProxyHosts, final String timeout) {
-        setHubServerConfigBuilderFields(builder, username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
+        setHubServerConfigBuilderFields(username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
                 proxyHost, ignoredProxyHosts, timeout);
 
         final ValidationResults results = builder.createValidator().assertValid();
@@ -70,7 +70,11 @@ public class AuthorizationValidator {
         return new AuthorizationResponse(results.getAllResultString());
     }
 
-    private void setHubServerConfigBuilderFields(final HubServerConfigBuilder builder, final String username,
+    public HubServerConfigBuilder getHubServerConfigBuilder() {
+        return builder;
+    }
+
+    public void setHubServerConfigBuilderFields(final String username,
             final String password, final String hubUrl, final String proxyUsername, final String proxyPassword,
             final String proxyPort, final String proxyHost, final String ignoredProxyHosts, final String timeout) {
         builder.setUsername(username);

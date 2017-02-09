@@ -78,7 +78,7 @@ public class ProjectDependencyInformationTest {
     public void testAddingProject() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         projInfo.inspectProject(proj, true);
         final Gav[] gavs = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavs, gav1));
@@ -90,7 +90,7 @@ public class ProjectDependencyInformationTest {
     public void testAddingDependency() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         projInfo.inspectProject(proj, true);
         assertTrue(projInfo.containsProject(proj));
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
@@ -104,7 +104,7 @@ public class ProjectDependencyInformationTest {
     public void testRemovingDependency() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         projInfo.inspectProject(proj, true);
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavsBefore, gav3));
@@ -117,7 +117,7 @@ public class ProjectDependencyInformationTest {
     public void testRemovingProject() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, null);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         projInfo.inspectProject(proj, true);
         assertTrue(projInfo.containsProject(proj));
         projInfo.removeProject(proj);
