@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.internal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -59,6 +61,12 @@ import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class ProjectDependencyInformation {
 
+    public static final String JOB_INSPECT_ALL = "Black Duck Hub inspecting all projects";
+
+    public static final String JOB_INSPECT_PROJECT_PREFACE = "Black Duck Hub inspecting ";
+
+    public static final String INSPECTION_JOB = "Black Duck Hub Inspection";
+
     private final ComponentCache componentCache;
 
     private final Map<String, Map<Gav, DependencyInfo>> projectInfo = new HashMap<>();
@@ -82,6 +90,16 @@ public class ProjectDependencyInformation {
 
     public void removeComponentView() {
         componentView = null;
+    }
+
+    public List<String> getRunningInspections() {
+        IJobManager jobMan = Job.getJobManager();
+        ArrayList<String> inspectionList = new ArrayList<>();
+        Job[] inspections = jobMan.find(INSPECTION_JOB);
+        for (Job inspection : inspections) {
+            inspectionList.add(inspection.getName());
+        }
+        return inspectionList;
     }
 
     public void phoneHome() throws HubIntegrationException {
@@ -122,9 +140,21 @@ public class ProjectDependencyInformation {
     }
 
     public void inspectAllProjects() {
-        Job job = new Job("Black Duck Hub inspecting all projects") {
+        Job job = new Job(JOB_INSPECT_ALL) {
+            @Override
+            public boolean belongsTo(Object family) {
+                return family.equals(INSPECTION_JOB);
+            }
+
             @Override
             protected IStatus run(IProgressMonitor monitor) {
+                IJobManager jobMan = Job.getJobManager();
+                Job[] jobList = jobMan.find(JOB_INSPECT_ALL);
+                if (jobList.length > 0) {
+                    for (Job staleJob : jobList) {
+                        staleJob.cancel();
+                    }
+                }
                 try {
                     phoneHome();
                 } catch (HubIntegrationException e1) {
@@ -142,7 +172,6 @@ public class ProjectDependencyInformation {
                     try {
                         subJob.join();
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         throw new RuntimeException(e);
                     }
                     i++;
@@ -158,7 +187,12 @@ public class ProjectDependencyInformation {
         if (inspectIfNew && projectInfo.containsKey(projectName)) {
             return null;
         }
-        Job job = new Job("Black Duck Hub inspecting " + projectName) {
+        Job job = new Job(JOB_INSPECT_PROJECT_PREFACE + projectName) {
+            @Override
+            public boolean belongsTo(Object family) {
+                return family.equals(INSPECTION_JOB);
+            }
+
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
@@ -190,6 +224,9 @@ public class ProjectDependencyInformation {
                 }
                 subMonitor.setTaskName("Caching inspection result");
                 projectInfo.put(projectName, deps);
+                if (componentView != null) {
+                    componentView.resetInput();
+                }
                 return Status.OK_STATUS;
             }
         };

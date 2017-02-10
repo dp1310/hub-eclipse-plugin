@@ -54,7 +54,7 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
 
     @Override
     public String getTitle() {
-        return "Num Vulns";
+        return "Total Vulnerabilities";
     }
 
     public DependencyTableViewContentProvider getDependencyTableViewCp() {

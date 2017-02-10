@@ -39,12 +39,14 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 
     public static final String[] NO_SELECTED_PROJECT = new String[] { "No open project currently selected" };
 
+    public static final String[] INSPECTION_ACTIVE = new String[] { "Project scheduled for inspection" };
+
     public static final String[] PROJECT_NOT_ACTIVATED = new String[] {
-            "Black Duck scan not activated for current project" };
+            "Black Duck inspection not activated for current project" };
 
     public static final String[] ERR_UNKNOWN_INPUT = new String[] { "Input is of unknown type" };
 
-    public static final String[] NO_VULNERABILITIES_TO_SHOW = new String[] { "No vulnerabilities to show!" };
+    public static final String[] PROJECT_NEEDS_INSPECTION = new String[] { "Project has not yet been inspected" };
 
     public static final String[] NO_HUB_CONNECTION = new String[] { "Cannot display vulnerabilities because you are not currently connected to the Hub" };
 
@@ -63,7 +65,6 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
             }
             boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
-                // Phone Home
                 if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
 
                     final Gav[] gavs = Activator.getPlugin().getProjectInformation().getAllDependencyGavs(projectName);
@@ -74,8 +75,15 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                         boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
                         gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
                     }
+                    if (gavsWithParents.length == 0) {
+                        List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
+                        if (!runningInspections.isEmpty()) {
+                            return INSPECTION_ACTIVE;
+                        } else {
+                            return PROJECT_NEEDS_INSPECTION;
+                        }
+                    }
                     return gavsWithParents;
-
                 }
                 return NO_HUB_CONNECTION;
             }

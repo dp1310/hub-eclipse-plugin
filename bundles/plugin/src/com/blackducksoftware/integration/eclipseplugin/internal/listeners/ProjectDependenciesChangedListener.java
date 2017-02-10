@@ -107,6 +107,7 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
 
     private void visit(final IJavaElementDelta delta) {
         final IJavaElement el = delta.getElement();
+        System.out.println(el.getElementName());
         switch (el.getElementType()) {
         case IJavaElement.JAVA_MODEL: {
             visitChildren(delta);

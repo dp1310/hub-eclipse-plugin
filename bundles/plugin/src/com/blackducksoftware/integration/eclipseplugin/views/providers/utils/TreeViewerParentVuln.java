@@ -26,7 +26,6 @@ package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 import java.util.Iterator;
 import java.util.List;
 
-import com.blackducksoftware.integration.eclipseplugin.views.providers.DependencyTableViewContentProvider;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 
 public class TreeViewerParentVuln extends TreeViewerParent {
@@ -46,7 +45,7 @@ public class TreeViewerParentVuln extends TreeViewerParent {
     @Override
     public Object[] getChildren() {
         if (vulns == null || vulns.size() == 0) {
-            return DependencyTableViewContentProvider.NO_VULNERABILITIES_TO_SHOW;
+            return null;
         }
 
         List<VulnerabilityItem> vulnList = vulns;

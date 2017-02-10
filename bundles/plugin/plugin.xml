@@ -19,26 +19,11 @@
             locationURI="popup:blackduck-PackageExplorer?after=additions">
          <!-- Menu item that opens vulnerability view -->
          <command
-               commandId="com.blackducksoftware.integration.popupmenu.OpenWarningView"
+               commandId="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
                label="Open Black Duck Vulnerability View"
                style="push"
       		   icon="resources/icons/ducky.png">
       		  <!-- only visible when right clicking on Java project -->
-              <visibleWhen>
-         		<with
-         				variable="selection">
-         			<iterate
-         					ifEmpty="false">
-         				<adapt
-         						type="org.eclipse.core.resources.IProject">
-         					<test
-         							property="org.eclipse.core.resources.projectNature"
-         							value="org.eclipse.jdt.core.javanature">
-         					</test>
-         				</adapt>
-         			</iterate>
-         		</with>
-         	</visibleWhen>
          </command>
          <!-- Menu item that opens Black Duck preference page -->
          <command
@@ -48,28 +33,6 @@
       		   icon="resources/icons/ducky.png">
          </command>
          <!-- Menu item that opens project-specific preference dialog -->
-         <command
-         		commandId="com.blackducksoftware.integration.popupmenu.OpenProjectPreferences"
-         		label="Project Preferences..."
-         		style="push"
-      		   icon="resources/icons/ducky.png">
-      		<!-- only visible when right clicking on Java project -->
-         	<visibleWhen>
-         		<with
-         				variable="selection">
-         			<iterate
-         					ifEmpty="false">
-         				<adapt
-         						type="org.eclipse.core.resources.IProject">
-         					<test
-         							property="org.eclipse.core.resources.projectNature"
-         							value="org.eclipse.jdt.core.javanature">
-         					</test>
-         				</adapt>
-         			</iterate>
-         		</with>
-         	</visibleWhen>
-         </command>
       </menuContribution>
       <!-- Context (right-click) menu on Project Explorer -->
       <menuContribution
@@ -86,26 +49,11 @@
             locationURI="popup:blackduck-ProjectExplorer?after=additions">
          <!-- Menu item that opens vulnerability view -->
          <command
-               commandId="com.blackducksoftware.integration.popupmenu.OpenWarningView"
+               commandId="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
                label="Open Black Duck Vulnerability View"
                style="push"
       		   icon="resources/icons/ducky.png">
       		  <!-- only visible when right clicking on Java project -->
-              <visibleWhen>
-         		<with
-         				variable="selection">
-         			<iterate
-         					ifEmpty="false">
-         				<adapt
-         						type="org.eclipse.core.resources.IProject">
-         					<test
-         							property="org.eclipse.core.resources.projectNature"
-         							value="org.eclipse.jdt.core.javanature">
-         					</test>
-         				</adapt>
-         			</iterate>
-         		</with>
-         	</visibleWhen>
          </command>
          <!-- Menu item that opens Black Duck preference page -->
          <command
@@ -115,28 +63,6 @@
       		   icon="resources/icons/ducky.png">
          </command>
          <!-- Menu item that opens project-specific preference dialog -->
-         <command
-         		commandId="com.blackducksoftware.integration.popupmenu.OpenProjectPreferences"
-         		label="Project Preferences..."
-         		style="push"
-      		   icon="resources/icons/ducky.png">
-      		<!-- only visible when right clicking on Java project -->
-         	<visibleWhen>
-         		<with
-         				variable="selection">
-         			<iterate
-         					ifEmpty="false">
-         				<adapt
-         						type="org.eclipse.core.resources.IProject">
-         					<test
-         							property="org.eclipse.core.resources.projectNature"
-         							value="org.eclipse.jdt.core.javanature">
-         					</test>
-         				</adapt>
-         			</iterate>
-         		</with>
-         	</visibleWhen>
-         </command>
       </menuContribution>
    </extension>
    <!-- Commands linked to Package/Project Explorer context menu items via commandId tag (id > commandId) -->
@@ -148,7 +74,7 @@
       <!-- Corresponds to "Open Black Duck Vulnerability View" menu item -->
       <command
             defaultHandler="com.blackducksoftware.integration.eclipseplugin.popupmenu.handlers.OpenVulnerabilityView"
-            id="com.blackducksoftware.integration.popupmenu.OpenWarningView"
+            id="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
             name="Open Black Duck Vulnerability View">
       </command>
       <!-- Corresponds to "Black Duck Settings..." menu item -->
@@ -158,11 +84,6 @@
             name="Open Preferences">
       </command>
       <!-- Corresponds to "Project Preferences..." menu item -->
-      <command
-      		defaultHandler="com.blackducksoftware.integration.eclipseplugin.popupmenu.handlers.OpenProjectPreferences"
-      		id="com.blackducksoftware.integration.popupmenu.OpenProjectPreferences"
-      		name="Open Project Preferences">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.views">
