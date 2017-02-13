@@ -43,6 +43,8 @@ public class IndividualProjectPreferences extends PreferencePage implements IWor
 
     // private final String projectId;
 
+    // TODO: This is a stub class
+
     private BooleanFieldEditor displayWarnings;
 
     public IndividualProjectPreferences(final String id) {
@@ -73,7 +75,7 @@ public class IndividualProjectPreferences extends PreferencePage implements IWor
         final Composite displayWarningsComposite = new Composite(parent, SWT.LEFT);
         displayWarningsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         displayWarningsComposite.setLayout(new GridLayout());
-        // TODO: implement this
+
         return displayWarningsComposite;
     }
 
@@ -94,7 +96,7 @@ public class IndividualProjectPreferences extends PreferencePage implements IWor
 
     private void storeValues() {
         // final IPreferenceStore prefStore = getPreferenceStore();
-        // TODO: implement this
+
     }
 
     @Override

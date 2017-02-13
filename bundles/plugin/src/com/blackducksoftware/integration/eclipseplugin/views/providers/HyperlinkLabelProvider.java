@@ -65,7 +65,6 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
         link.setEnabled(true);
         link.setToolTipText("Test tooltip");
         link.setForeground(new Color(null, 0, 0, 225));
-        // TODO give actual URLs
         link.addHyperlinkListener(new IHyperlinkListener() {
             @Override
             public void linkActivated(HyperlinkEvent e) {
@@ -84,13 +83,11 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
 
             @Override
             public void linkEntered(HyperlinkEvent arg0) {
-                // TODO Auto-generated method stub
 
             }
 
             @Override
             public void linkExited(HyperlinkEvent arg0) {
-                // TODO Auto-generated method stub
 
             }
         });
@@ -109,7 +106,6 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
         }
 
         if (input instanceof VulnerabilityWithParentGav) {
-            // TODO replace with new version of retrieving meta
             String link;
             try {
                 HubServicesFactory serviceFactory = new HubServicesFactory(Activator.getPlugin().getConnectionService().getRestConnection());
@@ -117,7 +113,6 @@ public class HyperlinkLabelProvider extends StyledCellLabelProvider {
             } catch (HubIntegrationException e) {
                 throw new RuntimeException(e);
             }
-            // TODO hyperlink impl
             String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnerabilityName()
                     + " - " + link;
             return text;

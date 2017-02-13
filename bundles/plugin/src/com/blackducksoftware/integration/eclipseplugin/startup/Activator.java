@@ -86,9 +86,6 @@ public class Activator extends AbstractUIPlugin {
 
     @Override
     public void start(final BundleContext context) throws Exception {
-
-        // TODO add phone-home here, will miss first run through due to missing credentials
-
         super.start(context);
         System.out.println("STARTING HUB ECLIPSE PLUGIN");
         plugin = this;

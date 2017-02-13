@@ -51,7 +51,7 @@ public class ComponentTreeViewLabelProvider extends LabelProvider implements ISt
         }
 
         if (input instanceof VulnerabilityWithParentGav) {
-            // TODO hperlink impl
+            // hperlink impl
             String text = "Name: " + ((VulnerabilityWithParentGav) input).getVuln().getVulnerabilityName();
             return text;
         }

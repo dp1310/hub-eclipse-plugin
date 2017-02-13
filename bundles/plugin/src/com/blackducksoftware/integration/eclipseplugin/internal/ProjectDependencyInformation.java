@@ -234,10 +234,11 @@ public class ProjectDependencyInformation {
     }
 
     public void addWarningToProject(final String projectName, final Gav gav) {
-        final Map<Gav, DependencyInfo> deps = projectInfo.get(projectName);
-        if (deps != null) {
+        final Map<Gav, DependencyInfo> dependencies = projectInfo.get(projectName);
+        if (dependencies != null) {
             try {
-                deps.put(gav, componentCache.get(gav));
+                dependencies.put(gav, componentCache.get(gav));
+                projectInfo.put(projectName, dependencies);
                 if (componentView != null) {
                     componentView.resetInput();
                 }
@@ -259,6 +260,7 @@ public class ProjectDependencyInformation {
         final Map<Gav, DependencyInfo> dependencies = projectInfo.get(projectName);
         if (dependencies != null) {
             dependencies.remove(gav);
+            projectInfo.put(projectName, dependencies);
             if (componentView != null) {
                 componentView.resetInput();
             }

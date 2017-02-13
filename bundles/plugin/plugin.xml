@@ -75,7 +75,7 @@
       <command
             defaultHandler="com.blackducksoftware.integration.eclipseplugin.popupmenu.handlers.OpenVulnerabilityView"
             id="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
-            name="Open Black Duck Vulnerability View">
+            name="Open Black Duck Component Insepctor">
       </command>
       <!-- Corresponds to "Black Duck Settings..." menu item -->
       <command
@@ -97,7 +97,7 @@
       <view
             class="com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView"
             id="com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView"
-            name="Black Duck Vulnerabilities"
+            name="Component Inspector"
             icon="resources/icons/ducky.png"
             category="com.blackducksoftware.integration.eclipseplugin.views"
             restorable="true">
@@ -115,7 +115,7 @@
             category="BlackDuck"
             class="com.blackducksoftware.integration.eclipseplugin.preferences.PreferenceDefaults"
             id="DefaultConfig"
-            name="Inspection Settings">
+            name="Component Inspector Settings">
       </page>
       <!-- Preference page indicating which projects Black Duck scan is activated for -->
       <!-- Preference page with Black Duck default settings -->

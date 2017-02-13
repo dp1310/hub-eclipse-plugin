@@ -79,11 +79,12 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             final String OSSpecificFilepath = el.getPath().toOSString();
             if (depService.isGradleDependency(OSSpecificFilepath)) {
                 final Gav gav = extractor.getGradlePathGav(OSSpecificFilepath);
-                information.removeWarningFromProject(projName, gav);
+                // TODO: No hardcoded strings.
+                information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             } else if (depService.isMavenDependency(OSSpecificFilepath)) {
                 final String mavenPath = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toOSString();
                 final Gav gav = extractor.getMavenPathGav(OSSpecificFilepath, mavenPath);
-                information.removeWarningFromProject(projName, gav);
+                information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
 
@@ -107,7 +108,6 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
 
     private void visit(final IJavaElementDelta delta) {
         final IJavaElement el = delta.getElement();
-        System.out.println(el.getElementName());
         switch (el.getElementType()) {
         case IJavaElement.JAVA_MODEL: {
             visitChildren(delta);
@@ -120,12 +120,14 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             break;
         }
         case IJavaElement.PACKAGE_FRAGMENT_ROOT: {
-            if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0) {
+            if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0 || (delta.getKind() & IJavaElementDelta.REMOVED) != 0) {
                 try {
                     removeDependency(el);
                 } catch (final CoreException e) {
                 }
-            } else if ((delta.getKind() & (IJavaElementDelta.ADDED | IJavaElementDelta.CHANGED)) != 0) {
+            }
+            if ((delta.getFlags() & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0
+                    || (delta.getKind() & IJavaElementDelta.ADDED) != 0) {
                 try {
                     addDependency(el);
                 } catch (final CoreException e) {
@@ -147,8 +149,6 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
     private void visitChildren(final IJavaElementDelta delta) {
         for (final IJavaElementDelta c : delta.getAffectedChildren()) {
             visit(c);
-            // TODO remove
-            System.out.println("child affected");
         }
     }
 

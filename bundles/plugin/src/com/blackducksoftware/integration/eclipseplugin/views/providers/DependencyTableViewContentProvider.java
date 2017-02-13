@@ -29,30 +29,24 @@ import java.util.Map;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 
+import com.blackducksoftware.integration.eclipseplugin.common.constants.ConnectionStatus;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class DependencyTableViewContentProvider implements IStructuredContentProvider {
 
-    public static final String[] NO_SELECTED_PROJECT = new String[] { "No open project currently selected" };
-
-    public static final String[] INSPECTION_ACTIVE = new String[] { "Project scheduled for inspection" };
-
-    public static final String[] PROJECT_NOT_ACTIVATED = new String[] {
-            "Black Duck inspection not activated for current project" };
-
-    public static final String[] ERR_UNKNOWN_INPUT = new String[] { "Input is of unknown type" };
-
-    public static final String[] PROJECT_NEEDS_INSPECTION = new String[] { "Project has not yet been inspected" };
-
-    public static final String[] NO_HUB_CONNECTION = new String[] { "Cannot display vulnerabilities because you are not currently connected to the Hub" };
+    private static final String[] NOTHING = new String[] {};
 
     private String inputProject;
 
-    public DependencyTableViewContentProvider() {
+    private VulnerabilityView view;
+
+    public DependencyTableViewContentProvider(VulnerabilityView view) {
+        this.view = view;
     }
 
     @Override
@@ -61,7 +55,8 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
             String projectName = (String) inputElement;
             inputProject = projectName;
             if (projectName.equals("")) {
-                return NO_SELECTED_PROJECT;
+                view.setStatusMessage(ConnectionStatus.NO_SELECTED_PROJECT);
+                return NOTHING;
             }
             boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
@@ -75,21 +70,26 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                         boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
                         gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
                     }
-                    if (gavsWithParents.length == 0) {
-                        List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
-                        if (!runningInspections.isEmpty()) {
-                            return INSPECTION_ACTIVE;
-                        } else {
-                            return PROJECT_NEEDS_INSPECTION;
-                        }
+                    if (gavsWithParents.length != 0) {
+                        view.setStatusMessage(ConnectionStatus.CONNECTION_OK);
+                        return gavsWithParents;
                     }
-                    return gavsWithParents;
+                    List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
+                    if (!runningInspections.isEmpty()) {
+                        view.setStatusMessage(ConnectionStatus.PROJECT_INSPECTION_ACTIVE);
+                    } else {
+                        view.setStatusMessage(ConnectionStatus.PROJECT_NEEDS_INSPECTION);
+                    }
+                    return NOTHING;
                 }
-                return NO_HUB_CONNECTION;
+                view.setStatusMessage(ConnectionStatus.CONNECTION_DISCONNECTED);
+                return NOTHING;
             }
-            return PROJECT_NOT_ACTIVATED;
+            view.setStatusMessage(ConnectionStatus.PROJECT_INSPECTION_INACTIVE);
+            return NOTHING;
         }
-        return ERR_UNKNOWN_INPUT;
+        view.setStatusMessage("Error: Unknown Input");
+        return NOTHING;
     }
 
     public String getInputProject() {
