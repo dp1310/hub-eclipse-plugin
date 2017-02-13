@@ -103,6 +103,9 @@ public class ProjectDependencyInformation {
     }
 
     public void phoneHome() throws HubIntegrationException {
+        if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
+            return;
+        }
         PhoneHomeDataService phoneHomeService = Activator.getPlugin().getConnectionService().getPhoneHomeDataService();
         // get version
         HubVersionRequestService hubVersionRequestService = Activator.getPlugin().getConnectionService().getHubVersionRequestService();
@@ -161,21 +164,23 @@ public class ProjectDependencyInformation {
                     // Do nothing
                 }
                 String[] projects = workspaceService.getJavaProjectNames();
-                SubMonitor subMonitor = SubMonitor.convert(monitor, projects.length);
-                int i = 1;
-                subMonitor.setTaskName("Inspecting projects");
-                subMonitor.split(1).done();
-                for (String project : projects) {
-                    subMonitor.setTaskName(String.format("Inspecting project %1$d/%2$d", i, projects.length));
-                    Job subJob = inspectProject(project, false);
-                    subJob.schedule();
-                    try {
-                        subJob.join();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    i++;
+                if (projects != null) {
+                    SubMonitor subMonitor = SubMonitor.convert(monitor, projects.length);
+                    int i = 1;
+                    subMonitor.setTaskName("Inspecting projects");
                     subMonitor.split(1).done();
+                    for (String project : projects) {
+                        subMonitor.setTaskName(String.format("Inspecting project %1$d/%2$d", i, projects.length));
+                        Job subJob = inspectProject(project, false);
+                        subJob.schedule();
+                        try {
+                            subJob.join();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        i++;
+                        subMonitor.split(1).done();
+                    }
                 }
                 return Status.OK_STATUS;
             }

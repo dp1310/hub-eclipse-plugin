@@ -20,7 +20,7 @@
          <!-- Menu item that opens vulnerability view -->
          <command
                commandId="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
-               label="Open Black Duck Vulnerability View"
+               label="Open Component Inspector"
                style="push"
       		   icon="resources/icons/ducky.png">
       		  <!-- only visible when right clicking on Java project -->
@@ -28,7 +28,7 @@
          <!-- Menu item that opens Black Duck preference page -->
          <command
                commandId="com.blackducksoftware.integration.popupmenu.OpenPreferences"
-               label="Black Duck Settings..."
+               label="Hub Settings..."
                style="push"
       		   icon="resources/icons/ducky.png">
          </command>
@@ -50,7 +50,7 @@
          <!-- Menu item that opens vulnerability view -->
          <command
                commandId="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
-               label="Open Black Duck Vulnerability View"
+               label="Open Component Inspector"
                style="push"
       		   icon="resources/icons/ducky.png">
       		  <!-- only visible when right clicking on Java project -->
@@ -58,7 +58,7 @@
          <!-- Menu item that opens Black Duck preference page -->
          <command
                commandId="com.blackducksoftware.integration.popupmenu.OpenPreferences"
-               label="Black Duck Settings..."
+               label="Hub Settings..."
                style="push"
       		   icon="resources/icons/ducky.png">
          </command>

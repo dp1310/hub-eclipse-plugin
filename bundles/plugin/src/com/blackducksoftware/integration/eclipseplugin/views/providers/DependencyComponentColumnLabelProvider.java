@@ -31,13 +31,15 @@ import org.eclipse.swt.graphics.Image;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PathsToIconFiles;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLabelProvider implements IStyledLabelProvider {
 
     @Override
     public String getText(Object input) {
         if (input instanceof GavWithParentProject) {
-            String text = "" + ((GavWithParentProject) input).getGav().toString();
+            Gav gav = ((GavWithParentProject) input).getGav();
+            String text = gav.getArtifactId() + " " + gav.getVersion();
             return text;
         }
         if (input instanceof String) {
