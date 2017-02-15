@@ -50,6 +50,7 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.hub.api.vulnerability.SeverityEnum;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
@@ -295,6 +296,29 @@ public class ProjectDependencyInformation {
         }
 
         return vulnMap;
+    }
+
+    public int[] getVulnMapSeverityCount(String projectName, Gav gav) {
+        int high = 0;
+        int medium = 0;
+        int low = 0;
+        for (VulnerabilityItem vuln : getVulnMap(projectName).get(gav)) {
+
+            switch (SeverityEnum.valueOf(vuln.getSeverity())) {
+            case HIGH:
+                high++;
+                break;
+            case MEDIUM:
+                medium++;
+                break;
+            case LOW:
+                low++;
+                break;
+            default:
+                break;
+            }
+        }
+        return new int[] { high, medium, low };
     }
 
     public Map<Gav, DependencyInfo> getDependencyInfoMap(String projectName) {

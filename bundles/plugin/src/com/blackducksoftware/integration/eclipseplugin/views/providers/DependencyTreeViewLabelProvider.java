@@ -23,28 +23,57 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableColumn;
 
 /*
  * Eclipse 4 Plug-in Development by Example.pdf pg. 102
  */
-public abstract class DependencyTreeViewLabelProvider extends ColumnLabelProvider {
-    @Override
+public abstract class DependencyTreeViewLabelProvider extends StyledCellLabelProvider {
+
     public abstract String getText(Object input);
 
     public abstract String getTitle();
 
+    public Image getImage(Object input) {
+        return null;
+    }
+
+    public static Color decodeHex(Display display, String hexString) {
+        java.awt.Color c = java.awt.Color.decode(hexString);
+        return new Color(display, c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    public int getAlignment() {
+        return SWT.LEFT;
+    }
+
     public TableViewerColumn addColumnTo(TableViewer viewer) {
-        TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, SWT.LEFT);
+        TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, getAlignment());
         TableColumn column = tableViewerColumn.getColumn();
         column.setMoveable(true);
         column.setResizable(true);
         column.setText(getTitle());
         tableViewerColumn.setLabelProvider(this);
         return tableViewerColumn;
+    }
+
+    @Override
+    public void update(ViewerCell cell) {
+        super.update(cell);
+        cell.setText(getText(cell.getElement()));
+        cell.setImage(getImage(cell.getElement()));
+        styleCell(cell);
+    }
+
+    public void styleCell(ViewerCell cell) {
+        // Do nothing, override if you want to style the cell
     }
 }

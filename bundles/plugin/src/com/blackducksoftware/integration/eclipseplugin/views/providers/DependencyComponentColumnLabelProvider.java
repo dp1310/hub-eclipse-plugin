@@ -23,23 +23,27 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
-import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PathsToIconFiles;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 
-public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLabelProvider implements IStyledLabelProvider {
+public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLabelProvider {
 
     @Override
     public String getText(Object input) {
         if (input instanceof GavWithParentProject) {
             Gav gav = ((GavWithParentProject) input).getGav();
-            String text = gav.getArtifactId() + " " + gav.getVersion();
+            String text = gav.getArtifactId() + ":" + gav.getVersion();
             return text;
         }
         if (input instanceof String) {
@@ -68,9 +72,19 @@ public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLa
     }
 
     @Override
-    public StyledString getStyledText(Object element) {
-        String text = getText(element);
-        return new StyledString(text);
+    public void styleCell(ViewerCell cell) {
+        String[] compChunks = cell.getText().split(":");
+        cell.setText(cell.getText().replaceAll(":", " "));
+        Display display = Display.getCurrent();
+        final Color versionColor = decodeHex(display, "#285F8F");
+        final Color backgroundColor = decodeHex(display, "#fafafa");
+        final Color borderColor = decodeHex(display, "#dddddd");
+        final StyleRange versionStyle = new StyleRange(compChunks[0].length() + 1, compChunks[1].length(), versionColor, backgroundColor);
+        versionStyle.borderStyle = SWT.BORDER_SOLID;
+        versionStyle.borderColor = borderColor;
+        int versionHeight = (int) (cell.getFont().getFontData()[0].getHeight() * 0.85);
+        versionStyle.font = FontDescriptor.createFrom(cell.getFont()).setHeight(versionHeight).createFont(display);
+        cell.setStyleRanges(new StyleRange[] { versionStyle });
     }
 
 }
