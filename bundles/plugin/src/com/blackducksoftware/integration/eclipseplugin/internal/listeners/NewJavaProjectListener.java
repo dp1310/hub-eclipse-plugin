@@ -33,6 +33,7 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
@@ -65,15 +66,19 @@ public class NewJavaProjectListener implements IResourceChangeListener {
                                             && ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
                                         final String projectName = resource.getName();
                                         service.setAllProjectSpecificDefaults(projectName);
+                                        Job inspectionJob = null;
                                         if ((delta.getFlags() | IResourceDelta.MOVED_FROM) != 0 && delta.getMovedFromPath() != null) {
                                             String[] movedFromPath = delta.getMovedFromPath().toOSString().split(StringEscapeUtils.escapeJava(File.separator));
                                             String oldProjectName = movedFromPath[movedFromPath.length - 1];
-                                            information.inspectProject(projectName, true);
+                                            inspectionJob = information.inspectProject(projectName, true);
                                             if (service.isActivated(oldProjectName)) {
                                                 service.activateProject(projectName);
                                             }
                                         } else {
-                                            information.inspectProject(projectName, true);
+                                            inspectionJob = information.inspectProject(projectName, true);
+                                        }
+                                        if (inspectionJob != null) {
+                                            inspectionJob.schedule();
                                         }
                                     }
                                 } catch (final CoreException e) {

@@ -154,6 +154,11 @@
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
+                <artifactItem>
+                  <groupId>commons-codec</groupId>
+                  <artifactId>commons-codec</artifactId>
+                  <version>1.10</version>
+                </artifactItem>
               </artifactItems>
             </configuration>
           </execution>

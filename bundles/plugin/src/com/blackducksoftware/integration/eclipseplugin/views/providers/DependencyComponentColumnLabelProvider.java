@@ -74,12 +74,12 @@ public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLa
     @Override
     public void styleCell(ViewerCell cell) {
         String[] compChunks = cell.getText().split(":");
-        cell.setText(cell.getText().replaceAll(":", " "));
+        cell.setText(String.format("%1$s  %2$s ", compChunks[0], compChunks[1]));
         Display display = Display.getCurrent();
         final Color versionColor = decodeHex(display, "#285F8F");
         final Color backgroundColor = decodeHex(display, "#fafafa");
         final Color borderColor = decodeHex(display, "#dddddd");
-        final StyleRange versionStyle = new StyleRange(compChunks[0].length() + 1, compChunks[1].length(), versionColor, backgroundColor);
+        final StyleRange versionStyle = new StyleRange(compChunks[0].length() + 1, compChunks[1].length() + 2, versionColor, backgroundColor);
         versionStyle.borderStyle = SWT.BORDER_SOLID;
         versionStyle.borderColor = borderColor;
         int versionHeight = (int) (cell.getFont().getFontData()[0].getHeight() * 0.85);

@@ -190,9 +190,6 @@ public class ProjectDependencyInformation {
     }
 
     public Job inspectProject(String projectName, final boolean inspectIfNew) {
-        if (inspectIfNew && projectInfo.containsKey(projectName)) {
-            return null;
-        }
         Job job = new Job(JOB_INSPECT_PROJECT_PREFACE + projectName) {
             @Override
             public boolean belongsTo(Object family) {
@@ -201,6 +198,9 @@ public class ProjectDependencyInformation {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
+                if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection() || (inspectIfNew && projectInfo.containsKey(projectName))) {
+                    return Status.OK_STATUS;
+                }
                 final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
                 SubMonitor subMonitor = SubMonitor.convert(monitor, 100000);
                 subMonitor.setTaskName("Gathering dependencies");
