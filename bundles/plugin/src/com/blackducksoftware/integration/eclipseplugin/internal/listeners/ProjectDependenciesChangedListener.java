@@ -23,6 +23,9 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.internal.listeners;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
@@ -73,34 +76,34 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
         return null;
     }
 
-    public void removeDependency(final IJavaElement el) throws CoreException {
+    public void removeDependency(final IJavaElement el) throws CoreException, MalformedURLException {
         final String projName = getProjectNameFromElement(el);
         if (projName != null) {
-            final String OSSpecificFilepath = el.getPath().toOSString();
-            if (depService.isGradleDependency(OSSpecificFilepath)) {
-                final Gav gav = extractor.getGradlePathGav(OSSpecificFilepath);
+            final URL projectUrl = el.getPath().toFile().toURI().toURL();
+            if (depService.isGradleDependency(projectUrl)) {
+                final Gav gav = extractor.getGradlePathGav(projectUrl);
                 // TODO: No hardcoded strings.
                 information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
-            } else if (depService.isMavenDependency(OSSpecificFilepath)) {
-                final String mavenPath = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toOSString();
-                final Gav gav = extractor.getMavenPathGav(OSSpecificFilepath, mavenPath);
+            } else if (depService.isMavenDependency(projectUrl)) {
+                final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+                final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
                 information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
 
     }
 
-    public void addDependency(final IJavaElement el) throws CoreException {
+    public void addDependency(final IJavaElement el) throws CoreException, MalformedURLException {
         final String projName = getProjectNameFromElement(el);
         if (projName != null) {
-            final String OSSpecificFilepath = el.getPath().toOSString();
-            if (depService.isGradleDependency(OSSpecificFilepath)) {
-                final Gav gav = extractor.getGradlePathGav(OSSpecificFilepath);
+            final URL projectUrl = el.getPath().toFile().toURI().toURL();
+            if (depService.isGradleDependency(projectUrl)) {
+                final Gav gav = extractor.getGradlePathGav(projectUrl);
                 // TODO: No hardcoded strings.
                 information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
-            } else if (depService.isMavenDependency(OSSpecificFilepath)) {
-                final String mavenPath = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toOSString();
-                final Gav gav = extractor.getMavenPathGav(OSSpecificFilepath, mavenPath);
+            } else if (depService.isMavenDependency(projectUrl)) {
+                final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+                final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
                 information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
@@ -123,14 +126,16 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0 || (delta.getKind() & IJavaElementDelta.REMOVED) != 0) {
                 try {
                     removeDependency(el);
-                } catch (final CoreException e) {
+                } catch (final CoreException | MalformedURLException e) {
+                	e.printStackTrace();
                 }
             }
             if ((delta.getFlags() & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0
                     || (delta.getKind() & IJavaElementDelta.ADDED) != 0) {
                 try {
                     addDependency(el);
-                } catch (final CoreException e) {
+                } catch (final CoreException | MalformedURLException e) {
+                	e.printStackTrace();
                 }
             }
             break;

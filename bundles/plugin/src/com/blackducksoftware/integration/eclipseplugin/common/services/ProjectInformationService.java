@@ -23,6 +23,9 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +33,6 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -70,9 +72,9 @@ public class ProjectInformationService {
         return numBinary;
     }
 
-    public List<Gav> getGavsFromFilepaths(List<String> mavenAndGradleFilePaths) {
+    public List<Gav> getGavsFromFilepaths(List<URL> mavenAndGradleFilePaths) {
         List<Gav> gavs = new ArrayList<>();
-        for (String filePath : mavenAndGradleFilePaths) {
+        for (URL filePath : mavenAndGradleFilePaths) {
             Gav tempGav = getGavFromFilepath(filePath);
             if (tempGav != null)
                 gavs.add(tempGav);
@@ -80,16 +82,21 @@ public class ProjectInformationService {
         return gavs;
     }
 
-    public Gav getGavFromFilepath(String dependencyFilepath) {
+    public Gav getGavFromFilepath(URL dependencyFilepath) {
         if (dependencyInformationService.isMavenDependency(dependencyFilepath)) {
-            final IPath m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN);
-            final String device = m2Repo.getDevice();
-            String osString = m2Repo.toOSString();
-            if (device != null) {
-                osString = osString.replaceFirst(device, "");
-            }
-            final Gav gav = extractor.getMavenPathGav(dependencyFilepath,
-                    osString);
+            URL m2Repo;
+			try {
+				m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				return null;
+			}
+            //final String device = m2Repo.getDevice();
+            //String osString = m2Repo.toOSString();
+            //if (device != null) {
+            //    osString = osString.replaceFirst(device, "");
+            //}
+            final Gav gav = extractor.getMavenPathGav(dependencyFilepath, m2Repo);
             // TODO: No hardcoded strings
             return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
         } else if (dependencyInformationService.isGradleDependency(dependencyFilepath)) {
@@ -100,11 +107,11 @@ public class ProjectInformationService {
         }
     }
 
-    public List<String> getProjectDependencyFilePaths(final String projectName) {
+    public List<URL> getProjectDependencyFilePaths(final String projectName) {
         final IJavaProject javaProject = getJavaProject(projectName);
         try {
             IPackageFragmentRoot[] packageFragmentRoots = javaProject.getPackageFragmentRoots();
-            final List<String> dependencyFilepaths = getBinaryDependencyFilepaths(Arrays.asList(packageFragmentRoots));
+            final List<URL> dependencyFilepaths = getBinaryDependencyFilepaths(Arrays.asList(packageFragmentRoots));
             return dependencyFilepaths;
         } catch (final JavaModelException e) {
             // if exception thrown when getting filepaths to source and binary dependencies, assume
@@ -113,27 +120,21 @@ public class ProjectInformationService {
         return Arrays.asList();
     }
 
-    public List<String> getBinaryDependencyFilepaths(final List<IPackageFragmentRoot> packageFragmentRoots) {
-        final ArrayList<String> dependencyFilepaths = new ArrayList<>();
+    public List<URL> getBinaryDependencyFilepaths(final List<IPackageFragmentRoot> packageFragmentRoots) {
+        final ArrayList<URL> dependencyFilepaths = new ArrayList<>();
         for (final IPackageFragmentRoot root : packageFragmentRoots) {
-            String tempStr = getBinaryDependencyFilepath(root);
-            if (tempStr != null) {
-                dependencyFilepaths.add(tempStr);
+            URL tempURL = getBinaryDependencyFilepath(root);
+            if (tempURL != null) {
+                dependencyFilepaths.add(tempURL);
             }
         }
         return dependencyFilepaths;
     }
 
-    public String getBinaryDependencyFilepath(final IPackageFragmentRoot packageFragmentRoot) {
+    public URL getBinaryDependencyFilepath(final IPackageFragmentRoot packageFragmentRoot) {
         try {
             if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
-                final IPath path = packageFragmentRoot.getPath();
-                final String device = path.getDevice();
-                String osString = path.toOSString();
-                if (device != null) {
-                    osString = osString.replaceFirst(device, "");
-                }
-                return (osString);
+               return packageFragmentRoot.getPath().toFile().toURI().toURL();
             }
         } catch (final JavaModelException e) {
             /*
@@ -141,7 +142,10 @@ public class ProjectInformationService {
              * resource, do not add its filepath to the list of binary
              * dependency filepaths
              */
-        }
+        } catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         return null;
     }
 

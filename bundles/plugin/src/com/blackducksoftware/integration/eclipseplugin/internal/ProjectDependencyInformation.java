@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.internal;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -204,9 +205,9 @@ public class ProjectDependencyInformation {
                 final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
                 SubMonitor subMonitor = SubMonitor.convert(monitor, 100000);
                 subMonitor.setTaskName("Gathering dependencies");
-                final List<String> dependencyFilepaths = projService.getProjectDependencyFilePaths(projectName);
+                final List<URL> dependencyFilepaths = projService.getProjectDependencyFilePaths(projectName);
                 subMonitor.split(30000).done();
-                for (String filePath : dependencyFilepaths) {
+                for (URL filePath : dependencyFilepaths) {
                     subMonitor.setTaskName(String.format("Inspecting %1$s", filePath));
                     Gav gav = projService.getGavFromFilepath(filePath);
                     if (gav != null) {
