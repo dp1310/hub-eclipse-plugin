@@ -28,14 +28,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.TableColumn;
 
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.hub.api.vulnerability.SeverityEnum;
@@ -47,23 +44,13 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
     private final DependencyTableViewContentProvider dependencyTableViewCp;
 
     public DependencyNumVulnColumnLabelProvider(DependencyTableViewContentProvider dependencyTableViewCp) {
+        super();
         this.dependencyTableViewCp = dependencyTableViewCp;
     }
 
-    @Override
-    public int getAlignment() {
-        return SWT.CENTER;
-    }
-
-    @Override
-    public TableViewerColumn addColumnTo(TableViewer viewer) {
-        TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, getAlignment());
-        TableColumn column = tableViewerColumn.getColumn();
-        column.setMoveable(true);
-        column.setResizable(true);
-        column.setText(getTitle());
-        tableViewerColumn.setLabelProvider(this);
-        return tableViewerColumn;
+    public DependencyNumVulnColumnLabelProvider(int width, int alignment, DependencyTableViewContentProvider dependencyTableViewCp) {
+        super(width, alignment);
+        this.dependencyTableViewCp = dependencyTableViewCp;
     }
 
     @Override
@@ -71,6 +58,9 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
         if (input instanceof GavWithParentProject) {
             Map<Gav, List<VulnerabilityItem>> vulnsMap = dependencyTableViewCp.getProjectInformation()
                     .getVulnMap(dependencyTableViewCp.getInputProject());
+            if (vulnsMap.get(((GavWithParentProject) input).getGav()) == null) {
+                return VALUE_UNKNOWN;
+            }
             int high = 0;
             int medium = 0;
             int low = 0;
@@ -94,6 +84,7 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
             String lowString = low < 1000 ? low + "" : "999+";
             String text = StringUtils.join(new Object[] { " " + highString, mediumString, lowString + " " }, " : ");
             return text;
+
         }
         return "";
     }
@@ -109,6 +100,10 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
 
     @Override
     public void styleCell(ViewerCell cell) {
+        if (cell.getText().equals(VALUE_UNKNOWN)) {
+            cell.setText("");
+            return;
+        }
         String[] vulnChunks = cell.getText().split(":");
         cell.setFont(JFaceResources.getTextFont());
         Display display = Display.getCurrent();

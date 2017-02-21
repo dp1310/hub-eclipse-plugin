@@ -26,9 +26,11 @@ package com.blackducksoftware.integration.eclipseplugin.startup;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -168,6 +170,10 @@ public class Activator extends AbstractUIPlugin {
 
     public static ImageDescriptor getImageDescriptor(final String path) {
         return imageDescriptorFromPlugin(PLUGIN_ID, path);
+    }
+
+    public static void reportError(String dialogTitle, String message, IStatus status) {
+        ErrorDialog.openError(null, dialogTitle, message, status);
     }
 
 }

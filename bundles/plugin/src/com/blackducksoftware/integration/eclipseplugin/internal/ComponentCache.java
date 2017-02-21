@@ -39,6 +39,7 @@ import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class ComponentCache {
 
@@ -72,7 +73,7 @@ public class ComponentCache {
         if (depInfo == null) {
             try {
                 depInfo = load(gav);
-            } catch (ComponentLookupNotFoundException | IOException | URISyntaxException | LicenseLookupNotFoundException e) {
+            } catch (IOException | URISyntaxException | ComponentLookupNotFoundException | LicenseLookupNotFoundException e) {
                 throw new IntegrationException(e);
             }
             // If over capacity, pop least recently used
@@ -108,32 +109,38 @@ public class ComponentCache {
 
         VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
-        if (vulnService != null) {
-            vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
-                    gav.getArtifactId(), gav.getVersion());
-
-            if (vulns == null) {
-                throw new ComponentLookupNotFoundException(
-                        String.format("Hub could not find license information for component %1$s with namespace %2$s", gav,
-                                gav.getNamespace()));
-            }
-        } else {
-            throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
-        }
-
         ComplexLicenseModel sLicense = null;
-        LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
-        if (licenseService != null) {
-            sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
-                    gav.getArtifactId(), gav.getVersion());
+        try {
+            if (vulnService != null) {
+                vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                        gav.getArtifactId(), gav.getVersion());
 
-            if (sLicense == null) {
-                throw new LicenseLookupNotFoundException(
-                        String.format("Hub could not find license information for component %1$s with namespace %2$s", gav,
-                                gav.getNamespace()));
+                // if (vulns == null) {
+                // throw new ComponentLookupNotFoundException(
+                // String.format("Hub could not find license information for component %1$s with namespace %2$s", gav,
+                // gav.getNamespace()));
+                // }
+            } else {
+                throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
             }
-        } else {
-            throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
+
+            LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
+            if (licenseService != null) {
+                sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                        gav.getArtifactId(), gav.getVersion());
+
+                // if (sLicense == null) {
+                // return new DependencyInfo(vulns, sLicense);
+                // throw new LicenseLookupNotFoundException(
+                // String.format("Hub could not find license information for component %1$s with namespace %2$s", gav,
+                // gav.getNamespace()));
+                // }
+            } else {
+                throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
+            }
+        } catch (HubIntegrationException e) {
+            // Do nothing
+            // TODO: Eventually this should do something more graceful than create an object with null values
         }
 
         return new DependencyInfo(vulns, sLicense);

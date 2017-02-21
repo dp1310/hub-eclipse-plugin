@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,17 +84,17 @@ public class ProjectInformationService {
     public Gav getGavFromFilepath(URL dependencyFilepath) {
         if (dependencyInformationService.isMavenDependency(dependencyFilepath)) {
             URL m2Repo;
-			try {
-				m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-				return null;
-			}
-            //final String device = m2Repo.getDevice();
-            //String osString = m2Repo.toOSString();
-            //if (device != null) {
-            //    osString = osString.replaceFirst(device, "");
-            //}
+            try {
+                m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return null;
+            }
+            // final String device = m2Repo.getDevice();
+            // String osString = m2Repo.toOSString();
+            // if (device != null) {
+            // osString = osString.replaceFirst(device, "");
+            // }
             final Gav gav = extractor.getMavenPathGav(dependencyFilepath, m2Repo);
             // TODO: No hardcoded strings
             return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
@@ -134,7 +133,7 @@ public class ProjectInformationService {
     public URL getBinaryDependencyFilepath(final IPackageFragmentRoot packageFragmentRoot) {
         try {
             if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
-               return packageFragmentRoot.getPath().toFile().toURI().toURL();
+                return packageFragmentRoot.getPath().toFile().toURI().toURL();
             }
         } catch (final JavaModelException e) {
             /*
@@ -143,9 +142,9 @@ public class ProjectInformationService {
              * dependency filepaths
              */
         } catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 

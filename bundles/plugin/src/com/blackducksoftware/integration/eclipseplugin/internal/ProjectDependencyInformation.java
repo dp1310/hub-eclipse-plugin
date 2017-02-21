@@ -154,10 +154,12 @@ public class ProjectDependencyInformation {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 IJobManager jobMan = Job.getJobManager();
-                Job[] jobList = jobMan.find(JOB_INSPECT_ALL);
+                Job[] jobList = jobMan.find(INSPECTION_JOB);
                 if (jobList.length > 0) {
                     for (Job staleJob : jobList) {
-                        staleJob.cancel();
+                        if (!staleJob.equals(this)) {
+                            staleJob.cancel();
+                        }
                     }
                 }
                 try {
@@ -178,7 +180,9 @@ public class ProjectDependencyInformation {
                         try {
                             subJob.join();
                         } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                            if (componentView != null) {
+                                componentView.openError("Black Duck Inspection interrupted", "Inspection interrupted before it could reach completion.", e);
+                            }
                         }
                         i++;
                         subMonitor.split(1).done();
@@ -199,10 +203,12 @@ public class ProjectDependencyInformation {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection() || (inspectIfNew && projectInfo.containsKey(projectName))) {
+                if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection() || (inspectIfNew && projectInfo.containsKey(projectName))
+                        || !Activator.getPlugin().getPreferenceStore().getBoolean(projectName)) {
                     return Status.OK_STATUS;
                 }
                 final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
+                projectInfo.put(projectName, deps);
                 SubMonitor subMonitor = SubMonitor.convert(monitor, 100000);
                 subMonitor.setTaskName("Gathering dependencies");
                 final List<URL> dependencyFilepaths = projService.getProjectDependencyFilePaths(projectName);
@@ -213,26 +219,23 @@ public class ProjectDependencyInformation {
                     if (gav != null) {
                         try {
                             deps.put(gav, componentCache.get(gav));
+                            projectInfo.put(projectName, deps);
+                            if (componentView != null && componentView.getLastSelectedProjectName().equals(projectName)) {
+                                componentView.resetInput();
+                            }
                         } catch (final IntegrationException e) {
                             /*
-                             * Thrown if exception occurs when accessing key gav from cache. If an exception is
                              * thrown, info associated with that gav is inaccessible, and so don't put any
                              * information related to said gav into hashmap associated with the project
                              */
-                            // e.printStackTrace();
-                        }
-                        if (dependencyFilepaths.size() < 70000) {
-                            subMonitor.split(70000 / dependencyFilepaths.size()).done();
+                            e.printStackTrace();
                         }
                     }
-                    if (dependencyFilepaths.size() >= 70000) {
+                    if (dependencyFilepaths.size() < 70000) {
+                        subMonitor.split(70000 / dependencyFilepaths.size()).done();
+                    } else {
                         subMonitor.split(70000).done();
                     }
-                }
-                subMonitor.setTaskName("Caching inspection result");
-                projectInfo.put(projectName, deps);
-                if (componentView != null) {
-                    componentView.resetInput();
                 }
                 return Status.OK_STATUS;
             }
@@ -303,8 +306,10 @@ public class ProjectDependencyInformation {
         int high = 0;
         int medium = 0;
         int low = 0;
+        if (getVulnMap(projectName).get(gav) == null) {
+            return new int[] { 0, 0, 0 };
+        }
         for (VulnerabilityItem vuln : getVulnMap(projectName).get(gav)) {
-
             switch (SeverityEnum.valueOf(vuln.getSeverity())) {
             case HIGH:
                 high++;

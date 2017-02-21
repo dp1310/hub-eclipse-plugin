@@ -38,6 +38,21 @@ import org.eclipse.swt.widgets.TableColumn;
  */
 public abstract class DependencyTreeViewLabelProvider extends StyledCellLabelProvider {
 
+    public final int alignment;
+
+    public final int width;
+
+    public final static String VALUE_UNKNOWN = "UNKNOWN";
+
+    public DependencyTreeViewLabelProvider() {
+        this(200, SWT.LEFT);
+    }
+
+    public DependencyTreeViewLabelProvider(int width, int alignment) {
+        this.alignment = alignment;
+        this.width = width;
+    }
+
     public abstract String getText(Object input);
 
     public abstract String getTitle();
@@ -51,16 +66,13 @@ public abstract class DependencyTreeViewLabelProvider extends StyledCellLabelPro
         return new Color(display, c.getRed(), c.getGreen(), c.getBlue());
     }
 
-    public int getAlignment() {
-        return SWT.LEFT;
-    }
-
     public TableViewerColumn addColumnTo(TableViewer viewer) {
-        TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, getAlignment());
+        TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, alignment);
         TableColumn column = tableViewerColumn.getColumn();
         column.setMoveable(true);
         column.setResizable(true);
         column.setText(getTitle());
+        column.setWidth(width);
         tableViewerColumn.setLabelProvider(this);
         return tableViewerColumn;
     }

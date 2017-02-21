@@ -23,16 +23,20 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.constants;
 
-public class ConnectionStatus {
+public class InspectionStatus {
+    public static final String INITIALIZING = "Initializing component inspector...";
+
     public static final String NO_SELECTED_PROJECT = "No open project selected";
 
-    public static final String PROJECT_INSPECTION_ACTIVE = "Inspection results pending - project is scheduled for inspection";
+    public static final String PROJECT_INSPECTION_ACTIVE = "Inspecting project...";
+
+    public static final String PROJECT_INSPECTION_SCHEDULED = "Project scheduled for inspection";
 
     public static final String PROJECT_INSPECTION_INACTIVE = "Inspection not activated for current project";
 
-    public static final String PROJECT_NEEDS_INSPECTION = "No inspection results found - project has not yet been inspected";
+    public static final String PROJECT_NEEDS_INSPECTION = "Project has not yet been inspected";
 
-    public static final String CONNECTION_DISCONNECTED = "No inspection results found - cannot connect to Hub instance";
+    public static final String CONNECTION_DISCONNECTED = "Cannot connect to Hub instance";
 
-    public static final String CONNECTION_OK = "Connected to Hub instance - double-click any component to open it in the Hub";;
+    public static final String CONNECTION_OK = "Connected to Hub instance - double-click any component to open it in the Hub";
 }

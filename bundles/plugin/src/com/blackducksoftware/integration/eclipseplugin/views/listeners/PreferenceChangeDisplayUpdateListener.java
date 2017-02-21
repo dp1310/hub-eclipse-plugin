@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.eclipseplugin.views.listeners;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 
 public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeListener {
@@ -39,6 +40,7 @@ public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeLis
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
         if (componentView.getDependencyTableViewer() != null) {
+            Activator.getPlugin().getProjectInformation().inspectProject(event.getProperty(), true);
             componentView.resetInput();
         }
     }

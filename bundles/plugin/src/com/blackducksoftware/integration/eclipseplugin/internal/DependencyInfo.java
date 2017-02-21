@@ -47,4 +47,11 @@ public class DependencyInfo {
         return simpleLicense;
     }
 
+    public boolean getComponentIsKnown() {
+        return vulnList != null;
+    }
+
+    public boolean getLicenseIsKnown() {
+        return simpleLicense != null;
+    }
 }

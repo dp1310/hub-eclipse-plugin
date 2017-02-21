@@ -31,12 +31,15 @@ public class GavWithParentProject {
 
     private String parentProject;
 
-    private boolean hasVulns;
+    private boolean componentIsKnown;
 
-    public GavWithParentProject(Gav gav, String parentProject, boolean hasVulns) {
+    private boolean licenseIsKnown;
+
+    public GavWithParentProject(Gav gav, String parentProject, boolean componentIsKnown, boolean licenseIsKnown) {
         this.gav = gav;
         this.parentProject = parentProject;
-        this.hasVulns = hasVulns;
+        this.componentIsKnown = componentIsKnown;
+        this.licenseIsKnown = licenseIsKnown;
     }
 
     public Gav getGav() {
@@ -47,8 +50,12 @@ public class GavWithParentProject {
         return parentProject;
     }
 
-    public boolean hasVulns() {
-        return hasVulns;
+    public boolean getComponentIsKnown() {
+        return componentIsKnown;
+    }
+
+    public boolean getLicenseIsKnown() {
+        return licenseIsKnown;
     }
 
 }

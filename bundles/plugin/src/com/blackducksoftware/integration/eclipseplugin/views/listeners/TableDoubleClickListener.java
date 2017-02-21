@@ -26,6 +26,10 @@ package com.blackducksoftware.integration.eclipseplugin.views.listeners;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -35,49 +39,64 @@ import org.eclipse.ui.browser.IWebBrowser;
 
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class TableDoubleClickListener implements IDoubleClickListener {
 
+    public static final String JOB_GENERATE_URL = "Opening component in the Hub...";
+
+    private VulnerabilityView vulnerabilityView;
+
+    public TableDoubleClickListener(VulnerabilityView vulnerabilityView) {
+        this.vulnerabilityView = vulnerabilityView;
+    }
+
     @Override
     public void doubleClick(DoubleClickEvent event) {
         IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-        Object selectedObject = selection.getFirstElement();
-        if (selectedObject instanceof GavWithParentProject) {
-            Gav selectedGav = ((GavWithParentProject) selectedObject).getGav();
-            String link;
-            try {
-                ComponentVersion selectedComponentVersion = Activator.getPlugin().getConnectionService().getComponentDataService()
-                        .getExactComponentVersionFromComponent(selectedGav.getNamespace(), selectedGav.getGroupId(),
-                                selectedGav.getArtifactId(),
-                                selectedGav.getVersion());
-                // Final solution, will work once the redirect is set up
-                link = Activator.getPlugin().getConnectionService().getMetaService().getHref(selectedComponentVersion);
 
-                // But for now...
-                String versionID = link.substring(link.lastIndexOf("/") + 1);
-                link = Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl().toString();
-                link = link + "/#versions/id:" + versionID + "/view:overview";
-            } catch (HubIntegrationException e) {
-                throw new RuntimeException(e);
+        if (selection.getFirstElement() instanceof GavWithParentProject) {
+            GavWithParentProject selectedObject = (GavWithParentProject) selection.getFirstElement();
+            if (!selectedObject.getComponentIsKnown()) {
+                return;
             }
-            IWebBrowser browser;
+            Job job = new Job(JOB_GENERATE_URL) {
+                @Override
+                protected IStatus run(IProgressMonitor arg0) {
+                    Gav selectedGav = selectedObject.getGav();
+                    String link;
+                    try {
+                        ComponentVersion selectedComponentVersion = Activator.getPlugin().getConnectionService().getComponentDataService()
+                                .getExactComponentVersionFromComponent(selectedGav.getNamespace(), selectedGav.getGroupId(),
+                                        selectedGav.getArtifactId(),
+                                        selectedGav.getVersion());
+                        // Final solution, will work once the redirect is set up
+                        link = Activator.getPlugin().getConnectionService().getMetaService().getHref(selectedComponentVersion);
 
-            // Authenticate first
+                        // But for now...
+                        String versionID = link.substring(link.lastIndexOf("/") + 1);
+                        link = Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl().toString();
+                        link = link + "/#versions/id:" + versionID + "/view:overview";
 
-            try {
-                browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
-                browser.openURL(new URL(link));
-            } catch (PartInitException e1) {
-                e1.printStackTrace();
-            } catch (MalformedURLException e1) {
-                e1.printStackTrace();
-            }
+                        IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
+                        browser.openURL(new URL(link));
+                    } catch (PartInitException | MalformedURLException | HubIntegrationException e) {
+                        vulnerabilityView.openError("Could not open Component in Hub instance",
+                                String.format("Problem opening %1$s %2$s in %3$s",
+                                        selectedGav.getArtifactId(),
+                                        selectedGav.getVersion(),
+                                        Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl()),
+                                e);
+                        return Status.CANCEL_STATUS;
+                    }
+                    return Status.OK_STATUS;
+                }
 
-            return;
-
+            };
+            job.schedule();
         }
     }
 

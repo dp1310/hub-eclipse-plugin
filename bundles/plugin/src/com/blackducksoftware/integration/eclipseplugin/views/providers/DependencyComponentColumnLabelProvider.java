@@ -60,13 +60,11 @@ public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLa
     @Override
     public Image getImage(Object input) {
         if (input instanceof GavWithParentProject) {
-            ImageDescriptor descriptor;
-            if (!((GavWithParentProject) input).hasVulns()) {
-                descriptor = Activator.getImageDescriptor(PathsToIconFiles.GREEN_CHECK);
-            } else {
-                descriptor = Activator.getImageDescriptor(PathsToIconFiles.RED_X);
+            GavWithParentProject validObject = ((GavWithParentProject) input);
+            if (!validObject.getComponentIsKnown() || !validObject.getLicenseIsKnown()) {
+                ImageDescriptor descriptor = Activator.getImageDescriptor(PathsToIconFiles.WARNING);
+                return descriptor == null ? null : descriptor.createImage();
             }
-            return descriptor == null ? null : descriptor.createImage();
         }
         return null;
     }

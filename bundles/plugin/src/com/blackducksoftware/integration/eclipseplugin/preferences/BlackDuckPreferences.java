@@ -182,7 +182,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         try {
             storeValues();
         } catch (HubIntegrationException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 

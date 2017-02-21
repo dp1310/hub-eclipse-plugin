@@ -55,12 +55,9 @@ public class AuthorizationValidator {
             try {
                 HubServerConfig config = builder.build();
                 RestConnection connection = connectionService.getCredentialsRestConnection(config);
+                connection.connect();
                 return new AuthorizationResponse(connection, LOGIN_SUCCESS_MESSAGE);
-            } catch (IllegalStateException e) {
-                return new AuthorizationResponse(e.getMessage());
-            } catch (IllegalArgumentException e) {
-                return new AuthorizationResponse(e.getMessage());
-            } catch (EncryptionException e) {
+            } catch (IllegalArgumentException | EncryptionException e) {
                 return new AuthorizationResponse(e.getMessage());
             } catch (HubIntegrationException e) {
                 return new AuthorizationResponse(e.getMessage());

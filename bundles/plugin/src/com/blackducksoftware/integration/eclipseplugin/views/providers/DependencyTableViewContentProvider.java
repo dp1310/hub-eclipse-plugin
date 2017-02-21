@@ -23,18 +23,20 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 
-import com.blackducksoftware.integration.eclipseplugin.common.constants.ConnectionStatus;
+import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
+import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
-import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class DependencyTableViewContentProvider implements IStructuredContentProvider {
@@ -55,41 +57,40 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
             String projectName = (String) inputElement;
             inputProject = projectName;
             if (projectName.equals("")) {
-                view.setStatusMessage(ConnectionStatus.NO_SELECTED_PROJECT);
+                view.setStatusMessage(InspectionStatus.NO_SELECTED_PROJECT);
                 return NOTHING;
             }
             boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
                 if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
-
-                    final Gav[] gavs = Activator.getPlugin().getProjectInformation().getAllDependencyGavs(projectName);
-                    GavWithParentProject[] gavsWithParents = new GavWithParentProject[gavs.length];
-                    for (int i = 0; i < gavs.length; i++) {
-                        Gav gav = gavs[i];
-                        Map<Gav, List<VulnerabilityItem>> vulnMap = Activator.getPlugin().getProjectInformation().getVulnMap(projectName);
-                        boolean hasVulns = vulnMap.get(gav) != null && vulnMap.get(gav).size() > 0;
-                        gavsWithParents[i] = new GavWithParentProject(gav, projectName, hasVulns);
-                    }
-                    if (gavsWithParents.length != 0) {
-                        view.setStatusMessage(ConnectionStatus.CONNECTION_OK);
-                        return gavsWithParents;
+                    final Map<Gav, DependencyInfo> gavInfos = Activator.getPlugin().getProjectInformation().getDependencyInfoMap(projectName);
+                    ArrayList<GavWithParentProject> gavsWithParents = new ArrayList<>();
+                    for (Entry<Gav, DependencyInfo> gavInfo : gavInfos.entrySet()) {
+                        gavsWithParents.add(new GavWithParentProject(gavInfo.getKey(), projectName, gavInfo.getValue().getLicenseIsKnown(),
+                                gavInfo.getValue().getComponentIsKnown()));
                     }
                     List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
-                    if (!runningInspections.isEmpty()) {
-                        view.setStatusMessage(ConnectionStatus.PROJECT_INSPECTION_ACTIVE);
+                    if (runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_PROJECT_PREFACE + projectName)) {
+                        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
+                    } else if (gavsWithParents.size() == 0) {
+                        view.setStatusMessage(
+                                runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_ALL)
+                                        ? InspectionStatus.PROJECT_NEEDS_INSPECTION
+                                        : InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
                     } else {
-                        view.setStatusMessage(ConnectionStatus.PROJECT_NEEDS_INSPECTION);
+                        view.setStatusMessage(InspectionStatus.CONNECTION_OK);
                     }
-                    return NOTHING;
+                    return gavsWithParents.toArray();
                 }
-                view.setStatusMessage(ConnectionStatus.CONNECTION_DISCONNECTED);
+                view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
                 return NOTHING;
             }
-            view.setStatusMessage(ConnectionStatus.PROJECT_INSPECTION_INACTIVE);
+            view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
             return NOTHING;
         }
         view.setStatusMessage("Error: Unknown Input");
         return NOTHING;
+
     }
 
     public String getInputProject() {

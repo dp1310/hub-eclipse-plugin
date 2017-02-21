@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class NewJavaProjectListener implements IResourceChangeListener {
 
@@ -77,7 +78,8 @@ public class NewJavaProjectListener implements IResourceChangeListener {
                                         } else {
                                             inspectionJob = information.inspectProject(projectName, true);
                                         }
-                                        if (inspectionJob != null) {
+                                        if (inspectionJob != null && !Activator.getPlugin().getProjectInformation().getRunningInspections()
+                                                .contains(ProjectDependencyInformation.JOB_INSPECT_ALL)) {
                                             inspectionJob.schedule();
                                         }
                                     }

@@ -23,16 +23,11 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.swt.graphics.Image;
 
-import com.blackducksoftware.integration.eclipseplugin.common.constants.PathsToIconFiles;
-import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComplexLicenseWithParentGav;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentComplexLicense;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.InformationItemWithParentVulnerability;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.TreeViewerParent;
@@ -69,20 +64,6 @@ public class ComponentTreeViewLabelProvider extends LabelProvider implements ISt
         }
 
         return "";
-    }
-
-    @Override
-    public Image getImage(Object input) {
-        if (input instanceof GavWithParentProject) {
-            ImageDescriptor descriptor;
-            if (!((GavWithParentProject) input).hasVulns()) {
-                descriptor = Activator.getImageDescriptor(PathsToIconFiles.GREEN_CHECK);
-            } else {
-                descriptor = Activator.getImageDescriptor(PathsToIconFiles.RED_X);
-            }
-            return descriptor == null ? null : descriptor.createImage();
-        }
-        return null;
     }
 
     @Override

@@ -35,12 +35,21 @@ public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabe
     private DependencyTableViewContentProvider dependencyTableViewCp;
 
     public DependencyLicenseColumnLabelProvider(DependencyTableViewContentProvider dependencyTableViewCp) {
+        super();
+        this.dependencyTableViewCp = dependencyTableViewCp;
+    }
+
+    public DependencyLicenseColumnLabelProvider(int width, int alignment, DependencyTableViewContentProvider dependencyTableViewCp) {
+        super(width, alignment);
         this.dependencyTableViewCp = dependencyTableViewCp;
     }
 
     @Override
     public String getText(Object input) {
         if (input instanceof GavWithParentProject) {
+            if (!((GavWithParentProject) input).getLicenseIsKnown()) {
+                return "";
+            }
             Map<Gav, DependencyInfo> dependencyInfoMap = dependencyTableViewCp.getProjectInformation()
                     .getDependencyInfoMap(dependencyTableViewCp.getInputProject());
             String text = ""
