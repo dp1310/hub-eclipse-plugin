@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -32,6 +33,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableColumn;
+
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
 
 /*
  * Eclipse 4 Plug-in Development by Example.pdf pg. 102
@@ -67,6 +70,7 @@ public abstract class DependencyTreeViewLabelProvider extends StyledCellLabelPro
     }
 
     public TableViewerColumn addColumnTo(TableViewer viewer) {
+        ColumnViewerToolTipSupport.enableFor(viewer);
         TableViewerColumn tableViewerColumn = new TableViewerColumn(viewer, alignment);
         TableColumn column = tableViewerColumn.getColumn();
         column.setMoveable(true);
@@ -83,6 +87,14 @@ public abstract class DependencyTreeViewLabelProvider extends StyledCellLabelPro
         cell.setText(getText(cell.getElement()));
         cell.setImage(getImage(cell.getElement()));
         styleCell(cell);
+    }
+
+    @Override
+    public String getToolTipText(Object input) {
+        if (input instanceof GavWithParentProject && !((GavWithParentProject) input).getComponentIsKnown()) {
+            return "Component is not present in the Black Duck KB";
+        }
+        return null;
     }
 
     public void styleCell(ViewerCell cell) {
