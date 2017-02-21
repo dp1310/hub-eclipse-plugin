@@ -157,7 +157,7 @@ public class ProjectDependencyInformation {
                 Job[] jobList = jobMan.find(INSPECTION_JOB);
                 if (jobList.length > 0) {
                     for (Job staleJob : jobList) {
-                        if (!staleJob.equals(this)) {
+                        if (!staleJob.getName().equals(this.getName())) {
                             staleJob.cancel();
                         }
                     }
@@ -175,10 +175,13 @@ public class ProjectDependencyInformation {
                     subMonitor.split(1).done();
                     for (String project : projects) {
                         subMonitor.setTaskName(String.format("Inspecting project %1$d/%2$d", i, projects.length));
-                        Job subJob = inspectProject(project, false);
+                        Job subJob = createInspection(project, false);
                         subJob.schedule();
                         try {
                             subJob.join();
+                            if (componentView != null && componentView.getLastSelectedProjectName().equals(project)) {
+                                componentView.resetInput();
+                            }
                         } catch (InterruptedException e) {
                             if (componentView != null) {
                                 componentView.openError("Black Duck Inspection interrupted", "Inspection interrupted before it could reach completion.", e);
@@ -194,7 +197,7 @@ public class ProjectDependencyInformation {
         job.schedule();
     }
 
-    public Job inspectProject(String projectName, final boolean inspectIfNew) {
+    public Job createInspection(String projectName, final boolean inspectIfNew) {
         Job job = new Job(JOB_INSPECT_PROJECT_PREFACE + projectName) {
             @Override
             public boolean belongsTo(Object family) {
@@ -228,7 +231,7 @@ public class ProjectDependencyInformation {
                              * thrown, info associated with that gav is inaccessible, and so don't put any
                              * information related to said gav into hashmap associated with the project
                              */
-                            e.printStackTrace();
+                            // e.printStackTrace();
                         }
                     }
                     if (dependencyFilepaths.size() < 70000) {
@@ -338,7 +341,7 @@ public class ProjectDependencyInformation {
     }
 
     public void updateCache(RestConnection connection) throws HubIntegrationException {
-        if (Activator.getPlugin().updateConnection(connection).hasActiveHubConnection()) {
+        if (projectInfo.isEmpty() && Activator.getPlugin().updateConnection(connection).hasActiveHubConnection()) {
             inspectAllProjects();
         }
     }

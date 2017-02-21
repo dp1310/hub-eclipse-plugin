@@ -65,9 +65,11 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                 if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
                     final Map<Gav, DependencyInfo> gavInfos = Activator.getPlugin().getProjectInformation().getDependencyInfoMap(projectName);
                     ArrayList<GavWithParentProject> gavsWithParents = new ArrayList<>();
-                    for (Entry<Gav, DependencyInfo> gavInfo : gavInfos.entrySet()) {
-                        gavsWithParents.add(new GavWithParentProject(gavInfo.getKey(), projectName, gavInfo.getValue().getLicenseIsKnown(),
-                                gavInfo.getValue().getComponentIsKnown()));
+                    if (gavInfos != null && gavInfos.entrySet() != null) {
+                        for (Entry<Gav, DependencyInfo> gavInfo : gavInfos.entrySet()) {
+                            gavsWithParents.add(new GavWithParentProject(gavInfo.getKey(), projectName, gavInfo.getValue().getLicenseIsKnown(),
+                                    gavInfo.getValue().getComponentIsKnown()));
+                        }
                     }
                     List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
                     if (runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_PROJECT_PREFACE + projectName)) {
@@ -75,8 +77,8 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                     } else if (gavsWithParents.size() == 0) {
                         view.setStatusMessage(
                                 runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_ALL)
-                                        ? InspectionStatus.PROJECT_NEEDS_INSPECTION
-                                        : InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
+                                        ? InspectionStatus.PROJECT_INSPECTION_SCHEDULED
+                                        : InspectionStatus.PROJECT_NEEDS_INSPECTION);
                     } else {
                         view.setStatusMessage(InspectionStatus.CONNECTION_OK);
                     }

@@ -32,7 +32,7 @@ public class ProjectRenamedListener implements IResourceChangeListener {
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
         if (event.getSource() != null && event.getSource().equals(ResourcesPlugin.getWorkspace())) {
-
+            // TODO: Implement
         }
     }
 

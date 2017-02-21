@@ -79,7 +79,6 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         authCompositeLayout.numColumns = NUM_COLUMNS;
         authComposite.setLayout(authCompositeLayout);
         authComposite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_BEGINNING));
-
         hubAuthorizationConfig
                 .setHubUsernameField(createStringField(PreferenceNames.HUB_USERNAME, hubAuthorizationConfig.HUB_USERNAME_LABEL, authComposite, false));
         hubAuthorizationConfig
@@ -95,7 +94,6 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         hubAuthorizationConfig.setProxyPortField(createStringField(PreferenceNames.PROXY_PORT, hubAuthorizationConfig.PROXY_PORT_LABEL, authComposite, true));
         hubAuthorizationConfig.setIgnoredProxyHostsField(
                 createStringField(PreferenceNames.IGNORED_PROXY_HOSTS, hubAuthorizationConfig.IGNORED_PROXY_HOSTS_LABEL, authComposite, false));
-
         Composite connectionMessageComposite = new Composite(parent, SWT.LEFT);
         GridLayout connectionMessageCompositeLayout = new GridLayout();
         connectionMessageCompositeLayout.numColumns = 1;
@@ -107,7 +105,6 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
                 .setBackground(connectionMessageText.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         connectionMessageText.setLayoutData(textData);
         connectionMessageText.setText("\n");
-
         return parent;
     }
 
@@ -182,7 +179,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         try {
             storeValues();
         } catch (HubIntegrationException e) {
-            e.printStackTrace();
+            // Do nothing
         }
     }
 
@@ -191,7 +188,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         try {
             storeValues();
         } catch (HubIntegrationException e) {
-            e.printStackTrace();
+            // Do nothing
         }
         return super.performOk();
     }

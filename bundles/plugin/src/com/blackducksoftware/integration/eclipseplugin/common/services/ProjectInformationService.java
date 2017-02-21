@@ -90,11 +90,6 @@ public class ProjectInformationService {
                 e.printStackTrace();
                 return null;
             }
-            // final String device = m2Repo.getDevice();
-            // String osString = m2Repo.toOSString();
-            // if (device != null) {
-            // osString = osString.replaceFirst(device, "");
-            // }
             final Gav gav = extractor.getMavenPathGav(dependencyFilepath, m2Repo);
             // TODO: No hardcoded strings
             return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());

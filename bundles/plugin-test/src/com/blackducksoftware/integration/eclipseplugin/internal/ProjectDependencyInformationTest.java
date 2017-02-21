@@ -79,7 +79,7 @@ public class ProjectDependencyInformationTest {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.inspectProject(proj, true);
+        projInfo.createInspection(proj, true);
         final Gav[] gavs = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavs, gav1));
         assertTrue(containsGav(gavs, gav2));
@@ -91,7 +91,7 @@ public class ProjectDependencyInformationTest {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.inspectProject(proj, true);
+        projInfo.createInspection(proj, true);
         assertTrue(projInfo.containsProject(proj));
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertFalse(containsGav(gavsBefore, gav3));
@@ -105,7 +105,7 @@ public class ProjectDependencyInformationTest {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.inspectProject(proj, true);
+        projInfo.createInspection(proj, true);
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavsBefore, gav3));
         projInfo.removeWarningFromProject(proj, gav3);
@@ -118,7 +118,7 @@ public class ProjectDependencyInformationTest {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.inspectProject(proj, true);
+        projInfo.createInspection(proj, true);
         assertTrue(projInfo.containsProject(proj));
         projInfo.removeProject(proj);
         assertFalse(projInfo.containsProject(proj));

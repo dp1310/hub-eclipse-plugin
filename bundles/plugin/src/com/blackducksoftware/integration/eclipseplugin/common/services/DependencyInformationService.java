@@ -25,24 +25,21 @@ package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.eclipse.jdt.core.JavaCore;
+
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
 
 public class DependencyInformationService {
 
     public boolean isMavenDependency(final URL filePath) {
         URL m2Repo;
-		try {
-			m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return false;
-		}
-        //final String device = m2Repo.getDevice();
-        //String osString = m2Repo.toOSString();
-        //if (device != null) {
-        //    osString = osString.replaceFirst(device, "");
-        //}
+        try {
+            m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return false;
+        }
         final String[] m2RepoSegments = m2Repo.getFile().split("/");
         final String[] filePathSegments = filePath.getFile().split("/");
         if (filePathSegments.length < m2RepoSegments.length) {

@@ -33,18 +33,25 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
-import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class NewJavaProjectListener implements IResourceChangeListener {
 
     private final PreferencesService service;
 
     private final ProjectDependencyInformation information;
+
+    public static final String DELAYED_INSPECTION_JOB_PREFIX = "Black Duck Component Inspector Delayed Inspection of ";
+
+    public static final String DELAYED_INSPECTION_JOB = "Black Duck Hub Delayed Inspection";
 
     public NewJavaProjectListener(final PreferencesService service,
             final ProjectDependencyInformation information) {
@@ -54,41 +61,70 @@ public class NewJavaProjectListener implements IResourceChangeListener {
 
     @Override
     public void resourceChanged(final IResourceChangeEvent event) {
-        if (event.getSource() != null && event.getSource().equals(ResourcesPlugin.getWorkspace())) {
-            if (event.getDelta() != null) {
-                final IResourceDelta[] childrenDeltas = event.getDelta().getAffectedChildren();
-                if (childrenDeltas != null) {
-                    for (final IResourceDelta delta : childrenDeltas) {
-                        if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
-                            if (delta.getResource() != null) {
-                                final IResource resource = delta.getResource();
-                                try {
-                                    if (resource instanceof IProject
-                                            && ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
-                                        final String projectName = resource.getName();
-                                        service.setAllProjectSpecificDefaults(projectName);
-                                        Job inspectionJob = null;
-                                        if ((delta.getFlags() | IResourceDelta.MOVED_FROM) != 0 && delta.getMovedFromPath() != null) {
-                                            String[] movedFromPath = delta.getMovedFromPath().toOSString().split(StringEscapeUtils.escapeJava(File.separator));
-                                            String oldProjectName = movedFromPath[movedFromPath.length - 1];
-                                            inspectionJob = information.inspectProject(projectName, true);
-                                            if (service.isActivated(oldProjectName)) {
-                                                service.activateProject(projectName);
-                                            }
-                                        } else {
-                                            inspectionJob = information.inspectProject(projectName, true);
+        if (event.getSource() != null && event.getSource().equals(ResourcesPlugin.getWorkspace()) && event.getDelta() != null) {
+            final IResourceDelta[] childrenDeltas = event.getDelta().getAffectedChildren();
+            if (childrenDeltas != null) {
+                for (final IResourceDelta delta : childrenDeltas) {
+                    if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
+                        if (delta.getResource() != null) {
+                            final IResource resource = delta.getResource();
+                            try {
+                                if (resource instanceof IProject
+                                        && ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
+                                    final String projectName = resource.getName();
+                                    service.setAllProjectSpecificDefaults(projectName);
+                                    Job inspectionJob = null;
+                                    if ((delta.getFlags() | IResourceDelta.MOVED_FROM) != 0 && delta.getMovedFromPath() != null) {
+                                        String[] movedFromPath = delta.getMovedFromPath().toOSString()
+                                                .split(StringEscapeUtils.escapeJava(File.separator));
+                                        String oldProjectName = movedFromPath[movedFromPath.length - 1];
+                                        inspectionJob = information.createInspection(projectName, true);
+                                        if (service.isActivated(oldProjectName)) {
+                                            service.activateProject(projectName);
                                         }
-                                        if (inspectionJob != null && !Activator.getPlugin().getProjectInformation().getRunningInspections()
-                                                .contains(ProjectDependencyInformation.JOB_INSPECT_ALL)) {
-                                            inspectionJob.schedule();
-                                        }
+                                    } else {
+                                        inspectionJob = information.createInspection(projectName, true);
                                     }
-                                } catch (final CoreException e) {
-                                    /*
-                                     * If error is thrown when calling hasNature(), then assume it isn't a Java
-                                     * project and therefore don't do anything
-                                     */
+                                    if (inspectionJob != null) {
+                                        final Job delayedInspection = inspectionJob;
+                                        Job delayer = new Job(DELAYED_INSPECTION_JOB_PREFIX + projectName) {
+                                            @Override
+                                            public boolean belongsTo(Object family) {
+                                                return family.equals(DELAYED_INSPECTION_JOB);
+                                            }
+
+                                            @Override
+                                            protected IStatus run(IProgressMonitor monitor) {
+                                                IJobManager jobMan = Job.getJobManager();
+                                                Job[] delayedInspections = jobMan.find(DELAYED_INSPECTION_JOB);
+                                                for (Job delayedInspection : delayedInspections) {
+                                                    if (delayedInspection.getName().equals(this.getName())) {
+                                                        // Kill stale jobs
+                                                        delayedInspection.cancel();
+                                                    }
+                                                }
+                                                Job[] inspections = jobMan.find(ProjectDependencyInformation.INSPECTION_JOB);
+                                                monitor.setTaskName("Waiting for active inspection to finish");
+                                                while (inspections.length > 0) {
+                                                    try {
+                                                        inspections[0].join();
+                                                    } catch (InterruptedException e) {
+                                                        // Do nothing, a missed scan is nbd
+                                                    }
+                                                    inspections = jobMan.find(ProjectDependencyInformation.INSPECTION_JOB);
+                                                }
+                                                delayedInspection.schedule();
+                                                return Status.OK_STATUS;
+                                            }
+                                        };
+                                        delayer.schedule();
+                                    }
                                 }
+                            } catch (final CoreException e) {
+                                /*
+                                 * If error is thrown when calling hasNature(), then assume it isn't a Java
+                                 * project and therefore don't do anything
+                                 */
                             }
                         }
                     }
