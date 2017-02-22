@@ -8,7 +8,7 @@ Hub Eclipse is still in development...please check back in a few weeks for a rel
 
 
 ## Where can I get the latest release? ##
-N/A
+<a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3300019" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a>
 
 ## Documentation ##
 All documentation for hub-common can be found on the base project:  https://github.com/blackducksoftware/hub-eclipse-plugin/wiki
