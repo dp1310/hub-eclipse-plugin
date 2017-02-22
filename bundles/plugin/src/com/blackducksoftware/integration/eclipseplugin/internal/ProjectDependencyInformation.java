@@ -86,6 +86,10 @@ public class ProjectDependencyInformation {
         this.componentCache = componentCache;
     }
 
+    public VulnerabilityView getComponentView() {
+        return componentView;
+    }
+
     public void setComponentView(final VulnerabilityView componentView) {
         this.componentView = componentView;
     }
@@ -244,6 +248,10 @@ public class ProjectDependencyInformation {
             }
         };
         return job;
+    }
+
+    public void addProjectInfo(final String projectName, final Map<Gav, DependencyInfo> dependencies) {
+        projectInfo.put(projectName, dependencies);
     }
 
     public void addWarningToProject(final String projectName, final Gav gav) {

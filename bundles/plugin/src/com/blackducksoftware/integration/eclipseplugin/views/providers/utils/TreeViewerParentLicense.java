@@ -42,13 +42,13 @@ public class TreeViewerParentLicense extends TreeViewerParent {
     @Override
     public Object[] getChildren() {
         ComplexLicenseItem parentLicense = complexLicenseItem;
-        int numLicense = parentLicense.getWrappedComplexLicenseItems().size();
+        int numLicense = parentLicense.getLicenses().size();
         Object[] children = new Object[numLicense + 1]; // Add type of the license as well as a child
 
         children[0] = ("Type: " + complexLicenseItem.getType().toString());
 
         for (int i = 0; i < numLicense; i++) {
-            children[i + 1] = new ComplexLicenseWithParentGav(gavWithParentProject.getGav(), complexLicenseItem.getWrappedComplexLicenseItems().get(i));
+            children[i + 1] = new ComplexLicenseWithParentGav(gavWithParentProject.getGav(), complexLicenseItem.getLicenses().get(i));
         }
 
         return children;

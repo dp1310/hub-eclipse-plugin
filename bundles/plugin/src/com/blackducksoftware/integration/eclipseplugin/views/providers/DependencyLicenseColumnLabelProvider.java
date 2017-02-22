@@ -52,8 +52,7 @@ public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabe
             }
             Map<Gav, DependencyInfo> dependencyInfoMap = dependencyTableViewCp.getProjectInformation()
                     .getDependencyInfoMap(dependencyTableViewCp.getInputProject());
-            String text = ""
-                    + new ComplexLicenseParser(dependencyInfoMap.get(((GavWithParentProject) input).getGav()).geComplexLicenseItem());
+            String text = new ComplexLicenseParser(dependencyInfoMap.get(((GavWithParentProject) input).getGav()).geComplexLicenseItem()).parse();
             return text;
         }
         if (input instanceof String) {

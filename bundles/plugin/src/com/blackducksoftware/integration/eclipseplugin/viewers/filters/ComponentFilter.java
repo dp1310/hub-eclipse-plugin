@@ -54,7 +54,7 @@ public class ComponentFilter extends ViewerFilter {
         }
         String license = new ComplexLicenseParser(
                 dependencyTableViewContentProvider.getProjectInformation().getDependencyInfoMap(((GavWithParentProject) element).getParentProject())
-                        .get(gav).geComplexLicenseItem()).toString();
+                        .get(gav).geComplexLicenseItem()).parse();
         if (license.contains(filterBox.getText())) {
             return true;
         }
