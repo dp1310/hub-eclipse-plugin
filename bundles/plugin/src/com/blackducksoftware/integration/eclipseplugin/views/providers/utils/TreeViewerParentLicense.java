@@ -24,15 +24,14 @@
 package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 
 import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
-import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 
 public class TreeViewerParentLicense extends TreeViewerParent {
 
-    private final ComplexLicenseModel complexLicenseModel;
+    private final ComplexLicenseItem complexLicenseItem;
 
-    public TreeViewerParentLicense(String dispName, GavWithParentProject gavWithParentProject, ComplexLicenseModel complexLicenseModel) {
+    public TreeViewerParentLicense(String dispName, GavWithParentProject gavWithParentProject, ComplexLicenseItem complexLicenseItem) {
         super(dispName, gavWithParentProject);
-        this.complexLicenseModel = complexLicenseModel;
+        this.complexLicenseItem = complexLicenseItem;
     }
 
     @Override
@@ -42,21 +41,21 @@ public class TreeViewerParentLicense extends TreeViewerParent {
 
     @Override
     public Object[] getChildren() {
-        ComplexLicenseItem parentLicense = complexLicenseModel.getComplexLicenseItem();
+        ComplexLicenseItem parentLicense = complexLicenseItem;
         int numLicense = parentLicense.getWrappedComplexLicenseItems().size();
         Object[] children = new Object[numLicense + 1]; // Add type of the license as well as a child
 
-        children[0] = ("Type: " + complexLicenseModel.getComplexLicenseItem().getType().toString());
+        children[0] = ("Type: " + complexLicenseItem.getType().toString());
 
         for (int i = 0; i < numLicense; i++) {
-            children[i + 1] = new ComplexLicenseWithParentGav(gavWithParentProject.getGav(), complexLicenseModel.getWrappedComplexLicenseModels().get(i));
+            children[i + 1] = new ComplexLicenseWithParentGav(gavWithParentProject.getGav(), complexLicenseItem.getWrappedComplexLicenseItems().get(i));
         }
 
         return children;
     }
 
-    public ComplexLicenseModel getComplexLicense() {
-        return this.complexLicenseModel;
+    public ComplexLicenseItem getComplexLicense() {
+        return this.complexLicenseItem;
     }
 
 }

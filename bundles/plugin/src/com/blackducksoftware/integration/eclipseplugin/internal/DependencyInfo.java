@@ -25,16 +25,16 @@ package com.blackducksoftware.integration.eclipseplugin.internal;
 
 import java.util.List;
 
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
-import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 
 public class DependencyInfo {
 
     private final List<VulnerabilityItem> vulnList;
 
-    private final ComplexLicenseModel simpleLicense;
+    private final ComplexLicenseItem simpleLicense;
 
-    public DependencyInfo(final List<VulnerabilityItem> vulnList, final ComplexLicenseModel simpleLicense) {
+    public DependencyInfo(final List<VulnerabilityItem> vulnList, final ComplexLicenseItem simpleLicense) {
         this.vulnList = vulnList;
         this.simpleLicense = simpleLicense;
     }
@@ -43,7 +43,7 @@ public class DependencyInfo {
         return vulnList;
     }
 
-    public ComplexLicenseModel getSimpleLicense() {
+    public ComplexLicenseItem geComplexLicenseItem() {
         return simpleLicense;
     }
 

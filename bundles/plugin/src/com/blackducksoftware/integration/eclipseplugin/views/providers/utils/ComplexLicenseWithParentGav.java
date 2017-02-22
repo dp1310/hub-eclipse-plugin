@@ -23,25 +23,25 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
-import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 
 public class ComplexLicenseWithParentGav {
 
     private final Gav gav;
 
-    private final ComplexLicenseModel complexLicenseModel;
+    private final ComplexLicenseItem complexLicenseItem;
 
-    public ComplexLicenseWithParentGav(Gav gav, ComplexLicenseModel complexLicenseModel) {
+    public ComplexLicenseWithParentGav(Gav gav, ComplexLicenseItem complexLicenseItem) {
         this.gav = gav;
-        this.complexLicenseModel = complexLicenseModel;
+        this.complexLicenseItem = complexLicenseItem;
     }
 
     public Gav getGav() {
         return this.gav;
     }
 
-    public ComplexLicenseModel getComplexLicenseModel() {
-        return this.complexLicenseModel;
+    public ComplexLicenseItem getComplexLicenseItem() {
+        return this.complexLicenseItem;
     }
 }

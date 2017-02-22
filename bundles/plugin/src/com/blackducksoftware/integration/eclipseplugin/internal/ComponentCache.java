@@ -34,10 +34,10 @@ import com.blackducksoftware.integration.eclipseplugin.internal.exception.Compon
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservice.model.ComplexLicenseModel;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
@@ -109,7 +109,7 @@ public class ComponentCache {
 
         VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
-        ComplexLicenseModel sLicense = null;
+        ComplexLicenseItem sLicense = null;
         try {
             if (vulnService != null) {
                 vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
@@ -126,7 +126,7 @@ public class ComponentCache {
 
             LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
             if (licenseService != null) {
-                sLicense = licenseService.getComplexLicenseModelFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                         gav.getArtifactId(), gav.getVersion());
 
                 // if (sLicense == null) {
