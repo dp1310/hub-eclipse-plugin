@@ -1,2 +1,2 @@
-# hub-eclipse-plugin
-Black Duck Hub Eclipse plugin
+# Hub Eclipse
+This is currently in development.  Please check back soon for 1.0.0 release.
