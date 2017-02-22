@@ -1,4 +1,30 @@
+/**
+ * hub-eclipse-plugin-test
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.eclipseplugin.internal.listeners;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -19,13 +45,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ JavaCore.class })
@@ -68,19 +92,32 @@ public class ProjectDependenciesChangedListenerTest {
     Gav gradleGav, mavenGav;
 
     @Mock
-    GavWithType gradleGavWithType, mavenGavWithType;
+    private URL GRADLE_PATH_URL;
+
+    @Mock
+    private URL MAVEN_PATH_URL;
+
+    @Mock
+    private URL NON_BINARY_PATH_URL;
+
+    @Mock
+    private URL MAVEN_REPO_PATH_URL;
 
     private final String PROJECT_NAME = "project name";
 
-    private final String GRADLE_PATH_OS_STRING = "gradle";
+    private final String MAVEN_ARTIFACT_STRING = "maven artifact";
 
-    private final String MAVEN_PATH_OS_STRING = "maven";
+    private final String MAVEN_GROUP_STRING = "maven group";
 
-    private final String NON_BINARY_PATH_OS_STRING = "non-binary";
+    private final String MAVEN_VERSION_STRING = "maven version";
 
-    private final String MAVEN_REPO_PATH_OS_STRING = "maven repo";
+    private final String GRADLE_ARTIFACT_STRING = "gradle artifact";
 
-    private void setUpAllStubs() throws CoreException {
+    private final String GRADLE_GROUP_STRING = "gradle group";
+
+    private final String GRADLE_VERSION_STRING = "gradle version";
+
+    private void setUpAllStubs() throws CoreException, MalformedURLException {
         Mockito.when(model.getElementType()).thenReturn(IJavaElement.JAVA_MODEL);
         Mockito.when(project.getElementType()).thenReturn(IJavaElement.JAVA_PROJECT);
         Mockito.when(mavenRoot.getElementType()).thenReturn(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -104,39 +141,43 @@ public class ProjectDependenciesChangedListenerTest {
         Mockito.when(gradleRoot.getPath()).thenReturn(gradlePath);
         Mockito.when(mavenRoot.getPath()).thenReturn(mavenPath);
         Mockito.when(nonBinaryRoot.getPath()).thenReturn(nonBinaryPath);
-        Mockito.when(gradlePath.toOSString()).thenReturn(GRADLE_PATH_OS_STRING);
-        Mockito.when(mavenPath.toOSString()).thenReturn(MAVEN_PATH_OS_STRING);
-        Mockito.when(nonBinaryPath.toOSString()).thenReturn(NON_BINARY_PATH_OS_STRING);
-        Mockito.when(depService.isMavenDependency(GRADLE_PATH_OS_STRING)).thenReturn(false);
-        Mockito.when(depService.isGradleDependency(GRADLE_PATH_OS_STRING)).thenReturn(true);
-        Mockito.when(depService.isMavenDependency(MAVEN_PATH_OS_STRING)).thenReturn(true);
-        Mockito.when(depService.isGradleDependency(MAVEN_PATH_OS_STRING)).thenReturn(false);
-        Mockito.when(depService.isMavenDependency(NON_BINARY_PATH_OS_STRING)).thenReturn(false);
-        Mockito.when(depService.isGradleDependency(NON_BINARY_PATH_OS_STRING)).thenReturn(false);
+        Mockito.when(gradlePath.toFile().toURI().toURL()).thenReturn(GRADLE_PATH_URL);
+        Mockito.when(mavenPath.toFile().toURI().toURL()).thenReturn(MAVEN_PATH_URL);
+        Mockito.when(nonBinaryPath.toFile().toURI().toURL()).thenReturn(NON_BINARY_PATH_URL);
+        Mockito.when(depService.isMavenDependency(GRADLE_PATH_URL)).thenReturn(false);
+        Mockito.when(depService.isGradleDependency(GRADLE_PATH_URL)).thenReturn(true);
+        Mockito.when(depService.isMavenDependency(MAVEN_PATH_URL)).thenReturn(true);
+        Mockito.when(depService.isGradleDependency(MAVEN_PATH_URL)).thenReturn(false);
+        Mockito.when(depService.isMavenDependency(NON_BINARY_PATH_URL)).thenReturn(false);
+        Mockito.when(depService.isGradleDependency(NON_BINARY_PATH_URL)).thenReturn(false);
         PowerMockito.mockStatic(JavaCore.class);
         Mockito.when(JavaCore.getClasspathVariable(ClasspathVariables.MAVEN)).thenReturn(mavenRepoPath);
-        Mockito.when(mavenRepoPath.toOSString()).thenReturn(MAVEN_REPO_PATH_OS_STRING);
-        Mockito.when(extractor.getMavenPathGav(MAVEN_PATH_OS_STRING, MAVEN_REPO_PATH_OS_STRING)).thenReturn(mavenGav);
-        Mockito.when(extractor.getGradlePathGav(GRADLE_PATH_OS_STRING)).thenReturn(gradleGav);
-        Mockito.when(gradleGavWithType.getGav()).thenReturn(gradleGav);
-        Mockito.when(mavenGavWithType.getGav()).thenReturn(mavenGav);
+        Mockito.when(mavenRepoPath.toFile().toURI().toURL()).thenReturn(MAVEN_REPO_PATH_URL);
+        Mockito.when(extractor.getMavenPathGav(MAVEN_PATH_URL, MAVEN_REPO_PATH_URL)).thenReturn(mavenGav);
+        Mockito.when(extractor.getGradlePathGav(GRADLE_PATH_URL)).thenReturn(gradleGav);
+        Mockito.when(mavenGav.getGroupId()).thenReturn(MAVEN_GROUP_STRING);
+        Mockito.when(mavenGav.getArtifactId()).thenReturn(MAVEN_ARTIFACT_STRING);
+        Mockito.when(mavenGav.getVersion()).thenReturn(MAVEN_VERSION_STRING);
+        Mockito.when(gradleGav.getGroupId()).thenReturn(GRADLE_GROUP_STRING);
+        Mockito.when(gradleGav.getArtifactId()).thenReturn(GRADLE_ARTIFACT_STRING);
+        Mockito.when(gradleGav.getVersion()).thenReturn(GRADLE_VERSION_STRING);
     }
 
     @Test
-    public void testClasspathNotChanged() throws CoreException {
+    public void testClasspathNotChanged() throws CoreException, MalformedURLException {
         setUpAllStubs();
         Mockito.when(projectDelta.getFlags()).thenReturn(0);
         final ProjectDependenciesChangedListener listener = new ProjectDependenciesChangedListener(information,
                 extractor, depService);
         listener.elementChanged(e);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, gradleGavWithType);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, mavenGavWithType);
+        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, gradleGav);
+        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, mavenGav);
         Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, gradleGav);
         Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, mavenGav);
     }
 
     @Test
-    public void testDependencyRemovedFromClasspath() throws CoreException {
+    public void testDependencyRemovedFromClasspath() throws CoreException, MalformedURLException {
         setUpAllStubs();
         Mockito.when(projectDelta.getFlags()).thenReturn(IJavaElementDelta.F_CLASSPATH_CHANGED);
         Mockito.when(mavenRootDelta.getFlags()).thenReturn(IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);
@@ -148,15 +189,17 @@ public class ProjectDependenciesChangedListenerTest {
         final ProjectDependenciesChangedListener listener = new ProjectDependenciesChangedListener(information,
                 extractor, depService);
         listener.elementChanged(e);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, new GavWithType(mavenGav, GavTypeEnum.MAVEN));
+        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME,
+                new Gav("maven", mavenGav.getGroupId(), mavenGav.getArtifactId(), mavenGav.getVersion()));
         Mockito.verify(information, Mockito.times(1)).removeWarningFromProject(PROJECT_NAME, mavenGav);
-        Mockito.verify(information, Mockito.times(1)).addWarningToProject(PROJECT_NAME, new GavWithType(gradleGav, GavTypeEnum.MAVEN));
+        Mockito.verify(information, Mockito.times(1)).addWarningToProject(PROJECT_NAME,
+                new Gav("maven", gradleGav.getGroupId(), gradleGav.getArtifactId(), gradleGav.getVersion()));
         Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, gradleGav);
-        Mockito.verify(extractor, Mockito.times(0)).getGradlePathGav(NON_BINARY_PATH_OS_STRING);
-        Mockito.verify(extractor, Mockito.times(0)).getMavenPathGav(NON_BINARY_PATH_OS_STRING,
-                MAVEN_REPO_PATH_OS_STRING);
-        Mockito.verify(depService, Mockito.times(1)).isGradleDependency(NON_BINARY_PATH_OS_STRING);
-        Mockito.verify(depService, Mockito.times(1)).isMavenDependency(NON_BINARY_PATH_OS_STRING);
+        Mockito.verify(extractor, Mockito.times(0)).getGradlePathGav(NON_BINARY_PATH_URL);
+        Mockito.verify(extractor, Mockito.times(0)).getMavenPathGav(NON_BINARY_PATH_URL,
+                MAVEN_REPO_PATH_URL);
+        Mockito.verify(depService, Mockito.times(1)).isGradleDependency(NON_BINARY_PATH_URL);
+        Mockito.verify(depService, Mockito.times(1)).isMavenDependency(NON_BINARY_PATH_URL);
     }
 
 }

@@ -1,4 +1,30 @@
+/**
+ * hub-eclipse-plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.eclipseplugin.internal.listeners;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -11,13 +37,11 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class ProjectDependenciesChangedListener implements IElementChangedListener {
     private final ProjectDependencyInformation information;
@@ -52,33 +76,35 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
         return null;
     }
 
-    public void removeDependency(final IJavaElement el) throws CoreException {
+    public void removeDependency(final IJavaElement el) throws CoreException, MalformedURLException {
         final String projName = getProjectNameFromElement(el);
         if (projName != null) {
-            final String OSSpecificFilepath = el.getPath().toOSString();
-            if (depService.isGradleDependency(OSSpecificFilepath)) {
-                final Gav gav = extractor.getGradlePathGav(OSSpecificFilepath);
-                information.removeWarningFromProject(projName, gav);
-            } else if (depService.isMavenDependency(OSSpecificFilepath)) {
-                final String mavenPath = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toOSString();
-                final Gav gav = extractor.getMavenPathGav(OSSpecificFilepath, mavenPath);
-                information.removeWarningFromProject(projName, gav);
+            final URL projectUrl = el.getPath().toFile().toURI().toURL();
+            if (depService.isGradleDependency(projectUrl)) {
+                final Gav gav = extractor.getGradlePathGav(projectUrl);
+                // TODO: No hardcoded strings.
+                information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+            } else if (depService.isMavenDependency(projectUrl)) {
+                final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+                final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
+                information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
 
     }
 
-    public void addDependency(final IJavaElement el) throws CoreException {
+    public void addDependency(final IJavaElement el) throws CoreException, MalformedURLException {
         final String projName = getProjectNameFromElement(el);
         if (projName != null) {
-            final String OSSpecificFilepath = el.getPath().toOSString();
-            if (depService.isGradleDependency(OSSpecificFilepath)) {
-                final Gav gav = extractor.getGradlePathGav(OSSpecificFilepath);
-                information.addWarningToProject(projName, new GavWithType(gav, GavTypeEnum.MAVEN));
-            } else if (depService.isMavenDependency(OSSpecificFilepath)) {
-                final String mavenPath = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toOSString();
-                final Gav gav = extractor.getMavenPathGav(OSSpecificFilepath, mavenPath);
-                information.addWarningToProject(projName, new GavWithType(gav, GavTypeEnum.MAVEN));
+            final URL projectUrl = el.getPath().toFile().toURI().toURL();
+            if (depService.isGradleDependency(projectUrl)) {
+                final Gav gav = extractor.getGradlePathGav(projectUrl);
+                // TODO: No hardcoded strings.
+                information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+            } else if (depService.isMavenDependency(projectUrl)) {
+                final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+                final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
+                information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
     }
@@ -97,15 +123,19 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             break;
         }
         case IJavaElement.PACKAGE_FRAGMENT_ROOT: {
-            if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0) {
+            if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0 || (delta.getKind() & IJavaElementDelta.REMOVED) != 0) {
                 try {
                     removeDependency(el);
-                } catch (final CoreException e) {
+                } catch (final CoreException | MalformedURLException e) {
+                	e.printStackTrace();
                 }
-            } else if ((delta.getKind() & (IJavaElementDelta.ADDED | IJavaElementDelta.CHANGED)) != 0) {
+            }
+            if ((delta.getFlags() & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0
+                    || (delta.getKind() & IJavaElementDelta.ADDED) != 0) {
                 try {
                     addDependency(el);
-                } catch (final CoreException e) {
+                } catch (final CoreException | MalformedURLException e) {
+                	e.printStackTrace();
                 }
             }
             break;

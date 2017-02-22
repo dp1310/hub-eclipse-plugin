@@ -1,10 +1,32 @@
+/**
+ * hub-eclipse-plugin-test
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.eclipseplugin.internal;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,12 +34,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavWithType;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
-import com.blackducksoftware.integration.hub.api.vulnerabilities.VulnerabilityItem;
-import com.google.common.cache.LoadingCache;
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectDependencyInformationTest {
@@ -28,13 +48,7 @@ public class ProjectDependencyInformationTest {
     Gav gav1, gav2, gav3;
 
     @Mock
-    GavWithType gavWithType1, gavWithType2, gavWithType3;
-
-    @Mock
-    List<VulnerabilityItem> vulnerabilities1, vulnerabilities2, vulnerabilities3;
-
-    @Mock
-    LoadingCache<GavWithType, List<VulnerabilityItem>> cache;
+    DependencyInfo vulnerabilities1, vulnerabilities2, vulnerabilities3;
 
     @Mock
     ComponentCache componentCache;
@@ -45,14 +59,10 @@ public class ProjectDependencyInformationTest {
     @Mock
     WorkspaceInformationService workspaceService;
 
-    private void prepareCache() throws ExecutionException {
-        Mockito.when(componentCache.getCache()).thenReturn(cache);
-        Mockito.when(gavWithType1.getGav()).thenReturn(gav1);
-        Mockito.when(gavWithType2.getGav()).thenReturn(gav2);
-        Mockito.when(gavWithType3.getGav()).thenReturn(gav3);
-        Mockito.when(cache.get(gavWithType1)).thenReturn(vulnerabilities1);
-        Mockito.when(cache.get(gavWithType2)).thenReturn(vulnerabilities2);
-        Mockito.when(cache.get(gavWithType3)).thenReturn(vulnerabilities3);
+    private void prepareCache() throws IntegrationException {
+        Mockito.when(componentCache.get(gav1)).thenReturn(vulnerabilities1);
+        Mockito.when(componentCache.get(gav2)).thenReturn(vulnerabilities2);
+        Mockito.when(componentCache.get(gav3)).thenReturn(vulnerabilities3);
     }
 
     private boolean containsGav(final Gav[] gavs, final Gav gav) {
@@ -65,11 +75,11 @@ public class ProjectDependencyInformationTest {
     }
 
     @Test
-    public void testAddingProject() throws ExecutionException {
+    public void testAddingProject() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new GavWithType[] { gavWithType1, gavWithType2, gavWithType3 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.addNewProject(proj);
+        projInfo.createInspection(proj, true);
         final Gav[] gavs = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavs, gav1));
         assertTrue(containsGav(gavs, gav2));
@@ -77,25 +87,25 @@ public class ProjectDependencyInformationTest {
     }
 
     @Test
-    public void testAddingDependency() throws ExecutionException {
+    public void testAddingDependency() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new GavWithType[] { gavWithType1, gavWithType2 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.addNewProject(proj);
+        projInfo.createInspection(proj, true);
         assertTrue(projInfo.containsProject(proj));
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertFalse(containsGav(gavsBefore, gav3));
-        projInfo.addWarningToProject(proj, gavWithType3);
+        projInfo.addWarningToProject(proj, gav3);
         final Gav[] gavsAfter = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavsAfter, gav3));
     }
 
     @Test
-    public void testRemovingDependency() throws ExecutionException {
+    public void testRemovingDependency() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new GavWithType[] { gavWithType1, gavWithType2, gavWithType3 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.addNewProject(proj);
+        projInfo.createInspection(proj, true);
         final Gav[] gavsBefore = projInfo.getAllDependencyGavs(proj);
         assertTrue(containsGav(gavsBefore, gav3));
         projInfo.removeWarningFromProject(proj, gav3);
@@ -104,11 +114,11 @@ public class ProjectDependencyInformationTest {
     }
 
     @Test
-    public void testRemovingProject() throws ExecutionException {
+    public void testRemovingProject() throws IntegrationException {
         prepareCache();
-        Mockito.when(projService.getMavenAndGradleDependencies(proj)).thenReturn(new GavWithType[] { gavWithType1, gavWithType2 });
+        Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
         final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        projInfo.addNewProject(proj);
+        projInfo.createInspection(proj, true);
         assertTrue(projInfo.containsProject(proj));
         projInfo.removeProject(proj);
         assertFalse(projInfo.containsProject(proj));

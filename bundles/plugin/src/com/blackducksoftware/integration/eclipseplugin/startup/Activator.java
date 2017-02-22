@@ -1,18 +1,42 @@
+/**
+ * hub-eclipse-plugin
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.eclipseplugin.startup;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
@@ -30,9 +54,9 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.JavaPr
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.NewJavaProjectListener;
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.ProjectDependenciesChangedListener;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
-import com.blackducksoftware.integration.hub.api.HubServicesFactory;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.dataservices.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class Activator extends AbstractUIPlugin {
@@ -42,6 +66,8 @@ public class Activator extends AbstractUIPlugin {
     private final int COMPONENT_CACHE_CAPACITY = 10000;
 
     private static Activator plugin;
+
+    private HubRestConnectionService connectionService;
 
     private ProjectDependencyInformation information;
 
@@ -57,8 +83,6 @@ public class Activator extends AbstractUIPlugin {
 
     private SecurePreferencesService securePrefService;
 
-    private RestConnection hubConnection;
-
     public Activator() {
     }
 
@@ -72,17 +96,11 @@ public class Activator extends AbstractUIPlugin {
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
-        getInitialHubConnection();
-        if (hubConnection != null) {
-            HubServicesFactory servicesFactory = new HubServicesFactory(hubConnection);
-            VulnerabilityDataService vulnService = servicesFactory.createVulnerabilityDataService();
-            componentCache = new ComponentCache(vulnService, COMPONENT_CACHE_CAPACITY);
-        } else {
-            componentCache = new ComponentCache(null, COMPONENT_CACHE_CAPACITY);
-        }
+        connectionService = new HubRestConnectionService(getInitialHubConnection());
+        componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY);
         information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         final PreferencesService defaultPrefService = new PreferencesService(
-                getDefault().getPreferenceStore());
+                getPlugin().getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPrefService, information);
         defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPrefService, workspaceService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
@@ -93,15 +111,24 @@ public class Activator extends AbstractUIPlugin {
         getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
         JavaCore.addElementChangedListener(depsChangedListener);
         defaultPrefService.setDefaultConfig();
-        information.addAllProjects();
+        information.inspectAllProjects();
     }
 
     public ProjectDependencyInformation getProjectInformation() {
         return information;
     }
 
-    public void getInitialHubConnection() {
-        IPreferenceStore prefs = getDefault().getPreferenceStore();
+    public HubRestConnectionService updateConnection(RestConnection restConnection) {
+        connectionService = new HubRestConnectionService(restConnection);
+        return connectionService;
+    }
+
+    public HubRestConnectionService getConnectionService() {
+        return connectionService;
+    }
+
+    public RestConnection getInitialHubConnection() throws HubIntegrationException {
+        IPreferenceStore prefs = getPlugin().getPreferenceStore();
         String hubURL = prefs.getString(PreferenceNames.HUB_URL);
         String hubUsername = prefs.getString(PreferenceNames.HUB_USERNAME);
         String hubPassword = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
@@ -117,19 +144,14 @@ public class Activator extends AbstractUIPlugin {
         AuthorizationResponse response = validator.validateCredentials(hubUsername, hubPassword, hubURL, proxyUsername, proxyPassword, proxyPort, proxyHost,
                 ignoredProxyHosts, hubTimeout);
         if (response.getConnection() != null) {
-            hubConnection = response.getConnection();
+            return response.getConnection();
         } else {
-            hubConnection = null;
+            return null;
         }
     }
 
-    public void updateHubConnection(RestConnection connection) {
-        hubConnection = connection;
+    public void updateHubConnection(RestConnection connection) throws HubIntegrationException {
         information.updateCache(connection);
-    }
-
-    public boolean hasActiveHubConnection() {
-        return hubConnection != null;
     }
 
     @Override
@@ -142,12 +164,16 @@ public class Activator extends AbstractUIPlugin {
         super.stop(context);
     }
 
-    public static Activator getDefault() {
+    public static Activator getPlugin() {
         return plugin;
     }
 
     public static ImageDescriptor getImageDescriptor(final String path) {
         return imageDescriptorFromPlugin(PLUGIN_ID, path);
+    }
+
+    public static void reportError(String dialogTitle, String message, IStatus status) {
+        ErrorDialog.openError(null, dialogTitle, message, status);
     }
 
 }

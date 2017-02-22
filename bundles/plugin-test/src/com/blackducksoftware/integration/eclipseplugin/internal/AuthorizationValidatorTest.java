@@ -1,3 +1,26 @@
+/**
+ * hub-eclipse-plugin-test
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.eclipseplugin.internal;
 
 import static org.junit.Assert.assertEquals;
@@ -10,14 +33,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.blackducksoftware.integration.builder.ValidationResultEnum;
-import com.blackducksoftware.integration.builder.ValidationResults;
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.exception.BDRestException;
-import com.blackducksoftware.integration.hub.global.GlobalFieldKey;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.validator.HubServerConfigValidator;
+import com.blackducksoftware.integration.validator.ValidationResults;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationValidatorTest {
@@ -32,98 +54,71 @@ public class AuthorizationValidatorTest {
     HubServerConfig config;
 
     @Mock
-    ValidationResults<GlobalFieldKey, HubServerConfig> results;
+    ValidationResults results;
 
     @Mock
     IllegalArgumentException illegalArgumentException;
 
     @Mock
-    URISyntaxException uriSyntaxException;
-
-    @Mock
-    BDRestException bdRestException;
-
-    @Mock
     EncryptionException encryptionException;
+
+    @Mock
+    HubServerConfigValidator configValidator;
 
     private final String ERROR_MSG = "ValidationResults error message";
 
     private final String ILLEGAL_ARGUMENT_EXCEPTION_MSG = "illegal argument exception message";
 
-    private final String URI_SYNTAX_EXCEPTION_MSG = "URI syntax exception message";
-
-    private final String BD_REST_EXCEPTION_MSG = "BD rest exception message";
-
     private final String ENCRYPTION_EXCEPTION_MSG = "encryption exception message";
 
     @Test
     public void testValidationResultsFailure() {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(builder.buildResults()).thenReturn(results);
+        Mockito.when(builder.createValidator()).thenReturn(configValidator);
+        Mockito.when(configValidator.assertValid()).thenReturn(results);
+        Mockito.when(builder.build()).thenReturn(config);
         Mockito.when(results.isSuccess()).thenReturn(false);
-        Mockito.when(results.getAllResultString(ValidationResultEnum.ERROR)).thenReturn(ERROR_MSG);
+        Mockito.when(results.getAllResultString()).thenReturn(ERROR_MSG);
+        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
         final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
         assertEquals(ERROR_MSG, message);
 
     }
 
     @Test
-    public void testValidationResultsSuccessAndNoExceptionsThrown() {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(builder.buildResults()).thenReturn(results);
+    public void testValidationResultsSuccess() {
+        Mockito.when(builder.createValidator()).thenReturn(configValidator);
+        Mockito.when(configValidator.assertValid()).thenReturn(results);
+        Mockito.when(builder.build()).thenReturn(config);
         Mockito.when(results.isSuccess()).thenReturn(true);
+        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
         final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
         assertEquals(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE, message);
     }
 
     @Test
     public void testIllegalArgumentExceptionThrown()
-            throws IllegalArgumentException, URISyntaxException, BDRestException, EncryptionException {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(builder.buildResults()).thenReturn(results);
+            throws IllegalArgumentException, URISyntaxException, EncryptionException, HubIntegrationException {
+        Mockito.when(builder.createValidator()).thenReturn(configValidator);
+        Mockito.when(configValidator.assertValid()).thenReturn(results);
         Mockito.when(results.isSuccess()).thenReturn(true);
-        Mockito.when(results.getConstructedObject()).thenReturn(config);
+        Mockito.when(builder.build()).thenReturn(config);
         Mockito.when(illegalArgumentException.getMessage()).thenReturn(ILLEGAL_ARGUMENT_EXCEPTION_MSG);
         Mockito.doThrow(illegalArgumentException).when(connectionService).getCredentialsRestConnection(config);
+        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
         final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
         assertEquals(ILLEGAL_ARGUMENT_EXCEPTION_MSG, message);
     }
 
     @Test
-    public void testURISyntaxExceptionThrown()
-            throws IllegalArgumentException, URISyntaxException, BDRestException, EncryptionException {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(builder.buildResults()).thenReturn(results);
-        Mockito.when(results.isSuccess()).thenReturn(true);
-        Mockito.when(results.getConstructedObject()).thenReturn(config);
-        Mockito.when(uriSyntaxException.getMessage()).thenReturn(URI_SYNTAX_EXCEPTION_MSG);
-        Mockito.doThrow(uriSyntaxException).when(connectionService).getCredentialsRestConnection(config);
-        final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
-        assertEquals(URI_SYNTAX_EXCEPTION_MSG, message);
-    }
-
-    @Test
-    public void testBDRestExceptionThrown()
-            throws IllegalArgumentException, URISyntaxException, BDRestException, EncryptionException {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(builder.buildResults()).thenReturn(results);
-        Mockito.when(results.isSuccess()).thenReturn(true);
-        Mockito.when(results.getConstructedObject()).thenReturn(config);
-        Mockito.when(bdRestException.getMessage()).thenReturn(BD_REST_EXCEPTION_MSG);
-        Mockito.doThrow(bdRestException).when(connectionService).getCredentialsRestConnection(config);
-        final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
-        assertEquals(BD_REST_EXCEPTION_MSG, message);
-    }
-
-    @Test
     public void testEncryptionExceptionThrown()
-            throws IllegalArgumentException, URISyntaxException, BDRestException, EncryptionException {
-        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        Mockito.when(builder.buildResults()).thenReturn(results);
+            throws IllegalArgumentException, URISyntaxException, EncryptionException, HubIntegrationException {
+        Mockito.when(builder.createValidator()).thenReturn(configValidator);
+        Mockito.when(configValidator.assertValid()).thenReturn(results);
         Mockito.when(results.isSuccess()).thenReturn(true);
-        Mockito.when(results.getConstructedObject()).thenReturn(config);
+        Mockito.when(builder.build()).thenReturn(config);
         Mockito.when(encryptionException.getMessage()).thenReturn(ENCRYPTION_EXCEPTION_MSG);
         Mockito.doThrow(encryptionException).when(connectionService).getCredentialsRestConnection(config);
+        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
         final String message = validator.validateCredentials("", "", "", "", "", "", "", "", "").getResponseMessage();
         assertEquals(ENCRYPTION_EXCEPTION_MSG, message);
     }

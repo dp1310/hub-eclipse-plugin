@@ -1,9 +1,36 @@
+/**
+ * hub-eclipse-plugin-test
+ *
+ * Copyright (C) 2017 Black Duck Software, Inc.
+ * http://www.blackducksoftware.com/
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -22,11 +49,9 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.blackducksoftware.integration.build.Gav;
-import com.blackducksoftware.integration.build.GavTypeEnum;
-import com.blackducksoftware.integration.build.GavWithType;
-import com.blackducksoftware.integration.build.utils.FilePathGavExtractor;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ JavaCore.class, ResourcesPlugin.class })
@@ -59,22 +84,19 @@ public class ProjectInformationServiceTest {
     @Mock
     Gav mavenGav1, mavenGav2, gradleGav1, gradleGav2;
 
-    @Mock
-    GavWithType mavenGavWithType1, mavenGavWithType2, gradleGavWithType1, gradleGavWithType2;
+    private URL MAVEN_1;
 
-    private final String MAVEN_1 = "maven1";
+    private URL MAVEN_2;
 
-    private final String MAVEN_2 = "maven2";
+    private URL GRADLE_1;
 
-    private final String GRADLE_1 = "gradle1";
+    private URL GRADLE_2;
 
-    private final String GRADLE_2 = "gradle2";
+    private URL NOT_GRAVEN_1;
 
-    private final String NOT_GRAVEN_1 = "notgraven1";
+    private URL NOT_GRAVEN_2;
 
-    private final String NOT_GRAVEN_2 = "notgraven2";
-
-    private final String MAVEN_REPO_PATH = "";
+    private URL MAVEN_REPO_PATH;
 
     private final String TEST_PROJECT_NAME = "test project";
 
@@ -116,7 +138,7 @@ public class ProjectInformationServiceTest {
         try {
             Mockito.when(nonBinaryRoot.getKind()).thenReturn(0);
             Mockito.when(binaryRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-            final IPackageFragmentRoot[] roots = new IPackageFragmentRoot[] { nonBinaryRoot, binaryRoot1 };
+            final List<IPackageFragmentRoot> roots = Arrays.asList(nonBinaryRoot, binaryRoot1);
             assertEquals("Not counting binary dependencies properly", 1, service.getNumBinaryDependencies(roots));
         } catch (final CoreException e) {
         }
@@ -144,10 +166,10 @@ public class ProjectInformationServiceTest {
         Mockito.when(binaryPath1.getDevice()).thenReturn(null);
         Mockito.when(binaryPath1.toOSString()).thenReturn("/binary/path/1");
 
-        final IPackageFragmentRoot[] roots = new IPackageFragmentRoot[] { nonBinaryRoot, binaryRoot1 };
-        final String[] binaryDependencies = service.getBinaryDependencyFilepaths(roots);
-        assertEquals("Not gettting binary dependencies correctly", 1, binaryDependencies.length);
-        assertArrayEquals("Not getting correct binary dependencies", new String[] { "/binary/path/1" }, binaryDependencies);
+        final List<IPackageFragmentRoot> roots = Arrays.asList(nonBinaryRoot, binaryRoot1);
+        final List<URL> binaryDependencies = service.getBinaryDependencyFilepaths(roots);
+        assertEquals("Not gettting binary dependencies correctly", 1, binaryDependencies.size());
+        assertEquals("Not getting correct binary dependencies", Arrays.asList("/binary/path/1"), binaryDependencies);
     }
 
     @Test
@@ -161,29 +183,29 @@ public class ProjectInformationServiceTest {
         Mockito.when(binaryRoot2.getPath()).thenReturn(binaryPath2);
         Mockito.when(binaryPath2.getDevice()).thenReturn("fake/device/id/2");
         Mockito.when(binaryPath2.toOSString()).thenReturn("fake/device/id/2/binary/path/2");
-        final IPackageFragmentRoot[] roots = new IPackageFragmentRoot[] { binaryRoot1, binaryRoot2 };
-        final String[] binaryDependencies = service.getBinaryDependencyFilepaths(roots);
-        assertEquals("Not gettting binary dependencies correctly", 2, binaryDependencies.length);
-        assertArrayEquals("Not getting correct binary dependencies", new String[] { "/binary/path/1", "/binary/path/2" }, binaryDependencies);
+        final List<IPackageFragmentRoot> roots = Arrays.asList(binaryRoot1, binaryRoot2);
+        final List<URL> binaryDependencies = service.getBinaryDependencyFilepaths(roots);
+        assertEquals("Not gettting binary dependencies correctly", 2, binaryDependencies.size());
+        assertEquals("Not getting correct binary dependencies", Arrays.asList("/binary/path/1", "/binary/path/2"), binaryDependencies);
     }
 
-    private void prepareRootsAndPaths() throws CoreException {
+    private void prepareRootsAndPaths() throws CoreException, MalformedURLException {
         Mockito.when(mavenRoot1.getPath()).thenReturn(mavenPath1);
         Mockito.when(mavenRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
         Mockito.when(mavenPath1.getDevice()).thenReturn(null);
-        Mockito.when(mavenPath1.toOSString()).thenReturn(MAVEN_1);
+        Mockito.when(mavenPath1.toFile().toURI().toURL()).thenReturn(MAVEN_1);
         Mockito.when(mavenRoot2.getPath()).thenReturn(mavenPath2);
         Mockito.when(mavenRoot2.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
         Mockito.when(mavenPath2.getDevice()).thenReturn(null);
-        Mockito.when(mavenPath2.toOSString()).thenReturn(MAVEN_2);
+        Mockito.when(mavenPath2.toFile().toURI().toURL()).thenReturn(MAVEN_2);
         Mockito.when(gradleRoot1.getPath()).thenReturn(gradlePath1);
         Mockito.when(gradleRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
         Mockito.when(gradlePath1.getDevice()).thenReturn(null);
-        Mockito.when(gradlePath1.toOSString()).thenReturn(GRADLE_1);
+        Mockito.when(gradlePath1.toFile().toURI().toURL()).thenReturn(GRADLE_1);
         Mockito.when(gradleRoot2.getPath()).thenReturn(gradlePath2);
         Mockito.when(gradleRoot2.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
         Mockito.when(gradlePath2.getDevice()).thenReturn(null);
-        Mockito.when(gradlePath2.toOSString()).thenReturn(GRADLE_2);
+        Mockito.when(gradlePath2.toFile().toURI().toURL()).thenReturn(GRADLE_2);
     }
 
     private void prepareDependencyTypes() {
@@ -224,26 +246,14 @@ public class ProjectInformationServiceTest {
     }
 
     private void prepareGavsWithType() {
-        Mockito.when(mavenGavWithType1.getGav()).thenReturn(mavenGav1);
-        Mockito.when(mavenGavWithType2.getGav()).thenReturn(mavenGav2);
-        Mockito.when(gradleGavWithType1.getGav()).thenReturn(gradleGav1);
-        Mockito.when(gradleGavWithType2.getGav()).thenReturn(gradleGav2);
-        Mockito.when(mavenGavWithType1.getType()).thenReturn(GavTypeEnum.MAVEN);
-        Mockito.when(mavenGavWithType2.getType()).thenReturn(GavTypeEnum.MAVEN);
-        Mockito.when(gradleGavWithType1.getType()).thenReturn(GavTypeEnum.MAVEN);
-        Mockito.when(gradleGavWithType2.getType()).thenReturn(GavTypeEnum.MAVEN);
+        Mockito.when(mavenGav1.getNamespace()).thenReturn("maven");
+        Mockito.when(mavenGav2.getNamespace()).thenReturn("maven");
+        Mockito.when(gradleGav1.getNamespace()).thenReturn("maven");
+        Mockito.when(gradleGav2.getNamespace()).thenReturn("maven");
     }
 
     @Test
-    public void testGettingNumberMavenAndGradleDependencies() {
-        final ProjectInformationService service = new ProjectInformationService(depService, extractor);
-        prepareDependencyTypes();
-        final String[] deps = new String[] { MAVEN_1, MAVEN_2, GRADLE_1, GRADLE_2, NOT_GRAVEN_1, NOT_GRAVEN_2 };
-        assertEquals("Not counting maven and gradle dependencies correctly", 4, service.getNumMavenAndGradleDependencies(deps));
-    }
-
-    @Test
-    public void testGettingGavsFromFilepaths() {
+    public void testGettingGavsFromFilepaths() throws MalformedURLException {
         final ProjectInformationService service = new ProjectInformationService(depService, extractor);
         prepareExtractor();
         prepareDependencyTypes();
@@ -251,18 +261,20 @@ public class ProjectInformationServiceTest {
         prepareGavsWithType();
         PowerMockito.mockStatic(JavaCore.class);
         Mockito.when(JavaCore.getClasspathVariable(ClasspathVariables.MAVEN)).thenReturn(mavenPath);
-        Mockito.when(mavenPath.toString()).thenReturn(MAVEN_REPO_PATH);
+        Mockito.when(mavenPath.toFile().toURI().toURL()).thenReturn(MAVEN_REPO_PATH);
         prepareExtractor();
-        final String[] dependencies = new String[] { MAVEN_1, MAVEN_2, GRADLE_1, GRADLE_2, NOT_GRAVEN_1, NOT_GRAVEN_2 };
-        final GavWithType[] gavs = service.getGavsFromFilepaths(dependencies);
-        final GavWithType[] expectedGavMessages = new GavWithType[] { new GavWithType(MAVEN_1_GAV, GavTypeEnum.MAVEN),
-                new GavWithType(MAVEN_2_GAV, GavTypeEnum.MAVEN), new GavWithType(GRADLE_1_GAV, GavTypeEnum.MAVEN),
-                new GavWithType(GRADLE_2_GAV, GavTypeEnum.MAVEN) };
-        assertArrayEquals("Not getting gavs from filepaths correctly", expectedGavMessages, gavs);
+        final List<URL> dependencies = Arrays.asList(MAVEN_1, MAVEN_2, GRADLE_1, GRADLE_2, NOT_GRAVEN_1, NOT_GRAVEN_2);
+        final List<Gav> gavs = service.getGavsFromFilepaths(dependencies);
+        final List<Gav> expectedGavMessages = Arrays.asList(
+                new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
+                new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion()),
+                new Gav("maven", GRADLE_1_GAV.getGroupId(), GRADLE_1_GAV.getArtifactId(), GRADLE_1_GAV.getVersion()),
+                new Gav("maven", GRADLE_2_GAV.getGroupId(), GRADLE_2_GAV.getArtifactId(), GRADLE_2_GAV.getVersion()));
+        assertEquals("Not getting gavs from filepaths correctly", expectedGavMessages, gavs);
     }
 
     @Test
-    public void testGettingAllMavenAndGradleDependencyMessages() {
+    public void testGettingAllMavenAndGradleDependencyMessages() throws MalformedURLException {
 
         final ProjectInformationService service = new ProjectInformationService(depService, extractor);
         try {
@@ -275,21 +287,23 @@ public class ProjectInformationServiceTest {
             prepareGavsWithType();
             final IPackageFragmentRoot[] roots = new IPackageFragmentRoot[] { mavenRoot1, mavenRoot2, gradleRoot1,
                     gradleRoot2 };
-            final GavWithType[] expectedGavMessages = new GavWithType[] { new GavWithType(MAVEN_1_GAV, GavTypeEnum.MAVEN),
-                    new GavWithType(MAVEN_2_GAV, GavTypeEnum.MAVEN), new GavWithType(GRADLE_1_GAV, GavTypeEnum.MAVEN),
-                    new GavWithType(GRADLE_2_GAV, GavTypeEnum.MAVEN) };
+            final List<Gav> expectedGavMessages = Arrays.asList(
+                    new Gav("maven", MAVEN_1_GAV.getGroupId(), MAVEN_1_GAV.getArtifactId(), MAVEN_1_GAV.getVersion()),
+                    new Gav("maven", MAVEN_2_GAV.getGroupId(), MAVEN_2_GAV.getArtifactId(), MAVEN_2_GAV.getVersion()),
+                    new Gav("maven", GRADLE_1_GAV.getGroupId(), GRADLE_1_GAV.getArtifactId(), GRADLE_1_GAV.getVersion()),
+                    new Gav("maven", GRADLE_2_GAV.getGroupId(), GRADLE_2_GAV.getArtifactId(), GRADLE_2_GAV.getVersion()));
             Mockito.when(ResourcesPlugin.getWorkspace()).thenReturn(workspace);
             Mockito.when(workspace.getRoot()).thenReturn(workspaceRoot);
             Mockito.when(workspaceRoot.getProject(TEST_PROJECT_NAME)).thenReturn(testProject);
             Mockito.when(testProject.hasNature(JavaCore.NATURE_ID)).thenReturn(true);
             Mockito.when(JavaCore.create(testProject)).thenReturn(testJavaProject);
             Mockito.when(JavaCore.getClasspathVariable(ClasspathVariables.MAVEN)).thenReturn(mavenPath);
-            Mockito.when(mavenPath.toString()).thenReturn(MAVEN_REPO_PATH);
+            Mockito.when(mavenPath.toFile().toURI().toURL()).thenReturn(MAVEN_REPO_PATH);
             Mockito.when(testJavaProject.getPackageFragmentRoots()).thenReturn(roots);
-            final GavWithType[] noDeps = service.getMavenAndGradleDependencies("");
-            assertArrayEquals(new GavWithType[0], noDeps);
-            final GavWithType[] deps = service.getMavenAndGradleDependencies(TEST_PROJECT_NAME);
-            assertArrayEquals(expectedGavMessages, deps);
+            final List<Gav> noDeps = service.getGavsFromFilepaths(service.getProjectDependencyFilePaths(""));
+            assertEquals(Arrays.asList(), noDeps);
+            final List<Gav> deps = service.getGavsFromFilepaths(service.getProjectDependencyFilePaths(TEST_PROJECT_NAME));
+            assertEquals(expectedGavMessages, deps);
         } catch (final CoreException e) {
         }
     }

@@ -17,17 +17,47 @@
     <output-dir>./target/dependencies</output-dir>
   </properties>
 
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>apache.snapshots</id>
+      <name>Apache Development Snapshot Repository</name>
+      <url>https://repository.apache.org/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
-      <groupId>com.blackducksoftware.integration</groupId>
-      <artifactId>hub-common</artifactId>
-      <version>3.0.0</version>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.4.2</version>
+      <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>com.blackducksoftware.integration</groupId>
-      <artifactId>build-tool-common</artifactId>
-      <version>2.2.1</version>
-      <scope>compile</scope>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-urlconnection</artifactId>
+      <version>3.4.2</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio</artifactId>
+      <version>1.9.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.0</version>
     </dependency>
   </dependencies>
 
@@ -36,28 +66,31 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
         <executions>
           <execution>
             <id>unpack</id>
             <!-- bound to initialize because these items need to be unpacked before any compilation occurs -->
-            <phase>initialize</phase>
+            <phase>validate</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
             <configuration>
+              <outputDirectory>${output-dir}</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <excludes>**\/*.java</excludes>
               <artifactItems>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
-                  <artifactId>build-tool-common</artifactId>
-                  <version>2.2.1</version>
+                  <artifactId>hub-common</artifactId>
+                  <version>7.5.0</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
-                  <artifactId>hub-common</artifactId>
-                  <version>3.0.0</version>
+                  <artifactId>phone-home-api</artifactId>
+                  <version>1.5.1</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
@@ -78,16 +111,53 @@
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>integration-common</artifactId>
-                  <version>1.0.7</version>
+                  <version>5.2.1</version>
+                  <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+                <!-- Transitive dependencies from hub-common DO NOT resolve when using tycho/MANIFEST-first build approach
+                     (as eclipse plugins do), see https://wiki.eclipse.org/Tycho/How_Tos/Dependency_on_pom-first_artifacts
+                -->
+                <artifactItem>
+                  <groupId>com.squareup.okhttp3</groupId>
+                  <artifactId>okhttp</artifactId>
+                  <version>3.4.2</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>com.google.guava</groupId>
-                  <artifactId>guava</artifactId>
-                  <version>20.0</version>
+                  <groupId>com.squareup.okhttp3</groupId>
+                  <artifactId>okhttp-urlconnection</artifactId>
+                  <version>3.4.2</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.squareup.okio</groupId>
+                  <artifactId>okio</artifactId>
+                  <version>1.9.0</version>
+                  <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.commons</groupId>
+                  <artifactId>commons-lang3</artifactId>
+                  <version>3.5</version>
+                  <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+                <!-- Collections4 -->
+                <artifactItem>
+                  <groupId>org.apache.commons</groupId>
+                  <artifactId>commons-collections4</artifactId>
+                  <version>4.0</version>
+                  <type>jar</type>
+                  <outputDirectory>${output-dir}</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>commons-codec</groupId>
+                  <artifactId>commons-codec</artifactId>
+                  <version>1.10</version>
                 </artifactItem>
               </artifactItems>
             </configuration>
