@@ -34,10 +34,13 @@ public class ComponentModel {
 
     private final int[] vulnerabilityCount;
 
-    public ComponentModel(Gav gav, ComplexLicenseItem license, int[] vulnerabilityCount) {
+    private final boolean componentIsKnown;
+
+    public ComponentModel(final Gav gav, final ComplexLicenseItem license, final int[] vulnerabilityCount, final boolean componentIsKnown) {
         this.gav = gav;
         this.license = license;
         this.vulnerabilityCount = vulnerabilityCount;
+        this.componentIsKnown = componentIsKnown;
     }
 
     public Gav getGav() {
@@ -53,7 +56,7 @@ public class ComponentModel {
     }
 
     public boolean getComponentIsKnown() {
-        return gav != null;
+        return componentIsKnown;
     }
 
     public boolean getLicenseIsKnown() {

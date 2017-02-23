@@ -109,9 +109,8 @@ public class DependencyInformationService {
             }
         } catch (HubIntegrationException e) {
             // Do nothing
-            // TODO: Eventually this should do something more graceful than create an object with null values
         }
-        return new ComponentModel(gav, sLicense, getVulnerabilitySeverityCount(vulns));
+        return new ComponentModel(gav, sLicense, getVulnerabilitySeverityCount(vulns), vulns != null);
     }
 
     public int[] getVulnerabilitySeverityCount(List<VulnerabilityItem> vulnerabilities) {

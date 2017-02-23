@@ -27,7 +27,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Text;
 
-import com.blackducksoftware.integration.eclipseplugin.views.providers.DependencyTableViewContentProvider;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.ComplexLicenseParser;
@@ -36,17 +35,12 @@ public class ComponentFilter extends ViewerFilter {
 
     private final Text filterBox;
 
-    private DependencyTableViewContentProvider dependencyTableViewContentProvider;
-
     public ComponentFilter(Text filterBox) {
         this.filterBox = filterBox;
     }
 
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        if (dependencyTableViewContentProvider == null) {
-            return true;
-        }
         if (filterBox == null || filterBox.getText().length() == 0) {
             return true;
         }
@@ -59,10 +53,6 @@ public class ComponentFilter extends ViewerFilter {
             return true;
         }
         return false;
-    }
-
-    public void setContentProvider(DependencyTableViewContentProvider dependencyTableViewContentProvider) {
-        this.dependencyTableViewContentProvider = dependencyTableViewContentProvider;
     }
 
 }

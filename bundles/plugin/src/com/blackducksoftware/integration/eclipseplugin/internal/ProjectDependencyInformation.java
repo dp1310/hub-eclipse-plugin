@@ -50,6 +50,7 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.Workspace
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
+import com.blackducksoftware.integration.eclipseplugin.views.utils.DependencyTableViewerComparator;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
@@ -214,24 +215,12 @@ public class ProjectDependencyInformation {
                     subMonitor.setTaskName(String.format("Inspecting %1$s", filePath));
                     Gav gav = projService.getGavFromFilepath(filePath);
                     if (gav != null) {
-                        try {
-                            models.add(componentCache.get(gav));
-                            projectInfo.put(projectName, models);
-                            if (componentView != null && componentView.getLastSelectedProjectName().equals(projectName)) {
-                                componentView.resetInput();
-                            }
-                        } catch (final IntegrationException e) {
-                            /*
-                             * thrown, info associated with that gav is inaccessible, and so don't put any
-                             * information related to said gav into hashmap associated with the project
-                             */
-                            // e.printStackTrace();
+                        addComponentToProject(projectName, gav);
+                        if (dependencyFilepaths.size() < 70000) {
+                            subMonitor.split(70000 / dependencyFilepaths.size()).done();
+                        } else {
+                            subMonitor.split(70000).done();
                         }
-                    }
-                    if (dependencyFilepaths.size() < 70000) {
-                        subMonitor.split(70000 / dependencyFilepaths.size()).done();
-                    } else {
-                        subMonitor.split(70000).done();
                     }
                 }
                 return Status.OK_STATUS;
@@ -250,6 +239,7 @@ public class ProjectDependencyInformation {
         if (models != null) {
             try {
                 models.add(componentCache.get(gav));
+                models.sort(new DependencyTableViewerComparator());
                 projectInfo.put(projectName, models);
                 if (componentView != null) {
                     componentView.resetInput();

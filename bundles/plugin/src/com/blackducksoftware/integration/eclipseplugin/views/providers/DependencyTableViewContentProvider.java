@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -46,8 +45,6 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
 
     private String inputProject;
 
-    private Comparator<ComponentModel> elementComparator;
-
     private ComponentModel[] parsedElements;
 
     public DependencyTableViewContentProvider(VulnerabilityView view, TableViewer viewer) {
@@ -61,40 +58,33 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
     }
 
     public ComponentModel[] parseElements(Object inputElement) {
-        if (inputElement instanceof String) {
-            String projectName = (String) inputElement;
-            inputProject = projectName;
-            if (projectName.equals("")) {
-                view.setStatusMessage(InspectionStatus.NO_SELECTED_PROJECT);
-                return NOTHING;
-            }
-            boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
-            if (isActivated) {
-                if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
-                    final List<ComponentModel> componentModels = Activator.getPlugin().getProjectInformation().getProjectComponents(projectName);
-                    List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
-                    if (runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_PROJECT_PREFACE + projectName)) {
-                        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-                    } else if (componentModels.size() == 0) {
-                        view.setStatusMessage(
-                                runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_ALL)
-                                        ? InspectionStatus.PROJECT_INSPECTION_SCHEDULED
-                                        : InspectionStatus.PROJECT_NEEDS_INSPECTION);
-                    } else {
-                        view.setStatusMessage(InspectionStatus.CONNECTION_OK);
-                    }
-                    if (elementComparator != null) {
-                        componentModels.sort(elementComparator);
-                    }
-                    return componentModels.toArray(new ComponentModel[componentModels.size()]);
-                }
-                view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
-                return NOTHING;
-            }
-            view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
+        String projectName = (String) inputElement;
+        inputProject = projectName;
+        if (projectName.equals("")) {
+            view.setStatusMessage(InspectionStatus.NO_SELECTED_PROJECT);
             return NOTHING;
         }
-        view.setStatusMessage("Error: Unknown Input");
+        boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
+        if (isActivated) {
+            if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
+                final List<ComponentModel> componentModels = Activator.getPlugin().getProjectInformation().getProjectComponents(projectName);
+                List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
+                if (runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_PROJECT_PREFACE + projectName)) {
+                    view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
+                } else if (componentModels.size() == 0) {
+                    view.setStatusMessage(
+                            runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_ALL)
+                                    ? InspectionStatus.PROJECT_INSPECTION_SCHEDULED
+                                    : InspectionStatus.PROJECT_NEEDS_INSPECTION);
+                } else {
+                    view.setStatusMessage(InspectionStatus.CONNECTION_OK);
+                }
+                return componentModels.toArray(new ComponentModel[componentModels.size()]);
+            }
+            view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
+            return NOTHING;
+        }
+        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
         return NOTHING;
     }
 
@@ -113,10 +103,6 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
     @Override
     public void updateElement(int index) {
         viewer.replace(parsedElements[index], index);
-    }
-
-    public void setComparator(Comparator<ComponentModel> comparator) {
-        this.elementComparator = comparator;
     }
 
 }
