@@ -34,15 +34,15 @@ import org.eclipse.swt.widgets.Display;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PathsToIconFiles;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 
 public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLabelProvider {
 
     @Override
     public String getText(Object input) {
-        if (input instanceof GavWithParentProject) {
-            Gav gav = ((GavWithParentProject) input).getGav();
+        if (input instanceof ComponentModel) {
+            Gav gav = ((ComponentModel) input).getGav();
             String text = gav.getArtifactId() + ":" + gav.getVersion();
             return text;
         }
@@ -59,8 +59,8 @@ public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLa
 
     @Override
     public Image getImage(Object input) {
-        if (input instanceof GavWithParentProject) {
-            GavWithParentProject validObject = ((GavWithParentProject) input);
+        if (input instanceof ComponentModel) {
+            ComponentModel validObject = ((ComponentModel) input);
             if (!validObject.getComponentIsKnown() || !validObject.getLicenseIsKnown()) {
                 ImageDescriptor descriptor = Activator.getImageDescriptor(PathsToIconFiles.WARNING);
                 return descriptor == null ? null : descriptor.createImage();

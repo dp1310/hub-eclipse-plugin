@@ -170,10 +170,10 @@ public class ProjectDependenciesChangedListenerTest {
         final ProjectDependenciesChangedListener listener = new ProjectDependenciesChangedListener(information,
                 extractor, depService);
         listener.elementChanged(e);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, gradleGav);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME, mavenGav);
-        Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, gradleGav);
-        Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, mavenGav);
+        Mockito.verify(information, Mockito.times(0)).addComponentToProject(PROJECT_NAME, gradleGav);
+        Mockito.verify(information, Mockito.times(0)).addComponentToProject(PROJECT_NAME, mavenGav);
+        Mockito.verify(information, Mockito.times(0)).removeComponentFromProject(PROJECT_NAME, gradleGav);
+        Mockito.verify(information, Mockito.times(0)).removeComponentFromProject(PROJECT_NAME, mavenGav);
     }
 
     @Test
@@ -189,12 +189,12 @@ public class ProjectDependenciesChangedListenerTest {
         final ProjectDependenciesChangedListener listener = new ProjectDependenciesChangedListener(information,
                 extractor, depService);
         listener.elementChanged(e);
-        Mockito.verify(information, Mockito.times(0)).addWarningToProject(PROJECT_NAME,
+        Mockito.verify(information, Mockito.times(0)).addComponentToProject(PROJECT_NAME,
                 new Gav("maven", mavenGav.getGroupId(), mavenGav.getArtifactId(), mavenGav.getVersion()));
-        Mockito.verify(information, Mockito.times(1)).removeWarningFromProject(PROJECT_NAME, mavenGav);
-        Mockito.verify(information, Mockito.times(1)).addWarningToProject(PROJECT_NAME,
+        Mockito.verify(information, Mockito.times(1)).removeComponentFromProject(PROJECT_NAME, mavenGav);
+        Mockito.verify(information, Mockito.times(1)).addComponentToProject(PROJECT_NAME,
                 new Gav("maven", gradleGav.getGroupId(), gradleGav.getArtifactId(), gradleGav.getVersion()));
-        Mockito.verify(information, Mockito.times(0)).removeWarningFromProject(PROJECT_NAME, gradleGav);
+        Mockito.verify(information, Mockito.times(0)).removeComponentFromProject(PROJECT_NAME, gradleGav);
         Mockito.verify(extractor, Mockito.times(0)).getGradlePathGav(NON_BINARY_PATH_URL);
         Mockito.verify(extractor, Mockito.times(0)).getMavenPathGav(NON_BINARY_PATH_URL,
                 MAVEN_REPO_PATH_URL);

@@ -97,7 +97,7 @@ public class Activator extends AbstractUIPlugin {
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
         connectionService = new HubRestConnectionService(getInitialHubConnection());
-        componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY);
+        componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         final PreferencesService defaultPrefService = new PreferencesService(
                 getPlugin().getPreferenceStore());

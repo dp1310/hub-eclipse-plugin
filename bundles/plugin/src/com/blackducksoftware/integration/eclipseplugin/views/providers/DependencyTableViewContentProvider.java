@@ -23,36 +23,44 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ILazyContentProvider;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
-import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
-import com.blackducksoftware.integration.hub.buildtool.Gav;
 
-public class DependencyTableViewContentProvider implements IStructuredContentProvider {
+public class DependencyTableViewContentProvider implements ILazyContentProvider {
+    private static final ComponentModel[] NOTHING = new ComponentModel[] {};
 
-    private static final String[] NOTHING = new String[] {};
+    private final VulnerabilityView view;
+
+    private final TableViewer viewer;
 
     private String inputProject;
 
-    private VulnerabilityView view;
+    private Comparator<ComponentModel> elementComparator;
 
-    public DependencyTableViewContentProvider(VulnerabilityView view) {
+    private ComponentModel[] parsedElements;
+
+    public DependencyTableViewContentProvider(VulnerabilityView view, TableViewer viewer) {
         this.view = view;
+        this.viewer = viewer;
     }
 
     @Override
-    public Object[] getElements(Object inputElement) {
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        this.parsedElements = (ComponentModel[]) newInput;
+    }
+
+    public ComponentModel[] parseElements(Object inputElement) {
         if (inputElement instanceof String) {
             String projectName = (String) inputElement;
             inputProject = projectName;
@@ -63,18 +71,11 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
             boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
             if (isActivated) {
                 if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
-                    final Map<Gav, DependencyInfo> gavInfos = Activator.getPlugin().getProjectInformation().getDependencyInfoMap(projectName);
-                    ArrayList<GavWithParentProject> gavsWithParents = new ArrayList<>();
-                    if (gavInfos != null && gavInfos.entrySet() != null) {
-                        for (Entry<Gav, DependencyInfo> gavInfo : gavInfos.entrySet()) {
-                            gavsWithParents.add(new GavWithParentProject(gavInfo.getKey(), projectName, gavInfo.getValue().getLicenseIsKnown(),
-                                    gavInfo.getValue().getComponentIsKnown()));
-                        }
-                    }
+                    final List<ComponentModel> componentModels = Activator.getPlugin().getProjectInformation().getProjectComponents(projectName);
                     List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
                     if (runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_PROJECT_PREFACE + projectName)) {
                         view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-                    } else if (gavsWithParents.size() == 0) {
+                    } else if (componentModels.size() == 0) {
                         view.setStatusMessage(
                                 runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_ALL)
                                         ? InspectionStatus.PROJECT_INSPECTION_SCHEDULED
@@ -82,7 +83,10 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
                     } else {
                         view.setStatusMessage(InspectionStatus.CONNECTION_OK);
                     }
-                    return gavsWithParents.toArray();
+                    if (elementComparator != null) {
+                        componentModels.sort(elementComparator);
+                    }
+                    return componentModels.toArray(new ComponentModel[componentModels.size()]);
                 }
                 view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
                 return NOTHING;
@@ -92,7 +96,6 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
         }
         view.setStatusMessage("Error: Unknown Input");
         return NOTHING;
-
     }
 
     public String getInputProject() {
@@ -105,6 +108,15 @@ public class DependencyTableViewContentProvider implements IStructuredContentPro
 
     public ProjectDependencyInformation getProjectInformation() {
         return Activator.getPlugin().getProjectInformation();
+    }
+
+    @Override
+    public void updateElement(int index) {
+        viewer.replace(parsedElements[index], index);
+    }
+
+    public void setComparator(Comparator<ComponentModel> comparator) {
+        this.elementComparator = comparator;
     }
 
 }

@@ -80,7 +80,7 @@ public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeLis
                 }
                 monitor.setTaskName("Updating...");
                 if (componentView.getDependencyTableViewer() != null) {
-                    if (Activator.getPlugin().getProjectInformation().containsProject(event.getProperty())) {
+                    if (Activator.getPlugin().getProjectInformation().containsComponentsFromProject(event.getProperty())) {
                         Activator.getPlugin().getProjectInformation().removeProject(event.getProperty());
                     } else {
                         Job inspectionJob = Activator.getPlugin().getProjectInformation().createInspection(event.getProperty(), true);

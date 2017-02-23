@@ -23,42 +23,25 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import java.util.Map;
-
-import com.blackducksoftware.integration.eclipseplugin.internal.DependencyInfo;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
-import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.dataservice.license.ComplexLicenseParser;
 
 public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabelProvider {
-
-    private DependencyTableViewContentProvider dependencyTableViewCp;
-
-    public DependencyLicenseColumnLabelProvider(DependencyTableViewContentProvider dependencyTableViewCp) {
-        super();
-        this.dependencyTableViewCp = dependencyTableViewCp;
-    }
-
-    public DependencyLicenseColumnLabelProvider(int width, int alignment, DependencyTableViewContentProvider dependencyTableViewCp) {
-        super(width, alignment);
-        this.dependencyTableViewCp = dependencyTableViewCp;
+    public DependencyLicenseColumnLabelProvider(int width, int style) {
+        super(width, style);
     }
 
     @Override
     public String getText(Object input) {
-        if (input instanceof GavWithParentProject) {
-            if (!((GavWithParentProject) input).getLicenseIsKnown()) {
-                return "";
-            }
-            Map<Gav, DependencyInfo> dependencyInfoMap = dependencyTableViewCp.getProjectInformation()
-                    .getDependencyInfoMap(dependencyTableViewCp.getInputProject());
-            String text = new ComplexLicenseParser(dependencyInfoMap.get(((GavWithParentProject) input).getGav()).geComplexLicenseItem()).parse();
-            return text;
+        ComponentModel model = (ComponentModel) input;
+        if (!model.getLicenseIsKnown()) {
+            return "";
         }
-        if (input instanceof String) {
-            return (String) input;
-        }
-        return "";
+        ComplexLicenseItem license = model.getLicense();
+        ComplexLicenseParser licenseParser = new ComplexLicenseParser(license);
+        String text = licenseParser.parse();
+        return text;
     }
 
     @Override

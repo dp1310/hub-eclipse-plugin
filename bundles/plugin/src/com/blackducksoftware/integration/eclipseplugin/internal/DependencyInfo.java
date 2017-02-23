@@ -43,7 +43,7 @@ public class DependencyInfo {
         return vulnList;
     }
 
-    public ComplexLicenseItem geComplexLicenseItem() {
+    public ComplexLicenseItem getComplexLicenseItem() {
         return simpleLicense;
     }
 

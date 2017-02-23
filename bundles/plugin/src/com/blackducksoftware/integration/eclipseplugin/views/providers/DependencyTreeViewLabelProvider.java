@@ -34,7 +34,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableColumn;
 
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 
 /*
  * Eclipse 4 Plug-in Development by Example.pdf pg. 102
@@ -91,7 +91,7 @@ public abstract class DependencyTreeViewLabelProvider extends StyledCellLabelPro
 
     @Override
     public String getToolTipText(Object input) {
-        if (input instanceof GavWithParentProject && !((GavWithParentProject) input).getComponentIsKnown()) {
+        if (input instanceof ComponentModel && !((ComponentModel) input).getComponentIsKnown()) {
             return "Component is not present in the Black Duck KB";
         }
         return null;

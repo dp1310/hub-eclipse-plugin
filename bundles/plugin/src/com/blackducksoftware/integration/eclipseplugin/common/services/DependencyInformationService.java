@@ -23,12 +23,27 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
+import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
+import com.blackducksoftware.integration.exception.IntegrationException;
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
+import com.blackducksoftware.integration.hub.api.vulnerability.SeverityEnum;
+import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
+import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
+import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class DependencyInformationService {
 
@@ -69,5 +84,58 @@ public class DependencyInformationService {
             }
         }
         return false;
+    }
+
+    public ComponentModel load(final Gav gav)
+            throws ComponentLookupNotFoundException, IOException, URISyntaxException,
+            LicenseLookupNotFoundException, IntegrationException {
+        VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
+        List<VulnerabilityItem> vulns = null;
+        ComplexLicenseItem sLicense = null;
+        try {
+            if (vulnService != null) {
+                vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                        gav.getArtifactId(), gav.getVersion());
+            } else {
+                throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
+            }
+
+            LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
+            if (licenseService != null) {
+                sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                        gav.getArtifactId(), gav.getVersion());
+            } else {
+                throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
+            }
+        } catch (HubIntegrationException e) {
+            // Do nothing
+            // TODO: Eventually this should do something more graceful than create an object with null values
+        }
+        return new ComponentModel(gav, sLicense, getVulnerabilitySeverityCount(vulns));
+    }
+
+    public int[] getVulnerabilitySeverityCount(List<VulnerabilityItem> vulnerabilities) {
+        int high = 0;
+        int medium = 0;
+        int low = 0;
+        if (vulnerabilities == null) {
+            return new int[] { 0, 0, 0 };
+        }
+        for (VulnerabilityItem vuln : vulnerabilities) {
+            switch (SeverityEnum.valueOf(vuln.getSeverity())) {
+            case HIGH:
+                high++;
+                break;
+            case MEDIUM:
+                medium++;
+                break;
+            case LOW:
+                low++;
+                break;
+            default:
+                break;
+            }
+        }
+        return new int[] { high, medium, low };
     }
 }

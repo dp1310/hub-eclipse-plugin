@@ -27,52 +27,50 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
-import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
-import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
-import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
-import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class ComponentCache {
 
     private final int TTL_IN_MILLIS = 3600000;
 
-    private ConcurrentHashMap<Gav, DependencyInfo> cache;
+    private ConcurrentHashMap<Gav, ComponentModel> cache;
 
     private ConcurrentHashMap<Gav, Timestamp> cacheKeyTTL;
 
     private Timestamp oldestKeyAge;
 
-    private int cacheCapacity;
+    private final int cacheCapacity;
 
-    public ComponentCache(final int cacheCapacity) {
+    private final DependencyInformationService dependencyInformationService;
+
+    public ComponentCache(final int cacheCapacity, final DependencyInformationService dependencyInformationService) {
         this.cacheCapacity = cacheCapacity;
+        this.dependencyInformationService = dependencyInformationService;
         cache = buildCache();
     }
 
-    private ConcurrentHashMap<Gav, DependencyInfo> buildCache() {
+    private ConcurrentHashMap<Gav, ComponentModel> buildCache() {
         cache = new ConcurrentHashMap<>();
         cacheKeyTTL = new ConcurrentHashMap<>();
         return cache;
     }
 
-    public DependencyInfo get(Gav gav) throws IntegrationException {
-        DependencyInfo depInfo = cache.get(gav);
+    public ComponentModel get(Gav gav) throws IntegrationException {
+        ComponentModel model = cache.get(gav);
         Timestamp stalestamp = new Timestamp(System.currentTimeMillis() - TTL_IN_MILLIS);
         if (oldestKeyAge != null && oldestKeyAge.before(stalestamp)) {
             removeStaleKeys(stalestamp);
         }
-        if (depInfo == null) {
+        if (model == null) {
             try {
-                depInfo = load(gav);
+                model = dependencyInformationService.load(gav);
             } catch (IOException | URISyntaxException | ComponentLookupNotFoundException | LicenseLookupNotFoundException e) {
                 throw new IntegrationException(e);
             }
@@ -80,10 +78,10 @@ public class ComponentCache {
             if (cache.size() == cacheCapacity) {
                 removeLeastRecentlyUsedKey();
             }
-            cache.put(gav, depInfo);
+            cache.put(gav, model);
             cacheKeyTTL.put(gav, new Timestamp(System.currentTimeMillis()));
         }
-        return depInfo;
+        return model;
     }
 
     public void removeLeastRecentlyUsedKey() {
@@ -101,49 +99,6 @@ public class ComponentCache {
                 oldestKeyAge = (oldestKeyAge == null || oldestKeyAge.after(timestamp)) ? timestamp : oldestKeyAge;
             }
         });
-    }
-
-    public DependencyInfo load(final Gav gav)
-            throws ComponentLookupNotFoundException, IOException, URISyntaxException,
-            LicenseLookupNotFoundException, IntegrationException {
-
-        VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
-        List<VulnerabilityItem> vulns = null;
-        ComplexLicenseItem sLicense = null;
-        try {
-            if (vulnService != null) {
-                vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
-                        gav.getArtifactId(), gav.getVersion());
-
-                // if (vulns == null) {
-                // throw new ComponentLookupNotFoundException(
-                // String.format("Hub could not find license information for component %1$s with namespace %2$s", gav,
-                // gav.getNamespace()));
-                // }
-            } else {
-                throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
-            }
-
-            LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
-            if (licenseService != null) {
-                sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
-                        gav.getArtifactId(), gav.getVersion());
-
-                // if (sLicense == null) {
-                // return new DependencyInfo(vulns, sLicense);
-                // throw new LicenseLookupNotFoundException(
-                // String.format("Hub could not find license information for component %1$s with namespace %2$s", gav,
-                // gav.getNamespace()));
-                // }
-            } else {
-                throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
-            }
-        } catch (HubIntegrationException e) {
-            // Do nothing
-            // TODO: Eventually this should do something more graceful than create an object with null values
-        }
-
-        return new DependencyInfo(vulns, sLicense);
     }
 
 }

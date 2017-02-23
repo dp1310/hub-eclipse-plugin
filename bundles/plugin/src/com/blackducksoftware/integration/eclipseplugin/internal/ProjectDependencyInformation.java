@@ -25,10 +25,10 @@ package com.blackducksoftware.integration.eclipseplugin.internal;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,11 +48,10 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectIn
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.api.vulnerability.SeverityEnum;
-import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
@@ -62,7 +61,6 @@ import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class ProjectDependencyInformation {
-
     public static final String JOB_INSPECT_ALL = "Black Duck Hub inspecting all projects";
 
     public static final String JOB_INSPECT_PROJECT_PREFACE = "Black Duck Hub inspecting ";
@@ -71,7 +69,7 @@ public class ProjectDependencyInformation {
 
     private final ComponentCache componentCache;
 
-    private final Map<String, Map<Gav, DependencyInfo>> projectInfo = new HashMap<>();
+    private final Map<String, List<ComponentModel>> projectInfo = new HashMap<>();
 
     private final ProjectInformationService projService;
 
@@ -113,22 +111,15 @@ public class ProjectDependencyInformation {
             return;
         }
         PhoneHomeDataService phoneHomeService = Activator.getPlugin().getConnectionService().getPhoneHomeDataService();
-        // get version
         HubVersionRequestService hubVersionRequestService = Activator.getPlugin().getConnectionService().getHubVersionRequestService();
         String hubVersion = hubVersionRequestService.getHubVersion();
-        // get hubServerConfig
-
-        // create hubScanConfig
         IProduct eclipseProduct = Platform.getProduct();
         String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
         String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
-
         AuthorizationValidator authorizationValidator = new AuthorizationValidator(Activator.getPlugin().getConnectionService(), new HubServerConfigBuilder());
-
         SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
                 SecurePreferencesFactory.getDefault());
         IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
-
         String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
         String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
         String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
@@ -142,10 +133,8 @@ public class ProjectDependencyInformation {
                 proxyUsername, proxyPassword, proxyPort,
                 proxyHost, ignoredProxyHosts, timeout);
         HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
-
         phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion,
                 pluginVersion, hubVersion);
-
     }
 
     public void inspectAllProjects() {
@@ -198,6 +187,7 @@ public class ProjectDependencyInformation {
                 return Status.OK_STATUS;
             }
         };
+        job.setPriority(Job.LONG);
         job.schedule();
     }
 
@@ -214,8 +204,8 @@ public class ProjectDependencyInformation {
                         || !Activator.getPlugin().getPreferenceStore().getBoolean(projectName)) {
                     return Status.OK_STATUS;
                 }
-                final Map<Gav, DependencyInfo> deps = new ConcurrentHashMap<>();
-                projectInfo.put(projectName, deps);
+                final List<ComponentModel> models = Collections.synchronizedList(new ArrayList<>());
+                projectInfo.put(projectName, models);
                 SubMonitor subMonitor = SubMonitor.convert(monitor, 100000);
                 subMonitor.setTaskName("Gathering dependencies");
                 final List<URL> dependencyFilepaths = projService.getProjectDependencyFilePaths(projectName);
@@ -225,8 +215,8 @@ public class ProjectDependencyInformation {
                     Gav gav = projService.getGavFromFilepath(filePath);
                     if (gav != null) {
                         try {
-                            deps.put(gav, componentCache.get(gav));
-                            projectInfo.put(projectName, deps);
+                            models.add(componentCache.get(gav));
+                            projectInfo.put(projectName, models);
                             if (componentView != null && componentView.getLastSelectedProjectName().equals(projectName)) {
                                 componentView.resetInput();
                             }
@@ -247,19 +237,20 @@ public class ProjectDependencyInformation {
                 return Status.OK_STATUS;
             }
         };
+        job.setPriority(Job.LONG);
         return job;
     }
 
-    public void addProjectInfo(final String projectName, final Map<Gav, DependencyInfo> dependencies) {
-        projectInfo.put(projectName, dependencies);
+    public void addProjectComponents(final String projectName, final List<ComponentModel> models) {
+        projectInfo.put(projectName, models);
     }
 
-    public void addWarningToProject(final String projectName, final Gav gav) {
-        final Map<Gav, DependencyInfo> dependencies = projectInfo.get(projectName);
-        if (dependencies != null) {
+    public void addComponentToProject(final String projectName, final Gav gav) {
+        final List<ComponentModel> models = projectInfo.get(projectName);
+        if (models != null) {
             try {
-                dependencies.put(gav, componentCache.get(gav));
-                projectInfo.put(projectName, dependencies);
+                models.add(componentCache.get(gav));
+                projectInfo.put(projectName, models);
                 if (componentView != null) {
                     componentView.resetInput();
                 }
@@ -273,78 +264,36 @@ public class ProjectDependencyInformation {
         }
     }
 
+    public List<ComponentModel> getProjectComponents(final String projectName) {
+        List<ComponentModel> models = projectInfo.get(projectName);
+        if (models == null) {
+            return new ArrayList<>();
+        }
+        return projectInfo.get(projectName);
+    }
+
     public void removeProject(final String projectName) {
         projectInfo.remove(projectName);
     }
 
-    public void removeWarningFromProject(final String projectName, final Gav gav) {
-        final Map<Gav, DependencyInfo> dependencies = projectInfo.get(projectName);
-        if (dependencies != null) {
-            dependencies.remove(gav);
-            projectInfo.put(projectName, dependencies);
+    public void removeComponentFromProject(final String projectName, final Gav gav) {
+        final List<ComponentModel> models = projectInfo.get(projectName);
+        if (models != null) {
+            models.remove(gav);
+            projectInfo.put(projectName, models);
             if (componentView != null) {
                 componentView.resetInput();
             }
         }
     }
 
-    public boolean containsProject(final String projectName) {
+    public boolean containsComponentsFromProject(final String projectName) {
         return projectInfo.containsKey(projectName);
     }
 
-    public Gav[] getAllDependencyGavs(final String projectName) {
-        final Map<Gav, DependencyInfo> dependencyInfo = projectInfo.get(projectName);
-        if (dependencyInfo != null) {
-            return dependencyInfo.keySet().toArray(new Gav[dependencyInfo.keySet().size()]);
-        } else {
-            return new Gav[0];
-        }
-    }
-
-    // TODO deprecate
-    public Map<Gav, List<VulnerabilityItem>> getVulnMap(String projectName) {
-        Map<Gav, List<VulnerabilityItem>> vulnMap = new HashMap<>();
-
-        Map<Gav, DependencyInfo> projDepInfo = projectInfo.get(projectName);
-        for (Map.Entry<Gav, DependencyInfo> entry : projDepInfo.entrySet()) {
-            vulnMap.put(entry.getKey(), entry.getValue().getVulnList());
-        }
-
-        return vulnMap;
-    }
-
-    public int[] getVulnMapSeverityCount(String projectName, Gav gav) {
-        int high = 0;
-        int medium = 0;
-        int low = 0;
-        if (getVulnMap(projectName).get(gav) == null) {
-            return new int[] { 0, 0, 0 };
-        }
-        for (VulnerabilityItem vuln : getVulnMap(projectName).get(gav)) {
-            switch (SeverityEnum.valueOf(vuln.getSeverity())) {
-            case HIGH:
-                high++;
-                break;
-            case MEDIUM:
-                medium++;
-                break;
-            case LOW:
-                low++;
-                break;
-            default:
-                break;
-            }
-        }
-        return new int[] { high, medium, low };
-    }
-
-    public Map<Gav, DependencyInfo> getDependencyInfoMap(String projectName) {
-        return projectInfo.get(projectName);
-    }
-
     public void renameProject(String oldName, String newName) {
-        Map<Gav, DependencyInfo> info = projectInfo.get(oldName);
-        projectInfo.put(newName, info);
+        List<ComponentModel> models = projectInfo.get(oldName);
+        projectInfo.put(newName, models);
         projectInfo.remove(oldName);
     }
 

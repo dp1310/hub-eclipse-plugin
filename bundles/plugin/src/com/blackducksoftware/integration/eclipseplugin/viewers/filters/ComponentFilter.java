@@ -28,38 +28,41 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Text;
 
 import com.blackducksoftware.integration.eclipseplugin.views.providers.DependencyTableViewContentProvider;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.ComplexLicenseParser;
 
 public class ComponentFilter extends ViewerFilter {
 
-    private Text filterBox;
+    private final Text filterBox;
 
     private DependencyTableViewContentProvider dependencyTableViewContentProvider;
 
-    public ComponentFilter(Text filterBox, DependencyTableViewContentProvider dependencyTableViewContentProvider) {
+    public ComponentFilter(Text filterBox) {
         this.filterBox = filterBox;
-        this.dependencyTableViewContentProvider = dependencyTableViewContentProvider;
     }
 
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
+        if (dependencyTableViewContentProvider == null) {
+            return true;
+        }
         if (filterBox == null || filterBox.getText().length() == 0) {
             return true;
         }
-        Gav gav = ((GavWithParentProject) element).getGav();
+        Gav gav = ((ComponentModel) element).getGav();
         if (gav.toString().contains(filterBox.getText())) {
             return true;
         }
-        String license = new ComplexLicenseParser(
-                dependencyTableViewContentProvider.getProjectInformation().getDependencyInfoMap(((GavWithParentProject) element).getParentProject())
-                        .get(gav).geComplexLicenseItem()).parse();
+        String license = new ComplexLicenseParser(((ComponentModel) element).getLicense()).parse();
         if (license.contains(filterBox.getText())) {
             return true;
         }
-
         return false;
+    }
+
+    public void setContentProvider(DependencyTableViewContentProvider dependencyTableViewContentProvider) {
+        this.dependencyTableViewContentProvider = dependencyTableViewContentProvider;
     }
 
 }

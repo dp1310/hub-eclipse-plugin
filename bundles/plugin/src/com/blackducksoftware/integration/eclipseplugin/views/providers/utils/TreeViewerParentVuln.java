@@ -32,7 +32,7 @@ public class TreeViewerParentVuln extends TreeViewerParent {
 
     private final List<VulnerabilityItem> vulns;
 
-    public TreeViewerParentVuln(String dispName, GavWithParentProject gavWithParentProj, List<VulnerabilityItem> vulns) {
+    public TreeViewerParentVuln(String dispName, ComponentModel gavWithParentProj, List<VulnerabilityItem> vulns) {
         super(dispName, gavWithParentProj);
         this.vulns = vulns;
     }

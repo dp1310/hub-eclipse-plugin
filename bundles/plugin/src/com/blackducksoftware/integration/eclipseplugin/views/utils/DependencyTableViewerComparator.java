@@ -23,39 +23,28 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.utils;
 
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
+import java.util.Comparator;
 
-import com.blackducksoftware.integration.eclipseplugin.views.providers.DependencyTableViewContentProvider;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 
-public class DependencyTableViewerComparator extends ViewerComparator {
-
-    private DependencyTableViewContentProvider contentProvider;
-
-    public DependencyTableViewerComparator(DependencyTableViewContentProvider contentProvider) {
-        super();
-        this.contentProvider = contentProvider;
-    }
+public class DependencyTableViewerComparator implements Comparator<ComponentModel> {
 
     @Override
-    public int compare(Viewer viewer, Object e1, Object e2) {
-        GavWithParentProject gav1 = (GavWithParentProject) e1;
-        GavWithParentProject gav2 = (GavWithParentProject) e2;
-        int[] gav1vulns = contentProvider.getProjectInformation().getVulnMapSeverityCount(gav1.getParentProject(), gav1.getGav());
-        int[] gav2vulns = contentProvider.getProjectInformation().getVulnMapSeverityCount(gav2.getParentProject(), gav2.getGav());
+    public int compare(ComponentModel o1, ComponentModel o2) {
+        int[] gav1vulns = o1.getVulnerabilityCount();
+        int[] gav2vulns = o2.getVulnerabilityCount();
         for (int i = 0; i < gav1vulns.length; i++) {
             int compareVal = gav2vulns[i] - gav1vulns[i];
             if (compareVal != 0) {
                 return compareVal;
             }
         }
-        if (!gav1.getComponentIsKnown()) {
+        if (!o1.getComponentIsKnown()) {
             return -1;
-        } else if (!gav2.getComponentIsKnown()) {
+        } else if (!o2.getComponentIsKnown()) {
             return 1;
         }
-        return (gav1.getGav().getArtifactId() + gav1.getGav().getVersion()).compareTo(
-                (gav2.getGav().getArtifactId() + gav2.getGav().getVersion()));
+        return (o1.getGav().getArtifactId() + o1.getGav().getVersion()).compareTo(
+                (o2.getGav().getArtifactId() + o2.getGav().getVersion()));
     }
 }

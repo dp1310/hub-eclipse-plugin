@@ -23,39 +23,41 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 
+import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 
-public class GavWithParentProject {
+public class ComponentModel {
 
-    private Gav gav;
+    private final Gav gav;
 
-    private String parentProject;
+    private final ComplexLicenseItem license;
 
-    private boolean componentIsKnown;
+    private final int[] vulnerabilityCount;
 
-    private boolean licenseIsKnown;
-
-    public GavWithParentProject(Gav gav, String parentProject, boolean componentIsKnown, boolean licenseIsKnown) {
+    public ComponentModel(Gav gav, ComplexLicenseItem license, int[] vulnerabilityCount) {
         this.gav = gav;
-        this.parentProject = parentProject;
-        this.componentIsKnown = componentIsKnown;
-        this.licenseIsKnown = licenseIsKnown;
+        this.license = license;
+        this.vulnerabilityCount = vulnerabilityCount;
     }
 
     public Gav getGav() {
         return gav;
     }
 
-    public String getParentProject() {
-        return parentProject;
+    public ComplexLicenseItem getLicense() {
+        return license;
+    }
+
+    public int[] getVulnerabilityCount() {
+        return vulnerabilityCount;
     }
 
     public boolean getComponentIsKnown() {
-        return componentIsKnown;
+        return gav != null;
     }
 
     public boolean getLicenseIsKnown() {
-        return licenseIsKnown;
+        return license != null;
     }
 
 }

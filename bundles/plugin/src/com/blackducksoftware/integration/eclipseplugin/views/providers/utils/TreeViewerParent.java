@@ -26,9 +26,9 @@ package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 public abstract class TreeViewerParent {
 	
 	protected final String dispName;
-	protected final GavWithParentProject gavWithParentProject;
+	protected final ComponentModel gavWithParentProject;
 	
-	public TreeViewerParent(String dispName, GavWithParentProject gavWithParentProject) {
+	public TreeViewerParent(String dispName, ComponentModel gavWithParentProject) {
 		this.dispName = dispName;
 		this.gavWithParentProject = gavWithParentProject;
 	}
@@ -40,7 +40,7 @@ public abstract class TreeViewerParent {
 		return this.dispName;
 	}
 	
-	public GavWithParentProject getGavWithParentProject() {
+	public ComponentModel getGavWithParentProject() {
 		return this.gavWithParentProject;
 	}
 }

@@ -29,7 +29,7 @@ public class TreeViewerParentLicense extends TreeViewerParent {
 
     private final ComplexLicenseItem complexLicenseItem;
 
-    public TreeViewerParentLicense(String dispName, GavWithParentProject gavWithParentProject, ComplexLicenseItem complexLicenseItem) {
+    public TreeViewerParentLicense(String dispName, ComponentModel gavWithParentProject, ComplexLicenseItem complexLicenseItem) {
         super(dispName, gavWithParentProject);
         this.complexLicenseItem = complexLicenseItem;
     }

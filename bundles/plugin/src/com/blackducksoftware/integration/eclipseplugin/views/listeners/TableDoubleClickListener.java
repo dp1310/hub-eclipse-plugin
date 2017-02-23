@@ -38,7 +38,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
@@ -58,8 +58,8 @@ public class TableDoubleClickListener implements IDoubleClickListener {
     public void doubleClick(DoubleClickEvent event) {
         IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-        if (selection.getFirstElement() instanceof GavWithParentProject) {
-            GavWithParentProject selectedObject = (GavWithParentProject) selection.getFirstElement();
+        if (selection.getFirstElement() instanceof ComponentModel) {
+            ComponentModel selectedObject = (ComponentModel) selection.getFirstElement();
             if (!selectedObject.getComponentIsKnown()) {
                 return;
             }

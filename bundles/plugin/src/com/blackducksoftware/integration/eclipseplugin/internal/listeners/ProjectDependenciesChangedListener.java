@@ -83,11 +83,11 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             if (depService.isGradleDependency(projectUrl)) {
                 final Gav gav = extractor.getGradlePathGav(projectUrl);
                 // TODO: No hardcoded strings.
-                information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.removeComponentFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             } else if (depService.isMavenDependency(projectUrl)) {
                 final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
                 final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
-                information.removeWarningFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.removeComponentFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
 
@@ -100,11 +100,11 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             if (depService.isGradleDependency(projectUrl)) {
                 final Gav gav = extractor.getGradlePathGav(projectUrl);
                 // TODO: No hardcoded strings.
-                information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.addComponentToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             } else if (depService.isMavenDependency(projectUrl)) {
                 final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
                 final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
-                information.addWarningToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.addComponentToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
     }

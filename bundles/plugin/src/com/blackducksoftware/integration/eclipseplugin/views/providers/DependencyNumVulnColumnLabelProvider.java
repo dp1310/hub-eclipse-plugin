@@ -23,9 +23,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ViewerCell;
@@ -34,10 +31,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.GavWithParentProject;
-import com.blackducksoftware.integration.hub.api.vulnerability.SeverityEnum;
-import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
-import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 
 public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabelProvider {
 
@@ -55,36 +49,16 @@ public class DependencyNumVulnColumnLabelProvider extends DependencyTreeViewLabe
 
     @Override
     public String getText(Object input) {
-        if (input instanceof GavWithParentProject) {
-            Map<Gav, List<VulnerabilityItem>> vulnsMap = dependencyTableViewCp.getProjectInformation()
-                    .getVulnMap(dependencyTableViewCp.getInputProject());
-            if (vulnsMap.get(((GavWithParentProject) input).getGav()) == null) {
+        if (input instanceof ComponentModel) {
+            if (!((ComponentModel) input).getComponentIsKnown()) {
                 return VALUE_UNKNOWN;
             }
-            int high = 0;
-            int medium = 0;
-            int low = 0;
-            for (VulnerabilityItem vuln : vulnsMap.get(((GavWithParentProject) input).getGav())) {
-                switch (SeverityEnum.valueOf(vuln.getSeverity())) {
-                case HIGH:
-                    high++;
-                    break;
-                case MEDIUM:
-                    medium++;
-                    break;
-                case LOW:
-                    low++;
-                    break;
-                default:
-                    break;
-                }
-            }
-            String highString = high < 1000 ? high + "" : "999+";
-            String mediumString = medium < 1000 ? medium + "" : "999+";
-            String lowString = low < 1000 ? low + "" : "999+";
+            int[] vulnSeverityCount = ((ComponentModel) input).getVulnerabilityCount();
+            String highString = vulnSeverityCount[0] < 1000 ? vulnSeverityCount[0] + "" : "999+";
+            String mediumString = vulnSeverityCount[1] < 1000 ? vulnSeverityCount[1] + "" : "999+";
+            String lowString = vulnSeverityCount[2] < 1000 ? vulnSeverityCount[2] + "" : "999+";
             String text = StringUtils.join(new Object[] { " " + highString, mediumString, lowString + " " }, " : ");
             return text;
-
         }
         return "";
     }
