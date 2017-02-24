@@ -42,6 +42,7 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePr
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
+import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
@@ -73,6 +74,8 @@ public class Activator extends AbstractUIPlugin {
 
     private ComponentCache componentCache;
 
+    private InspectionQueueService inspectionQueueService;
+
     private IResourceChangeListener newJavaProjectListener;
 
     private IResourceChangeListener javaProjectDeletedListener;
@@ -98,7 +101,8 @@ public class Activator extends AbstractUIPlugin {
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
         connectionService = new HubRestConnectionService(getInitialHubConnection());
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
-        information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        inspectionQueueService = new InspectionQueueService(projService);
+        information = new ProjectDependencyInformation(projService, workspaceService, componentCache, inspectionQueueService);
         final PreferencesService defaultPrefService = new PreferencesService(
                 getPlugin().getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPrefService, information);

@@ -44,6 +44,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
+import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
@@ -76,13 +77,16 @@ public class ProjectDependencyInformation {
 
     private final WorkspaceInformationService workspaceService;
 
+    private final InspectionQueueService inspectionQueueService;
+
     private VulnerabilityView componentView;
 
     public ProjectDependencyInformation(final ProjectInformationService projService, WorkspaceInformationService workspaceService,
-            ComponentCache componentCache) {
+            ComponentCache componentCache, final InspectionQueueService inspectionQueueService) {
         this.projService = projService;
         this.workspaceService = workspaceService;
         this.componentCache = componentCache;
+        this.inspectionQueueService = inspectionQueueService;
     }
 
     public VulnerabilityView getComponentView() {
@@ -138,6 +142,20 @@ public class ProjectDependencyInformation {
                 pluginVersion, hubVersion);
     }
 
+    public void enqueueAllProjectInspections() {
+        String[] projects = workspaceService.getJavaProjectNames();
+        if (projects != null) {
+            for (String projectName : projects) {
+                inspectionQueueService.enqueueInspection(projectName);
+            }
+        }
+    }
+
+    public void enqueueProjectInspection(String projectName) {
+        inspectionQueueService.enqueueInspection(projectName);
+    }
+
+    @Deprecated
     public void inspectAllProjects() {
         Job job = new Job(JOB_INSPECT_ALL) {
             @Override
@@ -178,13 +196,15 @@ public class ProjectDependencyInformation {
                             }
                         } catch (InterruptedException e) {
                             if (componentView != null) {
-                                componentView.openError("Black Duck Inspection interrupted", "Inspection interrupted before it could reach completion.", e);
+                                componentView.openError("Black Duck Inspection interrupted",
+                                        "Inspection interrupted before it could reach completion.", e);
                             }
                         }
                         i++;
                         subMonitor.split(1).done();
                     }
                 }
+
                 return Status.OK_STATUS;
             }
         };
@@ -192,6 +212,7 @@ public class ProjectDependencyInformation {
         job.schedule();
     }
 
+    @Deprecated
     public Job createInspection(String projectName, final boolean inspectIfNew) {
         Job job = new Job(JOB_INSPECT_PROJECT_PREFACE + projectName) {
             @Override
@@ -230,8 +251,12 @@ public class ProjectDependencyInformation {
         return job;
     }
 
-    public void addProjectComponents(final String projectName, final List<ComponentModel> models) {
-        projectInfo.put(projectName, models);
+    public List<ComponentModel> initializeProjectComponents(final String projectName) {
+        return projectInfo.put(projectName, Collections.synchronizedList(new ArrayList<ComponentModel>()));
+    }
+
+    public List<ComponentModel> addProjectComponents(final String projectName, final List<ComponentModel> models) {
+        return projectInfo.put(projectName, models);
     }
 
     public void addComponentToProject(final String projectName, final Gav gav) {

@@ -23,34 +23,32 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.viewers.filters;
 
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Text;
 
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.ComplexLicenseParser;
 
-public class ComponentFilter extends ViewerFilter {
-
+public class ComponentFilter {
     private final Text filterBox;
 
     public ComponentFilter(Text filterBox) {
         this.filterBox = filterBox;
     }
 
-    @Override
-    public boolean select(Viewer viewer, Object parentElement, Object element) {
+    public boolean filter(ComponentModel model) {
         if (filterBox == null || filterBox.getText().length() == 0) {
             return true;
         }
-        Gav gav = ((ComponentModel) element).getGav();
+        Gav gav = model.getGav();
         if (gav.toString().contains(filterBox.getText())) {
             return true;
         }
-        String license = new ComplexLicenseParser(((ComponentModel) element).getLicense()).parse();
-        if (license.contains(filterBox.getText())) {
-            return true;
+        if (model.getLicenseIsKnown()) {
+            String license = new ComplexLicenseParser(model.getLicense()).parse();
+            if (license.contains(filterBox.getText())) {
+                return true;
+            }
         }
         return false;
     }

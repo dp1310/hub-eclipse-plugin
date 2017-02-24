@@ -39,10 +39,8 @@ public class DependencyTableViewerComparator implements Comparator<ComponentMode
                 return compareVal;
             }
         }
-        if (!o1.getComponentIsKnown()) {
-            return -1;
-        } else if (!o2.getComponentIsKnown()) {
-            return 1;
+        if (Boolean.compare(o1.getComponentIsKnown(), o2.getComponentIsKnown()) != 0) {
+            return Boolean.compare(o1.getComponentIsKnown(), o2.getComponentIsKnown());
         }
         return (o1.getGav().getArtifactId() + o1.getGav().getVersion()).compareTo(
                 (o2.getGav().getArtifactId() + o2.getGav().getVersion()));

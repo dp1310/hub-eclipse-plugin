@@ -23,6 +23,7 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -33,6 +34,7 @@ import org.eclipse.jface.viewers.Viewer;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.viewers.filters.ComponentFilter;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 
@@ -47,6 +49,8 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
 
     private ComponentModel[] parsedElements;
 
+    private ComponentFilter filter = null;
+
     public DependencyTableViewContentProvider(VulnerabilityView view, TableViewer viewer) {
         this.view = view;
         this.viewer = viewer;
@@ -55,6 +59,9 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
     @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         this.parsedElements = (ComponentModel[]) newInput;
+        if (filter != null) {
+            this.parsedElements = Arrays.stream(parsedElements).filter(model -> filter.filter(model)).toArray(ComponentModel[]::new);
+        }
     }
 
     public ComponentModel[] parseElements(Object inputElement) {
@@ -102,7 +109,15 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
 
     @Override
     public void updateElement(int index) {
-        viewer.replace(parsedElements[index], index);
+        // TODO: See if there's a graceful way around "Ignored reentrant call while viewer is busy"
+        if (parsedElements.length > 0) {
+            viewer.setItemCount(parsedElements.length);
+            viewer.replace(parsedElements[index], index);
+        }
+    }
+
+    public void addFilter(ComponentFilter filter) {
+        this.filter = filter;
     }
 
 }
