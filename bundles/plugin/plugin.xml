@@ -17,6 +17,43 @@
       <menuContribution
             allPopups="false"
             locationURI="popup:blackduck-PackageExplorer?after=additions">
+         <command
+               commandId="com.blackducksoftware.integration.popupmenu.InspectSelectedProject"
+               icon="resources/icons/ducky.png"
+               label="Inspect Selected Project"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false">
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <and>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="org.eclipse.core.resources.projectNature"
+                                 value="org.eclipse.jdt.core.javanature">
+                           </test>
+                           <or>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="org.eclipse.core.resources.projectNature"
+                                    value="org.eclipse.m2e.core.maven2Nature">
+                              </test>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="org.eclipse.core.resources.projectNature"
+                                    value="org.eclipse.buildship.core.gradleprojectnature">
+                              </test>
+                           </or>
+                        </and>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
          <!-- Menu item that opens vulnerability view -->
          <command
                commandId="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
@@ -47,6 +84,43 @@
       <menuContribution
             allPopups="false"
             locationURI="popup:blackduck-ProjectExplorer?after=additions">
+         <command
+               commandId="com.blackducksoftware.integration.popupmenu.InspectSelectedProject"
+               icon="resources/icons/ducky.png"
+               label="Inspect Selected Project"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false">
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <and>
+                           <test
+                                 forcePluginActivation="true"
+                                 property="org.eclipse.core.resources.projectNature"
+                                 value="org.eclipse.jdt.core.javanature">
+                           </test>
+                           <or>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="org.eclipse.core.resources.projectNature"
+                                    value="org.eclipse.m2e.core.maven2Nature">
+                              </test>
+                              <test
+                                    forcePluginActivation="true"
+                                    property="org.eclipse.core.resources.projectNature"
+                                    value="org.eclipse.buildship.core.gradleprojectnature">
+                              </test>
+                           </or>
+                        </and>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
          <!-- Menu item that opens vulnerability view -->
          <command
                commandId="com.blackducksoftware.integration.popupmenu.OpenVulnerabilityView"
@@ -82,6 +156,11 @@
             defaultHandler="com.blackducksoftware.integration.eclipseplugin.popupmenu.handlers.OpenPreferences"
             id="com.blackducksoftware.integration.popupmenu.OpenPreferences"
             name="Open Preferences">
+      </command>
+      <command
+            defaultHandler="com.blackducksoftware.integration.eclipseplugin.popupmenu.handlers.InspectSelectedProject"
+            id="com.blackducksoftware.integration.popupmenu.InspectSelectedProject"
+            name="Inspect Selected Project">
       </command>
       <!-- Corresponds to "Project Preferences..." menu item -->
    </extension>

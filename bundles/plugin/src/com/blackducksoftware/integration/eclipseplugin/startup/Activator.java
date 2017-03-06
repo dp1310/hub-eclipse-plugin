@@ -86,8 +86,7 @@ public class Activator extends AbstractUIPlugin {
 
     private SecurePreferencesService securePrefService;
 
-    public Activator() {
-    }
+    private PreferencesService defaultPreferencesService;
 
     @Override
     public void start(final BundleContext context) throws Exception {
@@ -103,10 +102,9 @@ public class Activator extends AbstractUIPlugin {
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         inspectionQueueService = new InspectionQueueService(projService);
         information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
-        final PreferencesService defaultPrefService = new PreferencesService(
-                getPlugin().getPreferenceStore());
-        newJavaProjectListener = new NewJavaProjectListener(defaultPrefService);
-        defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPrefService, workspaceService);
+        defaultPreferencesService = new PreferencesService(getPlugin().getPreferenceStore());
+        newJavaProjectListener = new NewJavaProjectListener(defaultPreferencesService);
+        defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPreferencesService, workspaceService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener(information);
         ResourcesPlugin.getWorkspace().addResourceChangeListener(newJavaProjectListener);
@@ -114,7 +112,7 @@ public class Activator extends AbstractUIPlugin {
                 IResourceChangeEvent.PRE_DELETE);
         getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
         JavaCore.addElementChangedListener(depsChangedListener);
-        defaultPrefService.setDefaultConfig();
+        defaultPreferencesService.setDefaultConfig();
         inspectionQueueService.enqueueInspections(workspaceService.getSupportedJavaProjectNames());
     }
 
@@ -133,6 +131,10 @@ public class Activator extends AbstractUIPlugin {
 
     public InspectionQueueService getInspectionQueueService() {
         return inspectionQueueService;
+    }
+
+    public PreferencesService getDefaultPreferencesService() {
+        return defaultPreferencesService;
     }
 
     public RestConnection getInitialHubConnection() throws HubIntegrationException {

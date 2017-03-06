@@ -100,39 +100,55 @@ public class WorkspaceInformationService {
     }
 
     public String getSelectedProject() {
+        final IStructuredSelection selection = getWorkspaceSelection();
+        if (selection != null && selection.getFirstElement() != null) {
+            final Object selected = selection.getFirstElement();
+            if (selected instanceof IAdaptable) {
+                return getSelectedProjectName((IAdaptable) selected);
+            }
+        }
+        return "";
+    }
+
+    public List<String> getAllSelectedProjects() {
+        ArrayList<String> projectNames = new ArrayList<>();
+        final IStructuredSelection selection = getWorkspaceSelection();
+        if (selection != null && !selection.toList().isEmpty()) {
+            List<?> selectedObjects = selection.toList();
+            for (Object selected : selectedObjects) {
+                if (selected instanceof IAdaptable) {
+                    String projectName = getSelectedProjectName((IAdaptable) selected);
+                    if (!projectName.equals("")) {
+                        projectNames.add(projectName);
+                    }
+                }
+            }
+
+        }
+        return projectNames;
+    }
+
+    private IStructuredSelection getWorkspaceSelection() {
         final IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         if (activeWindow != null) {
             final ISelectionService selectionService = activeWindow.getSelectionService();
             if (selectionService != null) {
-                final IStructuredSelection selection = (IStructuredSelection) selectionService.getSelection();
-                if (selection != null && selection.getFirstElement() != null) {
-                    final Object selected = selection.getFirstElement();
-                    if (selected instanceof IAdaptable) {
-                        final IProject project = ((IAdaptable) selected).getAdapter(IProject.class);
-                        try {
-                            if (project != null && project.getDescription() != null) {
-                                return project.getDescription().getName();
-                            } else {
-                                return "";
-                            }
-                        } catch (final CoreException e) {
-                            return "";
-                        }
-
-                    } else {
-                        return "";
-                    }
-                } else {
-                    return "";
-                }
-
-            } else {
-                return "";
+                return (IStructuredSelection) selectionService.getSelection();
             }
-
-        } else {
-            return "";
         }
+        return null;
+    }
+
+    private String getSelectedProjectName(IAdaptable selected) {
+        final IProject project = selected.getAdapter(IProject.class);
+        try {
+            if (project != null && project.getDescription() != null) {
+                return project.getDescription().getName();
+            }
+        } catch (final CoreException e) {
+            // do nothing
+        }
+        return "";
     }
 
 }
