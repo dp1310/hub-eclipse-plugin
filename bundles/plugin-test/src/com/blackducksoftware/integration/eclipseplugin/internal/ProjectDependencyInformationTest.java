@@ -75,8 +75,8 @@ public class ProjectDependencyInformationTest {
     public void testAddingProject() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, inspectionQueueService);
-        projInfo.createInspection(proj, true);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        inspectionQueueService.enqueueInspection(proj);
         final List<ComponentModel> componentModels = projInfo.getProjectComponents(proj);
         assertTrue(componentModels.contains(vulnerabilities1));
         assertTrue(componentModels.contains(vulnerabilities2));
@@ -87,8 +87,8 @@ public class ProjectDependencyInformationTest {
     public void testAddingDependency() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, inspectionQueueService);
-        projInfo.createInspection(proj, true);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        inspectionQueueService.enqueueInspection(proj);
         assertTrue(projInfo.containsComponentsFromProject(proj));
         final List<ComponentModel> oldComponentModels = projInfo.getProjectComponents(proj);
         assertFalse(oldComponentModels.contains(vulnerabilities3));
@@ -101,8 +101,8 @@ public class ProjectDependencyInformationTest {
     public void testRemovingDependency() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2, gav3));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, inspectionQueueService);
-        projInfo.createInspection(proj, true).schedule();
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        inspectionQueueService.enqueueInspection(proj);
         final List<ComponentModel> oldComponentModels = projInfo.getProjectComponents(proj);
         assertTrue(oldComponentModels.contains(vulnerabilities3));
         projInfo.removeComponentFromProject(proj, gav3);
@@ -114,8 +114,8 @@ public class ProjectDependencyInformationTest {
     public void testRemovingProject() throws IntegrationException {
         prepareCache();
         Mockito.when(projService.getGavsFromFilepaths(projService.getProjectDependencyFilePaths(proj))).thenReturn(Arrays.asList(gav1, gav2));
-        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache, inspectionQueueService);
-        projInfo.createInspection(proj, true);
+        final ProjectDependencyInformation projInfo = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        inspectionQueueService.enqueueInspection(proj);
         assertTrue(projInfo.containsComponentsFromProject(proj));
         projInfo.removeProject(proj);
         assertFalse(projInfo.containsComponentsFromProject(proj));

@@ -102,10 +102,10 @@ public class Activator extends AbstractUIPlugin {
         connectionService = new HubRestConnectionService(getInitialHubConnection());
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         inspectionQueueService = new InspectionQueueService(projService);
-        information = new ProjectDependencyInformation(projService, workspaceService, componentCache, inspectionQueueService);
+        information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
         final PreferencesService defaultPrefService = new PreferencesService(
                 getPlugin().getPreferenceStore());
-        newJavaProjectListener = new NewJavaProjectListener(defaultPrefService, information);
+        newJavaProjectListener = new NewJavaProjectListener(defaultPrefService);
         defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPrefService, workspaceService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener(information);
@@ -115,7 +115,7 @@ public class Activator extends AbstractUIPlugin {
         getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
         JavaCore.addElementChangedListener(depsChangedListener);
         defaultPrefService.setDefaultConfig();
-        information.inspectAllProjects();
+        inspectionQueueService.enqueueInspections(workspaceService.getSupportedJavaProjectNames());
     }
 
     public ProjectDependencyInformation getProjectInformation() {
@@ -129,6 +129,10 @@ public class Activator extends AbstractUIPlugin {
 
     public HubRestConnectionService getConnectionService() {
         return connectionService;
+    }
+
+    public InspectionQueueService getInspectionQueueService() {
+        return inspectionQueueService;
     }
 
     public RestConnection getInitialHubConnection() throws HubIntegrationException {

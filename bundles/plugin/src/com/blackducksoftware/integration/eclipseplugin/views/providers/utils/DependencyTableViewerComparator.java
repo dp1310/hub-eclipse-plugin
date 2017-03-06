@@ -21,11 +21,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.eclipseplugin.views.utils;
+package com.blackducksoftware.integration.eclipseplugin.views.providers.utils;
 
 import java.util.Comparator;
-
-import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 
 public class DependencyTableViewerComparator implements Comparator<ComponentModel> {
 

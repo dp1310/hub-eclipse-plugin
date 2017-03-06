@@ -42,7 +42,7 @@ public class DefaultPreferenceChangeListener implements IPropertyChangeListener 
 
 	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
-		final String[] projectNames = workspaceService.getJavaProjectNames();
+		final String[] projectNames = workspaceService.getSupportedJavaProjectNames();
 		for (final String projectName : projectNames) {
 			defaultPreferencesService.setAllProjectSpecificDefaults(projectName);
 		}

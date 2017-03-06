@@ -27,12 +27,6 @@ public class PathsToIconFiles {
 
     public static final String DUCKY = "resources/icons/ducky.png";
 
-    public static final String GREEN_CHECK = "resources/icons/approved.gif";
-
-    public static final String RED_X = "resources/icons/rejected.gif";
-
-    public static final String SYNCH = "resources/icons/synch_co.gif";
-
     public static final String DISCONNECT = "resources/icons/disconnect_co.gif";
 
     public static final String WAITING = "resources/icons/waiting.gif";

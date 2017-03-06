@@ -72,7 +72,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         final FilePathGavExtractor extractor = new FilePathGavExtractor();
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
-        final String[] names = workspaceService.getJavaProjectNames();
+        final String[] names = workspaceService.getSupportedJavaProjectNames();
 
         defaultsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         defaultsComposite.setLayout(new GridLayout());

@@ -48,14 +48,14 @@ public class PreferenceChangeDisplayUpdateListenerTest {
     @Test
     public void testSettingTableInput() {
         Mockito.when(componentView.getDependencyTableViewer()).thenReturn(table);
-        final PreferenceChangeDisplayUpdateListener listener = new PreferenceChangeDisplayUpdateListener(componentView);
+        final PreferenceChangeDisplayUpdateListener listener = new PreferenceChangeDisplayUpdateListener();
         listener.propertyChange(e);
         Mockito.verify(componentView, Mockito.times(1)).resetInput();
     }
 
     @Test
     public void testWhenTableNull() {
-        final PreferenceChangeDisplayUpdateListener listener = new PreferenceChangeDisplayUpdateListener(componentView);
+        final PreferenceChangeDisplayUpdateListener listener = new PreferenceChangeDisplayUpdateListener();
         listener.propertyChange(e);
         Mockito.verify(componentView, Mockito.times(0)).resetInput();
     }

@@ -40,8 +40,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
-import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourcesPlugin.class)
@@ -144,78 +144,76 @@ public class NewJavaProjectListenerTest {
 
     @Test
     public void testProjectBeingAdded() throws CoreException {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
+        final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForAddedProject();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAME);
-        Mockito.verify(information, Mockito.times(1)).createInspection(PROJECT_NAME, true);
+        Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
     @Test
     public void testActivatedProjectBeingMoved() throws CoreException {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         Mockito.when(prefService.isActivated(OLD_PROJECT_NAME)).thenReturn(true);
         setUpForMovedProject();
-        NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(1)).activateProject(NEW_PROJECT_NAME);
     }
 
     @Test
     public void testNonActivatedProjectBeingMoved() throws CoreException {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         Mockito.when(prefService.isActivated(OLD_PROJECT_NAME)).thenReturn(false);
         setUpForMovedProject();
-        NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(0)).activateProject(NEW_PROJECT_NAME);
     }
 
     @Test
     public void testDeltaNotAddedOrChanged() {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
+        final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForDeltaNotAddedOrChanged();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
-        Mockito.verify(information, Mockito.times(0)).createInspection(PROJECT_NAME, true);
+        Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
     @Test
     public void testForNonJavaProject() throws CoreException {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
+        final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForNonJavaProject();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
-        Mockito.verify(information, Mockito.times(0)).createInspection(PROJECT_NAME, true);
+        Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
     @Test
     public void testWhenCoreExceptionThrown() throws CoreException {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
+        final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForThrowingCoreException();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
-        Mockito.verify(information, Mockito.times(0)).createInspection(PROJECT_NAME, true);
+        Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
     @Test
     public void testForNonProjectResource() {
-        final ProjectDependencyInformation information = Mockito.mock(ProjectDependencyInformation.class);
+        final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForNonProjectResource();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService, information);
+        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
         listener.resourceChanged(event);
         Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
-        Mockito.verify(information, Mockito.times(0)).createInspection(PROJECT_NAME, true);
+        Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 }

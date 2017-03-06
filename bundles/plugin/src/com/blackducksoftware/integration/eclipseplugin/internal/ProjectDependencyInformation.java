@@ -45,14 +45,13 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
-import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
+import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.DependencyTableViewerComparator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
-import com.blackducksoftware.integration.eclipseplugin.views.utils.DependencyTableViewerComparator;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
@@ -78,16 +77,13 @@ public class ProjectDependencyInformation {
 
     private final WorkspaceInformationService workspaceService;
 
-    private final InspectionQueueService inspectionQueueService;
-
     private VulnerabilityView componentView;
 
     public ProjectDependencyInformation(final ProjectInformationService projService, WorkspaceInformationService workspaceService,
-            ComponentCache componentCache, final InspectionQueueService inspectionQueueService) {
+            ComponentCache componentCache) {
         this.projService = projService;
         this.workspaceService = workspaceService;
         this.componentCache = componentCache;
-        this.inspectionQueueService = inspectionQueueService;
     }
 
     public VulnerabilityView getComponentView() {
@@ -143,19 +139,6 @@ public class ProjectDependencyInformation {
                 pluginVersion, hubVersion);
     }
 
-    public void enqueueAllProjectInspections() {
-        String[] projects = workspaceService.getJavaProjectNames();
-        if (projects != null) {
-            for (String projectName : projects) {
-                inspectionQueueService.enqueueInspection(projectName);
-            }
-        }
-    }
-
-    public void enqueueProjectInspection(String projectName) {
-        inspectionQueueService.enqueueInspection(projectName);
-    }
-
     @Deprecated
     public void inspectAllProjects() {
         Job job = new Job(JOB_INSPECT_ALL) {
@@ -180,7 +163,7 @@ public class ProjectDependencyInformation {
                 } catch (HubIntegrationException e1) {
                     // Do nothing
                 }
-                String[] projects = workspaceService.getJavaProjectNames();
+                String[] projects = workspaceService.getSupportedJavaProjectNames();
                 if (projects != null) {
                     SubMonitor subMonitor = SubMonitor.convert(monitor, projects.length);
                     int i = 1;

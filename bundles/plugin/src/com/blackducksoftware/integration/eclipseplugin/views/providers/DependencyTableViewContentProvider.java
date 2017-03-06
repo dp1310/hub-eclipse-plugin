@@ -32,6 +32,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
+import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.viewers.filters.ComponentFilter;
@@ -58,9 +59,13 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
 
     @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-        this.parsedElements = (ComponentModel[]) newInput;
-        if (filter != null) {
-            this.parsedElements = Arrays.stream(parsedElements).filter(model -> filter.filter(model)).toArray(ComponentModel[]::new);
+        if (newInput == null) {
+            this.parsedElements = new ComponentModel[] {};
+        } else {
+            this.parsedElements = (ComponentModel[]) newInput;
+            if (filter != null) {
+                this.parsedElements = Arrays.stream(parsedElements).filter(model -> filter.filter(model)).toArray(ComponentModel[]::new);
+            }
         }
     }
 
@@ -71,20 +76,21 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
             view.setStatusMessage(InspectionStatus.NO_SELECTED_PROJECT);
             return NOTHING;
         }
+        InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
         boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
         if (isActivated) {
             if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
                 final List<ComponentModel> componentModels = Activator.getPlugin().getProjectInformation().getProjectComponents(projectName);
-                List<String> runningInspections = Activator.getPlugin().getProjectInformation().getRunningInspections();
-                if (runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_PROJECT_PREFACE + projectName)) {
+                if (inspectionQueueService.getInspectionIsRunning(projectName)) {
                     view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-                } else if (componentModels.size() == 0) {
-                    view.setStatusMessage(
-                            runningInspections.contains(ProjectDependencyInformation.JOB_INSPECT_ALL)
-                                    ? InspectionStatus.PROJECT_INSPECTION_SCHEDULED
-                                    : InspectionStatus.PROJECT_NEEDS_INSPECTION);
                 } else {
-                    view.setStatusMessage(InspectionStatus.CONNECTION_OK);
+                    if (inspectionQueueService.getInspectionIsScheduled(projectName)) {
+                        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
+                    } else if (componentModels.size() == 0) {
+                        view.setStatusMessage(InspectionStatus.PROJECT_NEEDS_INSPECTION);
+                    } else {
+                        view.setStatusMessage(InspectionStatus.CONNECTION_OK);
+                    }
                 }
                 return componentModels.toArray(new ComponentModel[componentModels.size()]);
             }

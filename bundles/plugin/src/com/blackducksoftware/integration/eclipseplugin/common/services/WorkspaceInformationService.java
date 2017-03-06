@@ -23,6 +23,9 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -33,6 +36,8 @@ import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import com.blackducksoftware.integration.eclipseplugin.common.constants.NatureIDs;
+
 public class WorkspaceInformationService {
 
     private final ProjectInformationService projectInformationService;
@@ -41,12 +46,24 @@ public class WorkspaceInformationService {
         this.projectInformationService = projectInformationService;
     }
 
-    public IProject[] getAllProjects() {
-        return ResourcesPlugin.getWorkspace().getRoot().getProjects();
+    public List<IProject> getAllSupportedProjects() {
+        IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+        ArrayList<IProject> supportedProjects = new ArrayList<>();
+        for (IProject project : allProjects) {
+            for (String nature : NatureIDs.SUPPORTED_NATURES)
+                try {
+                    if (project.hasNature(nature)) {
+                        supportedProjects.add(project);
+                    }
+                } catch (CoreException e) {
+                    // do nothing
+                }
+        }
+        return supportedProjects;
     }
 
-    public int getNumJavaProjects() {
-        final IProject[] projects = getAllProjects();
+    public int getNumSupportedJavaProjects() {
+        final List<IProject> projects = getAllSupportedProjects();
         int numJava = 0;
         for (final IProject project : projects) {
             if (projectInformationService.isJavaProject(project)) {
@@ -56,9 +73,9 @@ public class WorkspaceInformationService {
         return numJava;
     }
 
-    public String[] getJavaProjectNames() {
-        final IProject[] projects = getAllProjects();
-        final int numJavaProjects = getNumJavaProjects();
+    public String[] getSupportedJavaProjectNames() {
+        final List<IProject> projects = getAllSupportedProjects();
+        final int numJavaProjects = getNumSupportedJavaProjects();
         final String[] names = new String[numJavaProjects];
         int javaIndex = 0;
         for (final IProject project : projects) {

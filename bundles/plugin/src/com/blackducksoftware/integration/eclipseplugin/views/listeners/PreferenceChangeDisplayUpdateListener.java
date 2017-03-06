@@ -23,74 +23,17 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.views.listeners;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
+import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 
 public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeListener {
 
-    private final VulnerabilityView componentView;
-
-    public final static String PREFERENCE_CHANGE_JOB_PREFIX = "Preferences changed; updating Component Inspector for ";
-
-    public static final String PREFERENCE_CHANGE_JOB = "Black Duck Component Inspector preference change";
-
-    public PreferenceChangeDisplayUpdateListener(final VulnerabilityView componentView) {
-        this.componentView = componentView;
-    }
-
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
-        Job job = new Job(PREFERENCE_CHANGE_JOB_PREFIX + event.getProperty()) {
-            @Override
-            public boolean belongsTo(Object family) {
-                return family.equals(PREFERENCE_CHANGE_JOB);
-            }
-
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                IJobManager jobMan = Job.getJobManager();
-                Job[] preferenceChanges = jobMan.find(PREFERENCE_CHANGE_JOB);
-                for (Job preferenceChange : preferenceChanges) {
-                    if (preferenceChange.getName().equals(this.getName())) {
-                        // Cancel stale changes
-                        preferenceChange.cancel();
-                    }
-                }
-                Job[] inspections = jobMan.find(ProjectDependencyInformation.INSPECTION_JOB);
-                monitor.setTaskName("Waiting for active inspection to finish");
-                while (inspections.length > 0) {
-                    try {
-                        inspections[0].join();
-                    } catch (InterruptedException e) {
-                        if (componentView != null) {
-                            componentView.openError("Black Duck Preference Change interrupted",
-                                    "Preference change interrupted before it could reach completion.", e);
-                        }
-                    }
-                    inspections = jobMan.find(ProjectDependencyInformation.INSPECTION_JOB);
-                }
-                monitor.setTaskName("Updating...");
-                if (componentView.getDependencyTableViewer() != null) {
-                    if (Activator.getPlugin().getProjectInformation().containsComponentsFromProject(event.getProperty())) {
-                        Activator.getPlugin().getProjectInformation().removeProject(event.getProperty());
-                    } else {
-                        Job inspectionJob = Activator.getPlugin().getProjectInformation().createInspection(event.getProperty(), true);
-                        inspectionJob.schedule();
-                    }
-                    componentView.resetInput();
-                }
-                return Status.OK_STATUS;
-            }
-        };
-        job.schedule();
+        InspectionQueueService inspectionQueue = Activator.getPlugin().getInspectionQueueService();
+        inspectionQueue.enqueueInspection(event.getProperty());
     }
 }

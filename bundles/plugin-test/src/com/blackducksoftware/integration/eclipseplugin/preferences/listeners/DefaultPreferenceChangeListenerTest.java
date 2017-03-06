@@ -47,7 +47,7 @@ public class DefaultPreferenceChangeListenerTest {
 
 	@Test
 	public void testThatProjectDefaultsSet() {
-		Mockito.when(workspaceService.getJavaProjectNames()).thenReturn(PROJECT_NAMES);
+		Mockito.when(workspaceService.getSupportedJavaProjectNames()).thenReturn(PROJECT_NAMES);
 		final DefaultPreferenceChangeListener listener = new DefaultPreferenceChangeListener(prefService,
 				workspaceService);
 		listener.propertyChange(e);
