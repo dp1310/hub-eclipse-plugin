@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -294,7 +295,12 @@ public class ProjectDependencyInformation {
     public void removeComponentFromProject(final String projectName, final Gav gav) {
         final List<ComponentModel> models = projectInfo.get(projectName);
         if (models != null) {
-            models.remove(gav);
+            for (Iterator<ComponentModel> iterator = models.iterator(); iterator.hasNext();) {
+                ComponentModel model = iterator.next();
+                if (model.getGav().equals(gav)) {
+                    iterator.remove();
+                }
+            }
             projectInfo.put(projectName, models);
             if (componentView != null) {
                 componentView.resetInput();

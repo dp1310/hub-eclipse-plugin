@@ -32,8 +32,6 @@ import java.util.List;
 import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
-import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
-import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.exception.IntegrationException;
@@ -86,27 +84,17 @@ public class DependencyInformationService {
         return false;
     }
 
-    public ComponentModel load(final Gav gav)
-            throws ComponentLookupNotFoundException, IOException, URISyntaxException,
-            LicenseLookupNotFoundException, IntegrationException {
+    public ComponentModel load(final Gav gav) throws IOException, URISyntaxException, IntegrationException {
         VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
         ComplexLicenseItem sLicense = null;
         try {
-            if (vulnService != null) {
-                vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
-                        gav.getArtifactId(), gav.getVersion());
-            } else {
-                throw new ComponentLookupNotFoundException("Unable to look up component in Hub");
-            }
+            vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                    gav.getArtifactId(), gav.getVersion());
 
             LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
-            if (licenseService != null) {
-                sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
-                        gav.getArtifactId(), gav.getVersion());
-            } else {
-                throw new LicenseLookupNotFoundException("Unable to look up license info in Hub");
-            }
+            sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
+                    gav.getArtifactId(), gav.getVersion());
         } catch (HubIntegrationException e) {
             // Do nothing
         }

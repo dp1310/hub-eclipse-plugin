@@ -123,11 +123,12 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             break;
         }
         case IJavaElement.PACKAGE_FRAGMENT_ROOT: {
-            if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0 || (delta.getKind() & IJavaElementDelta.REMOVED) != 0) {
+            if ((delta.getFlags() & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0
+                    || (delta.getKind() & IJavaElementDelta.REMOVED) != 0) {
                 try {
                     removeDependency(el);
                 } catch (final CoreException | MalformedURLException e) {
-                	e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             if ((delta.getFlags() & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0
@@ -135,7 +136,7 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
                 try {
                     addDependency(el);
                 } catch (final CoreException | MalformedURLException e) {
-                	e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             break;

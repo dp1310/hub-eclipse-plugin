@@ -30,8 +30,6 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
-import com.blackducksoftware.integration.eclipseplugin.internal.exception.ComponentLookupNotFoundException;
-import com.blackducksoftware.integration.eclipseplugin.internal.exception.LicenseLookupNotFoundException;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
@@ -71,7 +69,7 @@ public class ComponentCache {
         if (model == null) {
             try {
                 model = dependencyInformationService.load(gav);
-            } catch (IOException | URISyntaxException | ComponentLookupNotFoundException | LicenseLookupNotFoundException e) {
+            } catch (IOException | URISyntaxException e) {
                 throw new IntegrationException(e);
             }
             // If over capacity, pop least recently used
