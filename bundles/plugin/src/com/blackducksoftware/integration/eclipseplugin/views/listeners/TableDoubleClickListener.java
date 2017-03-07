@@ -45,7 +45,6 @@ import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class TableDoubleClickListener implements IDoubleClickListener {
-
     public static final String JOB_GENERATE_URL = "Opening component in the Hub...";
 
     private VulnerabilityView vulnerabilityView;
@@ -80,8 +79,13 @@ public class TableDoubleClickListener implements IDoubleClickListener {
                         String versionID = link.substring(link.lastIndexOf("/") + 1);
                         link = Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl().toString();
                         link = link + "/#versions/id:" + versionID + "/view:overview";
-
-                        IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
+                        IWebBrowser browser;
+                        boolean createInternalBrowser = true;
+                        if (createInternalBrowser) {
+                            browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Hub-Eclipse-Browser");
+                        } else {
+                            browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
+                        }
                         browser.openURL(new URL(link));
                     } catch (PartInitException | MalformedURLException | HubIntegrationException e) {
                         vulnerabilityView.openError("Could not open Component in Hub instance",

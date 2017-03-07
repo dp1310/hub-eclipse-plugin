@@ -24,17 +24,24 @@
 package com.blackducksoftware.integration.eclipseplugin.views.listeners;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 
 public class ProjectSelectionListener implements ISelectionListener {
-
     private final VulnerabilityView componentView;
 
     public ProjectSelectionListener(final VulnerabilityView componentView) {
@@ -47,21 +54,48 @@ public class ProjectSelectionListener implements ISelectionListener {
             return;
         }
         final IStructuredSelection ss = (IStructuredSelection) sel;
-        final Object selectedProject = ss.getFirstElement();
-        if (selectedProject instanceof IAdaptable) {
-            final IProject project = ((IAdaptable) selectedProject).getAdapter(IProject.class);
-            String projectName;
-            try {
-                if (project != null && project.getDescription() != null && componentView.getDependencyTableViewer() != null) {
-                    projectName = project.getDescription().getName();
-                    componentView.setLastSelectedProjectName(projectName);
-                    componentView.setTableInput(projectName);
-                }
-            } catch (final CoreException e) {
-                projectName = "";
+        final Object element = ss.getFirstElement();
+        IProject project = null;
+        IResource resource = null;
+        if (element instanceof IProject) {
+            project = (IProject) element;
+        } else {
+            if (element instanceof IResource) {
+                resource = ((IResource) element);
+            } else if (element instanceof IAdaptable) {
+                IAdaptable probableProject = ((IAdaptable) element);
+                resource = probableProject.getAdapter(IResource.class);
+            } else {
+                resource = extractResourceFromEditor();
+            }
+            if (resource != null) {
+                project = resource.getProject();
+            }
+        }
+        String projectName = "";
+        try {
+            if (project != null && project.getDescription() != null && componentView.getDependencyTableViewer() != null) {
+                projectName = project.getDescription().getName();
                 componentView.setLastSelectedProjectName(projectName);
                 componentView.setTableInput(projectName);
             }
+        } catch (final CoreException e) {
+            // Do nothing, we just don't set the project name
         }
+    }
+
+    public IResource extractResourceFromEditor() {
+        IWorkbench iworkbench = PlatformUI.getWorkbench();
+        if (iworkbench == null) return null;
+        IWorkbenchWindow iworkbenchwindow = iworkbench.getActiveWorkbenchWindow();
+        if (iworkbenchwindow == null) return null;
+        IWorkbenchPage iworkbenchpage = iworkbenchwindow.getActivePage();
+        if (iworkbenchpage == null) return null;
+        IEditorPart ieditorpart = iworkbenchpage.getActiveEditor();
+        if (ieditorpart == null) return null;
+        IEditorInput input = ieditorpart.getEditorInput();
+        if (!(input instanceof IFileEditorInput))
+            return null;
+        return ((IFileEditorInput) input).getFile();
     }
 }

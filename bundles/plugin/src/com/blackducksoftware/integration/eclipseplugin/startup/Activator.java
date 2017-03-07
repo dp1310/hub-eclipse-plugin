@@ -61,7 +61,6 @@ import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
 public class Activator extends AbstractUIPlugin {
-
     public static final String PLUGIN_ID = "hub-eclipse-plugin";
 
     private final int COMPONENT_CACHE_CAPACITY = 10000;
@@ -101,7 +100,7 @@ public class Activator extends AbstractUIPlugin {
         connectionService = new HubRestConnectionService(getInitialHubConnection());
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         inspectionQueueService = new InspectionQueueService(projService);
-        information = new ProjectDependencyInformation(projService, workspaceService, componentCache);
+        information = new ProjectDependencyInformation(workspaceService, componentCache);
         defaultPreferencesService = new PreferencesService(getPlugin().getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPreferencesService);
         defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPreferencesService, workspaceService);
@@ -167,6 +166,7 @@ public class Activator extends AbstractUIPlugin {
     @Override
     public void stop(final BundleContext context) throws Exception {
         plugin = null;
+        inspectionQueueService.shutDown();
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(newJavaProjectListener);
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(javaProjectDeletedListener);
         getPreferenceStore().removePropertyChangeListener(defaultPrefChangeListener);

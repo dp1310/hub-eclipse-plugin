@@ -162,4 +162,18 @@ public class InspectionQueueService implements IJobChangeListener {
             componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
         }
     }
+
+    public void shutDown() {
+        inspectionQueue.forEach(inspection -> {
+            inspection.removeJobChangeListener(this);
+            inspection.cancel();
+        });
+        while (!inspectionQueue.isEmpty()) {
+            inspectionQueue.remove();
+        }
+        currentInspection.removeJobChangeListener(this);
+        currentInspection.cancel();
+        currentInspection = null;
+
+    }
 }
