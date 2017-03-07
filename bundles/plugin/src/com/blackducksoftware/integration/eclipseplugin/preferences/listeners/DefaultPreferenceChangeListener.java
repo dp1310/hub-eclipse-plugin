@@ -23,28 +23,29 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences.listeners;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class DefaultPreferenceChangeListener implements IPropertyChangeListener {
+    private final PreferencesService defaultPreferencesService;
 
-	private final WorkspaceInformationService workspaceService;
-	private final PreferencesService defaultPreferencesService;
+    public DefaultPreferenceChangeListener(final PreferencesService defaultPreferencesService) {
+        this.defaultPreferencesService = defaultPreferencesService;
+    }
 
-	public DefaultPreferenceChangeListener(final PreferencesService defaultPreferencesService,
-			final WorkspaceInformationService workspaceService) {
-		this.workspaceService = workspaceService;
-		this.defaultPreferencesService = defaultPreferencesService;
-	}
-
-	@Override
-	public void propertyChange(final PropertyChangeEvent event) {
-		final String[] projectNames = workspaceService.getSupportedJavaProjectNames();
-		for (final String projectName : projectNames) {
-			defaultPreferencesService.setAllProjectSpecificDefaults(projectName);
-		}
-	}
+    @Override
+    public void propertyChange(final PropertyChangeEvent event) {
+        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        final List<String> projectNames = Arrays.asList(workspaceInformationService.getSupportedJavaProjectNames());
+        if (projectNames.contains(event.getProperty())) {
+            defaultPreferencesService.setAllProjectSpecificDefaults(event.getProperty());
+        }
+    }
 }

@@ -33,8 +33,8 @@ public class InspectSelectedProject extends AbstractHandler {
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         final List<String> selectedProjects = workspaceService.getAllSelectedProjects();
-        PreferencesService preferencesService = Activator.getPlugin().getDefaultPreferencesService();
-        InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
+        final PreferencesService preferencesService = Activator.getPlugin().getDefaultPreferencesService();
+        final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
         for (String selectedProject : selectedProjects) {
             if (!preferencesService.isActivated(selectedProject)) {
                 preferencesService.activateProject(selectedProject);

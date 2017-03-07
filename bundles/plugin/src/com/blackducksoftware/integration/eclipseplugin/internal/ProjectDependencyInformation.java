@@ -70,10 +70,7 @@ public class ProjectDependencyInformation {
 
     private VulnerabilityView componentView;
 
-    private final WorkspaceInformationService workspaceService;
-
-    public ProjectDependencyInformation(WorkspaceInformationService workspaceService, ComponentCache componentCache) {
-        this.workspaceService = workspaceService;
+    public ProjectDependencyInformation(ComponentCache componentCache) {
         this.componentCache = componentCache;
     }
 
@@ -103,25 +100,26 @@ public class ProjectDependencyInformation {
         if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
             return;
         }
-        PhoneHomeDataService phoneHomeService = Activator.getPlugin().getConnectionService().getPhoneHomeDataService();
-        HubVersionRequestService hubVersionRequestService = Activator.getPlugin().getConnectionService().getHubVersionRequestService();
-        String hubVersion = hubVersionRequestService.getHubVersion();
-        IProduct eclipseProduct = Platform.getProduct();
-        String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
-        String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
-        AuthorizationValidator authorizationValidator = new AuthorizationValidator(Activator.getPlugin().getConnectionService(), new HubServerConfigBuilder());
-        SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
+        final PhoneHomeDataService phoneHomeService = Activator.getPlugin().getConnectionService().getPhoneHomeDataService();
+        final HubVersionRequestService hubVersionRequestService = Activator.getPlugin().getConnectionService().getHubVersionRequestService();
+        final String hubVersion = hubVersionRequestService.getHubVersion();
+        final IProduct eclipseProduct = Platform.getProduct();
+        final String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
+        final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
+        final AuthorizationValidator authorizationValidator = new AuthorizationValidator(Activator.getPlugin().getConnectionService(),
+                new HubServerConfigBuilder());
+        final SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
                 SecurePreferencesFactory.getDefault());
-        IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
-        String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
-        String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
-        String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
-        String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
-        String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
-        String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
-        String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
-        String ignoredProxyHosts = prefStore.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
-        String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
+        final IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
+        final String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
+        final String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
+        final String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
+        final String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
+        final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
+        final String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
+        final String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
+        final String ignoredProxyHosts = prefStore.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
+        final String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
         authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
                 proxyUsername, proxyPassword, proxyPort,
                 proxyHost, ignoredProxyHosts, timeout);
@@ -190,16 +188,17 @@ public class ProjectDependencyInformation {
         return projectInfo.containsKey(projectName);
     }
 
-    public void renameProject(String oldName, String newName) {
+    public void renameProject(final String oldName, final String newName) {
         List<ComponentModel> models = projectInfo.get(oldName);
         projectInfo.put(newName, models);
         projectInfo.remove(oldName);
     }
 
-    public void updateCache(RestConnection connection) throws HubIntegrationException {
+    public void updateCache(final RestConnection connection) throws HubIntegrationException {
         if (projectInfo.isEmpty() && Activator.getPlugin().updateConnection(connection).hasActiveHubConnection()) {
-            InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
-            inspectionQueueService.enqueueInspections(workspaceService.getSupportedJavaProjectNames());
+            final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
+            final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+            inspectionQueueService.enqueueInspections(workspaceInformationService.getSupportedJavaProjectNames());
         }
     }
 

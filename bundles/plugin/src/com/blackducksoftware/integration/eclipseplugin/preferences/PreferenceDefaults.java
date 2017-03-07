@@ -23,10 +23,17 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -37,14 +44,10 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
-import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
 
-public class PreferenceDefaults extends PreferencePage implements IWorkbenchPreferencePage {
-
+public class PreferenceDefaults extends PreferencePage implements IWorkbenchPreferencePage, IPropertyChangeListener {
     public static final String ACTIVATE_BY_DEFAULT_LABEL = "Default Inspection Behavior";
 
     public static final String ACTIVATE_BY_DEFAULT = "Automatically Inspect New Projects";
@@ -56,57 +59,48 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
             new String[] { DO_NOT_ACTIVATE_BY_DEFAULT, "false" }
     };
 
-    private BooleanFieldEditor[] activeProjectPreferences;
+    private List<BooleanFieldEditor> activeProjectPreferences;
 
     private RadioGroupFieldEditor activateByDefault;
 
+    private Composite activeComposite;
+
+    private Composite defaultsComposite;
+
     @Override
     public void init(final IWorkbench workbench) {
-        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
+        final IPreferenceStore pluginPreferenceStore = Activator.getPlugin().getPreferenceStore();
+        this.setPreferenceStore(pluginPreferenceStore);
+        pluginPreferenceStore.addPropertyChangeListener(this);
     }
 
     @Override
     protected Control createContents(final Composite parent) {
-        final Composite defaultsComposite = new Composite(parent, SWT.LEFT);
-        final DependencyInformationService depService = new DependencyInformationService();
-        final FilePathGavExtractor extractor = new FilePathGavExtractor();
-        final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
-        final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
-        final String[] names = workspaceService.getSupportedJavaProjectNames();
-
+        defaultsComposite = new Composite(parent, SWT.LEFT);
         defaultsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         defaultsComposite.setLayout(new GridLayout());
         activateByDefault = new RadioGroupFieldEditor(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT,
                 ACTIVATE_BY_DEFAULT_LABEL, 1, DEFAULT_ACTIVATION_LABELS_AND_VALUES, defaultsComposite);
         activateByDefault.setPreferenceStore(getPreferenceStore());
         activateByDefault.load();
-
         final Label spacer = new Label(defaultsComposite, SWT.HORIZONTAL);
         spacer.setVisible(false); // Not visible, but takes up a grid slot
-
         final Label activeProjectsLabel = new Label(defaultsComposite, SWT.HORIZONTAL);
         activeProjectsLabel.setText("Active Java Projects");
         activeProjectsLabel.setFont(activateByDefault.getLabelControl(defaultsComposite).getFont());
-
-        final Composite activeComposite = new Composite(defaultsComposite, SWT.LEFT);
         final GridData indentGrid = new GridData();
         indentGrid.horizontalIndent = ((GridData) activateByDefault.getRadioBoxControl(defaultsComposite).getLayoutData()).horizontalIndent;
+        activeComposite = new Composite(defaultsComposite, SWT.LEFT);
         activeComposite.setLayoutData(indentGrid);
         activeComposite.setLayout(new GridLayout());
-        activeProjectPreferences = new BooleanFieldEditor[names.length];
-        for (int i = 0; i < names.length; i++) {
-            final BooleanFieldEditor isActive = new BooleanFieldEditor(names[i], names[i], activeComposite);
-            isActive.setPage(this);
-            isActive.setPreferenceStore(getPreferenceStore());
-            isActive.load();
-            activeProjectPreferences[i] = isActive;
-        }
+        reloadActiveProjects();
         return defaultsComposite;
     }
 
     @Override
     public void performApply() {
-        storeValues();
+        this.storeValues();
+        this.updateApplyButton();
     }
 
     private void storeValues() {
@@ -119,7 +113,9 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     @Override
     public boolean performOk() {
-        storeValues();
+        if (this.getApplyButton().isEnabled()) {
+            this.storeValues();
+        }
         return super.performOk();
     }
 
@@ -130,6 +126,67 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         }
         activateByDefault.loadDefault();
         super.performDefaults();
+    }
+
+    public void reloadActiveProjects(final String... newProjects) {
+        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        final String[] names = workspaceInformationService.getSupportedJavaProjectNames();
+        if (activeProjectPreferences != null) {
+            for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
+                BooleanFieldEditor currentField = iterator.next();
+                currentField.dispose();
+                iterator.remove();
+            }
+        } else {
+            activeProjectPreferences = new ArrayList<>();
+        }
+        for (final String name : names) {
+            BooleanFieldEditor isActive = addProject(name);
+            for (final String newProjectName : newProjects) {
+                if (name.equals(newProjectName)) {
+                    isActive.loadDefault();
+                }
+            }
+        }
+    }
+
+    public void removeProject(final String projectName) {
+        for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
+            BooleanFieldEditor currentField = iterator.next();
+            if (currentField.getPreferenceName().equals(projectName)) {
+                this.getPreferenceStore().setValue(projectName, null);
+                currentField.dispose();
+                iterator.remove();
+            }
+        }
+    }
+
+    private BooleanFieldEditor addProject(final String projectName) {
+        final BooleanFieldEditor isActive = new BooleanFieldEditor(projectName, projectName, activeComposite);
+        isActive.setPage(this);
+        isActive.setPreferenceStore(getPreferenceStore());
+        isActive.load();
+        activeProjectPreferences.add(isActive);
+        return isActive;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        if (event.getNewValue() == null) {
+            for (BooleanFieldEditor fieldEditor : activeProjectPreferences) {
+                if (fieldEditor.getPreferenceName().equals(event.getProperty())) {
+                    this.removeProject(event.getProperty());
+                    return;
+                }
+            }
+        }
+        if (event.getOldValue() == null) {
+            final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+            final List<String> supportedProjectNames = Arrays.asList(workspaceInformationService.getSupportedJavaProjectNames());
+            if (supportedProjectNames.contains(event.getProperty())) {
+                this.reloadActiveProjects(event.getProperty());
+            }
+        }
     }
 
 }

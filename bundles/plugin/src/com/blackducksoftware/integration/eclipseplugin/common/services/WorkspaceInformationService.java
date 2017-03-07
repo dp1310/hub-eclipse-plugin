@@ -52,7 +52,7 @@ public class WorkspaceInformationService {
         for (IProject project : allProjects) {
             for (String nature : NatureIDs.SUPPORTED_NATURES)
                 try {
-                    if (project.hasNature(nature)) {
+                    if (project.hasNature(nature) && !supportedProjects.contains(project)) {
                         supportedProjects.add(project);
                     }
                 } catch (CoreException e) {
@@ -60,6 +60,15 @@ public class WorkspaceInformationService {
                 }
         }
         return supportedProjects;
+    }
+
+    public boolean getIsSupportedProject(String projectName) {
+        for (String supportedProjectName : getSupportedJavaProjectNames()) {
+            if (projectName.equals(supportedProjectName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getNumSupportedJavaProjects() {

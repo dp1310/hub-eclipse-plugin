@@ -25,6 +25,7 @@ package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ILazyContentProvider;
@@ -33,6 +34,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
+import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.viewers.filters.ComponentFilter;
@@ -50,7 +52,7 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
 
     private ComponentModel[] parsedElements;
 
-    private ComponentFilter filter = null;
+    private ComponentFilter componentFilter = null;
 
     public DependencyTableViewContentProvider(VulnerabilityView view, TableViewer viewer) {
         this.view = view;
@@ -63,8 +65,10 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
             this.parsedElements = new ComponentModel[] {};
         } else {
             this.parsedElements = (ComponentModel[]) newInput;
-            if (filter != null) {
-                this.parsedElements = Arrays.stream(parsedElements).filter(model -> filter.filter(model)).toArray(ComponentModel[]::new);
+            if (componentFilter != null) {
+                Stream<ComponentModel> componentStream = Arrays.stream(parsedElements);
+                componentStream = componentStream.filter(model -> componentFilter.filter(model));
+                this.parsedElements = componentStream.toArray(ComponentModel[]::new);
             }
         }
     }
@@ -97,7 +101,12 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
             view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
             return NOTHING;
         }
-        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
+        WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        if (workspaceInformationService.getIsSupportedProject(projectName)) {
+            view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
+        } else {
+            view.setStatusMessage(InspectionStatus.PROJECT_NOT_SUPPORTED);
+        }
         return NOTHING;
     }
 
@@ -123,7 +132,7 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
     }
 
     public void addFilter(ComponentFilter filter) {
-        this.filter = filter;
+        this.componentFilter = filter;
     }
 
 }

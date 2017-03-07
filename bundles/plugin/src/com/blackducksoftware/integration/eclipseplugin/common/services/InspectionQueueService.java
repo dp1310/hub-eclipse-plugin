@@ -171,9 +171,11 @@ public class InspectionQueueService implements IJobChangeListener {
         while (!inspectionQueue.isEmpty()) {
             inspectionQueue.remove();
         }
-        currentInspection.removeJobChangeListener(this);
-        currentInspection.cancel();
-        currentInspection = null;
+        if (currentInspection != null) {
+            currentInspection.removeJobChangeListener(this);
+            currentInspection.cancel();
+            currentInspection = null;
+        }
 
     }
 }

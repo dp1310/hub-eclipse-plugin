@@ -87,6 +87,8 @@ public class Activator extends AbstractUIPlugin {
 
     private PreferencesService defaultPreferencesService;
 
+    private WorkspaceInformationService workspaceInformationService;
+
     @Override
     public void start(final BundleContext context) throws Exception {
         super.start(context);
@@ -95,15 +97,15 @@ public class Activator extends AbstractUIPlugin {
         final FilePathGavExtractor extractor = new FilePathGavExtractor();
         final DependencyInformationService depService = new DependencyInformationService();
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
-        final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
+        workspaceInformationService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
         connectionService = new HubRestConnectionService(getInitialHubConnection());
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         inspectionQueueService = new InspectionQueueService(projService);
-        information = new ProjectDependencyInformation(workspaceService, componentCache);
-        defaultPreferencesService = new PreferencesService(getPlugin().getPreferenceStore());
+        information = new ProjectDependencyInformation(componentCache);
+        defaultPreferencesService = new PreferencesService(getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(defaultPreferencesService);
-        defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPreferencesService, workspaceService);
+        defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPreferencesService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener(information);
         ResourcesPlugin.getWorkspace().addResourceChangeListener(newJavaProjectListener);
@@ -112,7 +114,7 @@ public class Activator extends AbstractUIPlugin {
         getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
         JavaCore.addElementChangedListener(depsChangedListener);
         defaultPreferencesService.setDefaultConfig();
-        inspectionQueueService.enqueueInspections(workspaceService.getSupportedJavaProjectNames());
+        inspectionQueueService.enqueueInspections(workspaceInformationService.getSupportedJavaProjectNames());
     }
 
     public ProjectDependencyInformation getProjectInformation() {
@@ -136,21 +138,26 @@ public class Activator extends AbstractUIPlugin {
         return defaultPreferencesService;
     }
 
+    public WorkspaceInformationService getWorkspaceInformationService() {
+        return workspaceInformationService;
+    }
+
     public RestConnection getInitialHubConnection() throws HubIntegrationException {
-        IPreferenceStore prefs = getPlugin().getPreferenceStore();
-        String hubURL = prefs.getString(PreferenceNames.HUB_URL);
-        String hubUsername = prefs.getString(PreferenceNames.HUB_USERNAME);
-        String hubPassword = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
-        String hubTimeout = prefs.getString(PreferenceNames.HUB_TIMEOUT);
-        String proxyUsername = prefs.getString(PreferenceNames.PROXY_USERNAME);
-        String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
-        String proxyPort = prefs.getString(PreferenceNames.PROXY_PORT);
-        String proxyHost = prefs.getString(PreferenceNames.PROXY_HOST);
-        String ignoredProxyHosts = prefs.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
-        HubServerConfigBuilder builder = new HubServerConfigBuilder();
-        HubRestConnectionService connectionService = new HubRestConnectionService();
-        AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
-        AuthorizationResponse response = validator.validateCredentials(hubUsername, hubPassword, hubURL, proxyUsername, proxyPassword, proxyPort, proxyHost,
+        final IPreferenceStore prefs = getPlugin().getPreferenceStore();
+        final String hubURL = prefs.getString(PreferenceNames.HUB_URL);
+        final String hubUsername = prefs.getString(PreferenceNames.HUB_USERNAME);
+        final String hubPassword = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
+        final String hubTimeout = prefs.getString(PreferenceNames.HUB_TIMEOUT);
+        final String proxyUsername = prefs.getString(PreferenceNames.PROXY_USERNAME);
+        final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
+        final String proxyPort = prefs.getString(PreferenceNames.PROXY_PORT);
+        final String proxyHost = prefs.getString(PreferenceNames.PROXY_HOST);
+        final String ignoredProxyHosts = prefs.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
+        final HubServerConfigBuilder builder = new HubServerConfigBuilder();
+        final HubRestConnectionService connectionService = new HubRestConnectionService();
+        final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
+        final AuthorizationResponse response = validator.validateCredentials(hubUsername, hubPassword, hubURL, proxyUsername, proxyPassword, proxyPort,
+                proxyHost,
                 ignoredProxyHosts, hubTimeout);
         if (response.getConnection() != null) {
             return response.getConnection();
@@ -159,7 +166,7 @@ public class Activator extends AbstractUIPlugin {
         }
     }
 
-    public void updateHubConnection(RestConnection connection) throws HubIntegrationException {
+    public void updateHubConnection(final RestConnection connection) throws HubIntegrationException {
         information.updateCache(connection);
     }
 
@@ -182,7 +189,7 @@ public class Activator extends AbstractUIPlugin {
         return imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 
-    public static void reportError(String dialogTitle, String message, IStatus status) {
+    public static void reportError(final String dialogTitle, final String message, final IStatus status) {
         ErrorDialog.openError(null, dialogTitle, message, status);
     }
 
