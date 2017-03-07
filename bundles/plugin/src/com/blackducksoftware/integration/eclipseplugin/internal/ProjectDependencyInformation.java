@@ -198,7 +198,8 @@ public class ProjectDependencyInformation {
         if (projectInfo.isEmpty() && Activator.getPlugin().updateConnection(connection).hasActiveHubConnection()) {
             final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
             final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
-            inspectionQueueService.enqueueInspections(workspaceInformationService.getSupportedJavaProjectNames());
+            List<String> supportedJavaProjects = workspaceInformationService.getSupportedJavaProjectNames();
+            inspectionQueueService.enqueueInspections(supportedJavaProjects);
         }
     }
 

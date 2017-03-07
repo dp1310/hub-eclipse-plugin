@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -71,6 +72,10 @@ public class InspectionQueueService implements IJobChangeListener {
     }
 
     public boolean enqueueInspections(String... projectNames) {
+        return enqueueInspections(Arrays.asList(projectNames));
+    }
+
+    public boolean enqueueInspections(List<String> projectNames) {
         boolean success = true;
         for (String projectName : projectNames) {
             success = enqueueInspection(projectName);

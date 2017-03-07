@@ -24,6 +24,7 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -82,19 +83,16 @@ public class WorkspaceInformationService {
         return numJava;
     }
 
-    public String[] getSupportedJavaProjectNames() {
+    public List<String> getSupportedJavaProjectNames() {
         final List<IProject> projects = getAllSupportedProjects();
-        final int numJavaProjects = getNumSupportedJavaProjects();
-        final String[] names = new String[numJavaProjects];
-        int javaIndex = 0;
+        final List<String> names = new ArrayList<>();
         for (final IProject project : projects) {
             if (projectInformationService.isJavaProject(project)) {
                 try {
                     final IProjectDescription projectDescription = project.getDescription();
                     if (projectDescription != null) {
                         final String projectName = projectDescription.getName();
-                        names[javaIndex] = projectName;
-                        javaIndex++;
+                        names.add(projectName);
                     }
                 } catch (final CoreException e) {
                     /*
@@ -105,6 +103,7 @@ public class WorkspaceInformationService {
                 }
             }
         }
+        Collections.sort(names, String.CASE_INSENSITIVE_ORDER);
         return names;
     }
 

@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences.listeners;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -43,7 +42,7 @@ public class DefaultPreferenceChangeListener implements IPropertyChangeListener 
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
         final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
-        final List<String> projectNames = Arrays.asList(workspaceInformationService.getSupportedJavaProjectNames());
+        final List<String> projectNames = workspaceInformationService.getSupportedJavaProjectNames();
         if (projectNames.contains(event.getProperty())) {
             defaultPreferencesService.setAllProjectSpecificDefaults(event.getProperty());
         }

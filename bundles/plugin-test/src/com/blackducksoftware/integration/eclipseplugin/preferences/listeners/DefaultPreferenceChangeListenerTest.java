@@ -23,6 +23,10 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences.listeners;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,16 +50,16 @@ public class DefaultPreferenceChangeListenerTest {
     @Mock
     PropertyChangeEvent e;
 
-    private final String[] PROJECT_NAMES = { "project 1", "project 2", "project 3", "project 4" };
+    private final List<String> PROJECT_NAMES = new ArrayList<>(Arrays.asList("project 1", "project 2", "project 3", "project 4"));
 
     @Test
     public void testThatProjectDefaultsSet() {
         Mockito.when(Activator.getPlugin().getWorkspaceInformationService().getSupportedJavaProjectNames()).thenReturn(PROJECT_NAMES);
         final DefaultPreferenceChangeListener listener = new DefaultPreferenceChangeListener(prefService);
         listener.propertyChange(e);
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES[0]);
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES[1]);
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES[2]);
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES[3]);
+        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(0));
+        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(1));
+        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(2));
+        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(3));
     }
 }

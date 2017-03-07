@@ -176,9 +176,9 @@ public class WorkspaceInformationServiceTest {
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         setUpWorkspace();
         prepareProjectsAndDescriptions();
-        final String[] javaProjectNames = workspaceService.getSupportedJavaProjectNames();
-        assertEquals(1, javaProjectNames.length);
-        assertEquals(JAVA_PROJECT_NAME, javaProjectNames[0]);
+        final List<String> javaProjectNames = workspaceService.getSupportedJavaProjectNames();
+        assertEquals(1, javaProjectNames.size());
+        assertEquals(JAVA_PROJECT_NAME, javaProjectNames.get(0));
     }
 
 }

@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.eclipseplugin.preferences;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,6 +52,8 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
     public static final String ACTIVATE_BY_DEFAULT = "Automatically Inspect New Projects";
 
     public static final String DO_NOT_ACTIVATE_BY_DEFAULT = "Do Not Automatically Inspect New Projects";
+
+    public static final String ACTIVE_PROJECTS_LABEL = "Active Java Projects";
 
     private final String[][] DEFAULT_ACTIVATION_LABELS_AND_VALUES = new String[][] {
             new String[] { ACTIVATE_BY_DEFAULT, "true" },
@@ -86,7 +87,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         final Label spacer = new Label(defaultsComposite, SWT.HORIZONTAL);
         spacer.setVisible(false); // Not visible, but takes up a grid slot
         final Label activeProjectsLabel = new Label(defaultsComposite, SWT.HORIZONTAL);
-        activeProjectsLabel.setText("Active Java Projects");
+        activeProjectsLabel.setText(ACTIVE_PROJECTS_LABEL);
         activeProjectsLabel.setFont(activateByDefault.getLabelControl(defaultsComposite).getFont());
         final GridData indentGrid = new GridData();
         indentGrid.horizontalIndent = ((GridData) activateByDefault.getRadioBoxControl(defaultsComposite).getLayoutData()).horizontalIndent;
@@ -130,7 +131,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     public void reloadActiveProjects(final String... newProjects) {
         final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
-        final String[] names = workspaceInformationService.getSupportedJavaProjectNames();
+        final List<String> names = workspaceInformationService.getSupportedJavaProjectNames();
         if (activeProjectPreferences != null) {
             for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
                 BooleanFieldEditor currentField = iterator.next();
@@ -182,7 +183,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         }
         if (event.getOldValue() == null) {
             final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
-            final List<String> supportedProjectNames = Arrays.asList(workspaceInformationService.getSupportedJavaProjectNames());
+            final List<String> supportedProjectNames = workspaceInformationService.getSupportedJavaProjectNames();
             if (supportedProjectNames.contains(event.getProperty())) {
                 this.reloadActiveProjects(event.getProperty());
             }
