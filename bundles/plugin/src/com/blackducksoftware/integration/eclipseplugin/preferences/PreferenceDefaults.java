@@ -89,7 +89,10 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         final Label activeProjectsLabel = new Label(defaultsComposite, SWT.HORIZONTAL);
         activeProjectsLabel.setText(ACTIVE_PROJECTS_LABEL);
         activeProjectsLabel.setFont(activateByDefault.getLabelControl(defaultsComposite).getFont());
-        final GridData indentGrid = new GridData();
+        final GridData indentGrid = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+        indentGrid.horizontalSpan = 2;
+        indentGrid.grabExcessHorizontalSpace = true;
+        indentGrid.grabExcessVerticalSpace = true;
         indentGrid.horizontalIndent = ((GridData) activateByDefault.getRadioBoxControl(defaultsComposite).getLayoutData()).horizontalIndent;
         activeComposite = new Composite(defaultsComposite, SWT.LEFT);
         activeComposite.setLayoutData(indentGrid);
