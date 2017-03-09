@@ -57,9 +57,9 @@ public class DefaultPreferenceChangeListenerTest {
         Mockito.when(Activator.getPlugin().getWorkspaceInformationService().getSupportedJavaProjectNames()).thenReturn(PROJECT_NAMES);
         final DefaultPreferenceChangeListener listener = new DefaultPreferenceChangeListener(prefService);
         listener.propertyChange(e);
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(0));
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(1));
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(2));
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAMES.get(3));
+        Mockito.verify(prefService, Mockito.times(1)).initializeProjectActivation(PROJECT_NAMES.get(0));
+        Mockito.verify(prefService, Mockito.times(1)).initializeProjectActivation(PROJECT_NAMES.get(1));
+        Mockito.verify(prefService, Mockito.times(1)).initializeProjectActivation(PROJECT_NAMES.get(2));
+        Mockito.verify(prefService, Mockito.times(1)).initializeProjectActivation(PROJECT_NAMES.get(3));
     }
 }

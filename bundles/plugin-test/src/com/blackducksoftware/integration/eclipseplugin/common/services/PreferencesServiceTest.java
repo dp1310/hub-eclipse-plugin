@@ -48,7 +48,7 @@ public class PreferencesServiceTest {
         final IPreferenceStore mockPrefStore = new PreferenceStoreMock();
         final PreferencesService service = new PreferencesService(mockPrefStore);
         service.setDefaultConfig();
-        service.setAllProjectSpecificDefaults(testProject);
+        service.initializeProjectActivation(testProject);
         assertEquals("Black Duck scan not activated for new Java project by default", mockPrefStore.getBoolean(testProject), true);
     }
 
@@ -58,7 +58,7 @@ public class PreferencesServiceTest {
         final PreferencesService service = new PreferencesService(mockPrefStore);
         service.setDefaultConfig();
         mockPrefStore.setValue(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT, "false");
-        service.setAllProjectSpecificDefaults(testProject);
+        service.initializeProjectActivation(testProject);
         assertEquals("Scan automatically activated for new Java project even though default behavior is not to activate scan",
                 mockPrefStore.getBoolean(testProject), false);
     }

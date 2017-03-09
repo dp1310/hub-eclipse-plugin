@@ -23,13 +23,11 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences.listeners;
 
-import java.util.List;
-
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
+import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
-import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class DefaultPreferenceChangeListener implements IPropertyChangeListener {
@@ -41,10 +39,10 @@ public class DefaultPreferenceChangeListener implements IPropertyChangeListener 
 
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
-        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
-        final List<String> projectNames = workspaceInformationService.getSupportedJavaProjectNames();
-        if (projectNames.contains(event.getProperty())) {
-            defaultPreferencesService.setAllProjectSpecificDefaults(event.getProperty());
+        final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
+        final String projectName = event.getProperty();
+        if (defaultPreferencesService.isActivated(projectName)) {
+            inspectionQueueService.enqueueInspection(projectName);
         }
     }
 }

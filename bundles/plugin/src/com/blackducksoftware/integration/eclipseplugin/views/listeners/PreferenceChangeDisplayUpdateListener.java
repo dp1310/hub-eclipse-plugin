@@ -27,13 +27,17 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
+import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeListener {
 
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
-        InspectionQueueService inspectionQueue = Activator.getPlugin().getInspectionQueueService();
-        inspectionQueue.enqueueInspection(event.getProperty());
+        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        if (workspaceInformationService.getIsSupportedProject(event.getProperty())) {
+            final InspectionQueueService inspectionQueue = Activator.getPlugin().getInspectionQueueService();
+            inspectionQueue.enqueueInspection(event.getProperty());
+        }
     }
 }

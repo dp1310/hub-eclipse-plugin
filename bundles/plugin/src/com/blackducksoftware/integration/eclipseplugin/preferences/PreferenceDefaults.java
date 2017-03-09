@@ -43,17 +43,20 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
+import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class PreferenceDefaults extends PreferencePage implements IWorkbenchPreferencePage, IPropertyChangeListener {
-    public static final String ACTIVATE_BY_DEFAULT_LABEL = "Default Inspection Behavior";
+    public static final String ACTIVATE_BY_DEFAULT_LABEL = "When supported projects are added to workspace...";
 
-    public static final String ACTIVATE_BY_DEFAULT = "Automatically Inspect New Projects";
+    public static final String ACTIVATE_BY_DEFAULT = "Inspect them automatically";
 
-    public static final String DO_NOT_ACTIVATE_BY_DEFAULT = "Do Not Automatically Inspect New Projects";
+    public static final String DO_NOT_ACTIVATE_BY_DEFAULT = "Do not inspect them automatically";
 
-    public static final String ACTIVE_PROJECTS_LABEL = "Active Java Projects";
+    public static final String ACTIVE_PROJECTS_LABEL = "Analyzed Projects";
+
+    public static final String SELECT_ALL_BUTTON_LABEL = "Select All";
 
     private final String[][] DEFAULT_ACTIVATION_LABELS_AND_VALUES = new String[][] {
             new String[] { ACTIVATE_BY_DEFAULT, "true" },
@@ -77,22 +80,21 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     @Override
     protected Control createContents(final Composite parent) {
+        final PreferencesService preferencesService = Activator.getPlugin().getDefaultPreferencesService();
         defaultsComposite = new Composite(parent, SWT.LEFT);
         defaultsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         defaultsComposite.setLayout(new GridLayout());
         activateByDefault = new RadioGroupFieldEditor(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT,
                 ACTIVATE_BY_DEFAULT_LABEL, 1, DEFAULT_ACTIVATION_LABELS_AND_VALUES, defaultsComposite);
         activateByDefault.setPreferenceStore(getPreferenceStore());
+        activateByDefault.setPropertyChangeListener(preferencesService);
         activateByDefault.load();
         final Label spacer = new Label(defaultsComposite, SWT.HORIZONTAL);
         spacer.setVisible(false); // Not visible, but takes up a grid slot
         final Label activeProjectsLabel = new Label(defaultsComposite, SWT.HORIZONTAL);
         activeProjectsLabel.setText(ACTIVE_PROJECTS_LABEL);
         activeProjectsLabel.setFont(activateByDefault.getLabelControl(defaultsComposite).getFont());
-        final GridData indentGrid = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
-        indentGrid.horizontalSpan = 2;
-        indentGrid.grabExcessHorizontalSpace = true;
-        indentGrid.grabExcessVerticalSpace = true;
+        final GridData indentGrid = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 2);
         indentGrid.horizontalIndent = ((GridData) activateByDefault.getRadioBoxControl(defaultsComposite).getLayoutData()).horizontalIndent;
         activeComposite = new Composite(defaultsComposite, SWT.LEFT);
         activeComposite.setLayoutData(indentGrid);
@@ -107,14 +109,6 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         this.updateApplyButton();
     }
 
-    private void storeValues() {
-        activateByDefault.store();
-        final IPreferenceStore prefStore = getPreferenceStore();
-        for (final BooleanFieldEditor isActive : activeProjectPreferences) {
-            prefStore.setValue(isActive.getPreferenceName(), isActive.getBooleanValue());
-        }
-    }
-
     @Override
     public boolean performOk() {
         if (this.getApplyButton().isEnabled()) {
@@ -125,11 +119,16 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     @Override
     protected void performDefaults() {
+        activateByDefault.loadDefault();
         for (final BooleanFieldEditor isActive : activeProjectPreferences) {
             isActive.loadDefault();
         }
-        activateByDefault.loadDefault();
         super.performDefaults();
+    }
+
+    private void storeValues() {
+        activateByDefault.store();
+        activeProjectPreferences.forEach(isActiveProject -> isActiveProject.store());
     }
 
     public void reloadActiveProjects(final String... newProjects) {
@@ -154,18 +153,9 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         }
     }
 
-    public void removeProject(final String projectName) {
-        for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
-            BooleanFieldEditor currentField = iterator.next();
-            if (currentField.getPreferenceName().equals(projectName)) {
-                this.getPreferenceStore().setValue(projectName, null);
-                currentField.dispose();
-                iterator.remove();
-            }
-        }
-    }
-
     private BooleanFieldEditor addProject(final String projectName) {
+        PreferencesService defaultPreferencesService = Activator.getPlugin().getDefaultPreferencesService();
+        defaultPreferencesService.initializeProjectActivation(projectName);
         final BooleanFieldEditor isActive = new BooleanFieldEditor(projectName, projectName, activeComposite);
         isActive.setPage(this);
         isActive.setPreferenceStore(getPreferenceStore());
@@ -189,6 +179,18 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
             final List<String> supportedProjectNames = workspaceInformationService.getSupportedJavaProjectNames();
             if (supportedProjectNames.contains(event.getProperty())) {
                 this.reloadActiveProjects(event.getProperty());
+            }
+        }
+
+    }
+
+    private void removeProject(final String projectName) {
+        for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
+            BooleanFieldEditor currentField = iterator.next();
+            if (currentField.getPreferenceName().equals(projectName)) {
+                this.getPreferenceStore().setValue(projectName, null);
+                currentField.dispose();
+                iterator.remove();
             }
         }
     }

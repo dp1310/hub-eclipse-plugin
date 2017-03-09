@@ -69,28 +69,32 @@ public class InspectionJob extends Job {
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()
-                || !Activator.getPlugin().getPreferenceStore().getBoolean(projectName)) {
-            return Status.OK_STATUS;
-        }
-        Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
-        SubMonitor subMonitor = SubMonitor.convert(monitor, ONE_HUNDRED_PERCENT);
-        subMonitor.setTaskName("Gathering dependencies");
-        final List<URL> dependencyFilepaths = projectInformationService.getProjectDependencyFilePaths(projectName);
-        subMonitor.split(THIRTY_PERCENT).done();
-        for (URL filePath : dependencyFilepaths) {
-            subMonitor.setTaskName(String.format("Inspecting %s", filePath));
-            Gav gav = projectInformationService.getGavFromFilepath(filePath);
-            if (gav != null) {
-                Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
-                if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
-                    subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
-                } else {
-                    subMonitor.split(SEVENTY_PERCENT).done();
+        try {
+            if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()
+                    || !Activator.getPlugin().getPreferenceStore().getBoolean(projectName)) {
+                return Status.OK_STATUS;
+            }
+            Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
+            SubMonitor subMonitor = SubMonitor.convert(monitor, ONE_HUNDRED_PERCENT);
+            subMonitor.setTaskName("Gathering dependencies");
+            final List<URL> dependencyFilepaths = projectInformationService.getProjectDependencyFilePaths(projectName);
+            subMonitor.split(THIRTY_PERCENT).done();
+            for (URL filePath : dependencyFilepaths) {
+                subMonitor.setTaskName(String.format("Inspecting %s", filePath));
+                Gav gav = projectInformationService.getGavFromFilepath(filePath);
+                if (gav != null) {
+                    Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
+                    if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
+                        subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
+                    } else {
+                        subMonitor.split(SEVENTY_PERCENT).done();
+                    }
                 }
             }
+            return Status.OK_STATUS;
+        } catch (Exception e) {
+            return Status.CANCEL_STATUS;
         }
-        return Status.OK_STATUS;
     }
 
 }

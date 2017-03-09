@@ -104,7 +104,7 @@ public class Activator extends AbstractUIPlugin {
         inspectionQueueService = new InspectionQueueService(projService);
         information = new ProjectDependencyInformation(componentCache);
         defaultPreferencesService = new PreferencesService(getPreferenceStore());
-        newJavaProjectListener = new NewJavaProjectListener(defaultPreferencesService);
+        newJavaProjectListener = new NewJavaProjectListener();
         defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPreferencesService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener(information);

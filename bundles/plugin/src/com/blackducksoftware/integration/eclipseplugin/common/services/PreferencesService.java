@@ -23,35 +23,56 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 
-public class PreferencesService {
+public class PreferencesService implements IPropertyChangeListener {
+    private final Set<String> initializedProjects;
 
     private final IPreferenceStore prefStore;
 
     public PreferencesService(final IPreferenceStore prefStore) {
         this.prefStore = prefStore;
+        this.initializedProjects = new HashSet<>();
     }
 
     public void setDefaultConfig() {
         prefStore.setDefault(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT, "true");
     }
 
-    public void setAllProjectSpecificDefaults(final String projectName) {
-        if (prefStore.getString(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT).equals("true")) {
-            prefStore.setDefault(projectName, true);
-        } else {
-            prefStore.setDefault(projectName, false);
+    public void initializeProjectActivation(String projectName) {
+        if (!initializedProjects.contains(projectName)) {
+            String defaultBooleanAsString = prefStore.getString(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT);
+            boolean defaultBoolean = Boolean.parseBoolean(defaultBooleanAsString);
+            prefStore.setDefault(projectName, defaultBoolean);
+            initializedProjects.add(projectName);
         }
     }
 
-    public void activateProject(String projectName) {
-        prefStore.setValue(projectName, true);
+    public boolean checkIfProjectNeedsInitialization(String projectName) {
+        return !(prefStore.contains(projectName));
+    }
+
+    public void setProjectActivation(String projectName, boolean value) {
+        prefStore.setValue(projectName, value);
     }
 
     public boolean isActivated(String projectName) {
         return prefStore.getBoolean(projectName);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        if (event.getProperty().equals(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT) && event.getNewValue() != null) {
+            String stringValue = (String) event.getNewValue();
+            boolean newValue = Boolean.parseBoolean(stringValue);
+            initializedProjects.forEach(initializedProject -> prefStore.setDefault(initializedProject, newValue));
+        }
     }
 }

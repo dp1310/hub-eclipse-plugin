@@ -50,7 +50,7 @@
         <executions>
           <execution>
             <id>default-clean-1</id>
-            <phase>verify</phase>
+            <phase>validate</phase>
             <goals>
               <goal>clean</goal>
             </goals>

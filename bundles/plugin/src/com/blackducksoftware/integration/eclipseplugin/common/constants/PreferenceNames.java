@@ -39,4 +39,7 @@ public class PreferenceNames {
     public static final String PROXY_PORT = "proxyPort";
 
     public static final String IGNORED_PROXY_HOSTS = "ignoredProxyHosts";
+
+    public static final String SELECT_ALL = "selectAll";
+
 }

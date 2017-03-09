@@ -28,61 +28,49 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.PreferencesService;
+import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class NewJavaProjectListener implements IResourceChangeListener {
-
-    private final PreferencesService service;
-
-    public static final String DELAYED_INSPECTION_JOB_PREFIX = "Black Duck Component Inspector Delayed Inspection of ";
-
-    public static final String DELAYED_INSPECTION_JOB = "Black Duck Hub Delayed Inspection";
-
-    public NewJavaProjectListener(final PreferencesService service) {
-        this.service = service;
-    }
-
     @Override
     public void resourceChanged(final IResourceChangeEvent event) {
-        if (event.getSource() != null && event.getSource().equals(ResourcesPlugin.getWorkspace()) && event.getDelta() != null) {
-            final IResourceDelta[] childrenDeltas = event.getDelta().getAffectedChildren();
-            if (childrenDeltas == null) return;
-            for (final IResourceDelta delta : childrenDeltas) {
-                final IResource resource = delta.getResource();
-                if (resource != null && ((delta.getKind() & IResourceDelta.ADDED & IResourceDelta.CHANGED) != 0)) {
-                    try {
-                        if (resource instanceof IProject
-                                && ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
-                            final String projectName = resource.getName();
-                            service.setAllProjectSpecificDefaults(projectName);
-                            InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
-                            if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0 && delta.getMovedFromPath() != null) {
-                                String oldProjectName = delta.getMovedFromPath().toFile().getName();
-                                inspectionQueueService.enqueueInspection(projectName);
-                                if (service.isActivated(oldProjectName)) {
-                                    service.activateProject(projectName);
-                                }
-                            } else {
-                                inspectionQueueService.enqueueInspection(projectName);
-                            }
-                        }
-                    } catch (final CoreException e) {
-                        /*
-                         * If error is thrown when calling hasNature(), then assume it isn't a Java
-                         * project and therefore don't do anything
-                         */
-
+        final IResourceDelta eventDelta = event.getDelta();
+        if (eventDelta == null) return;
+        final PreferencesService defaultPreferencesService = Activator.getPlugin().getDefaultPreferencesService();
+        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
+        final IResourceDelta[] childrenDeltas = eventDelta.getAffectedChildren();
+        for (final IResourceDelta delta : childrenDeltas) {
+            String projectName = this.extractProjectNameIfMovedOrAdded(delta);
+            if (projectName != null && workspaceInformationService.getIsSupportedProject(projectName)) {
+                if (defaultPreferencesService.checkIfProjectNeedsInitialization(projectName)) {
+                    // If the preferences page hasn't been set up yet, we need to do it manually
+                    defaultPreferencesService.initializeProjectActivation(projectName);
+                }
+                if ((delta.getFlags() == IResourceDelta.MOVED_FROM) && delta.getMovedFromPath() != null) {
+                    String oldProjectName = delta.getMovedFromPath().toFile().getName();
+                    if (defaultPreferencesService.isActivated(oldProjectName)) {
+                        defaultPreferencesService.setProjectActivation(projectName, true);
                     }
                 }
-            }
+                if (defaultPreferencesService.isActivated(projectName)) {
+                    inspectionQueueService.enqueueInspection(projectName);
+                }
 
+            }
         }
     }
 
+    private String extractProjectNameIfMovedOrAdded(IResourceDelta delta) {
+        final IResource resource = delta.getResource();
+        if (resource != null && resource instanceof IProject) {
+            if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
+                return resource.getName();
+            }
+        }
+        return null;
+    }
 }

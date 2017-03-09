@@ -49,7 +49,7 @@ public class InspectSelectedProject extends AbstractHandler {
         final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
         for (String selectedProject : selectedProjects) {
             if (!preferencesService.isActivated(selectedProject)) {
-                preferencesService.activateProject(selectedProject);
+                preferencesService.setProjectActivation(selectedProject, true);
             }
             inspectionQueueService.enqueueInspection(selectedProject);
         }

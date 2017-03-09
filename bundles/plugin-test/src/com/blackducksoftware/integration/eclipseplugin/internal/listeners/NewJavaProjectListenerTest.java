@@ -147,9 +147,9 @@ public class NewJavaProjectListenerTest {
         final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForAddedProject();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        final NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(1)).setAllProjectSpecificDefaults(PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(1)).initializeProjectActivation(PROJECT_NAME);
         Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
@@ -158,9 +158,9 @@ public class NewJavaProjectListenerTest {
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         Mockito.when(prefService.isActivated(OLD_PROJECT_NAME)).thenReturn(true);
         setUpForMovedProject();
-        NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(1)).activateProject(NEW_PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(1)).setProjectActivation(NEW_PROJECT_NAME, true);
     }
 
     @Test
@@ -168,9 +168,9 @@ public class NewJavaProjectListenerTest {
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         Mockito.when(prefService.isActivated(OLD_PROJECT_NAME)).thenReturn(false);
         setUpForMovedProject();
-        NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(0)).activateProject(NEW_PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(0)).setProjectActivation(NEW_PROJECT_NAME, true);
     }
 
     @Test
@@ -178,9 +178,9 @@ public class NewJavaProjectListenerTest {
         final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForDeltaNotAddedOrChanged();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        final NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(0)).initializeProjectActivation(PROJECT_NAME);
         Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
@@ -189,9 +189,9 @@ public class NewJavaProjectListenerTest {
         final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForNonJavaProject();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        final NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(0)).initializeProjectActivation(PROJECT_NAME);
         Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
@@ -200,9 +200,9 @@ public class NewJavaProjectListenerTest {
         final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForThrowingCoreException();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        final NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(0)).initializeProjectActivation(PROJECT_NAME);
         Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 
@@ -211,9 +211,9 @@ public class NewJavaProjectListenerTest {
         final InspectionQueueService inspectionQueueService = Mockito.mock(InspectionQueueService.class);
         final PreferencesService prefService = Mockito.mock(PreferencesService.class);
         setUpForNonProjectResource();
-        final NewJavaProjectListener listener = new NewJavaProjectListener(prefService);
+        final NewJavaProjectListener listener = new NewJavaProjectListener();
         listener.resourceChanged(event);
-        Mockito.verify(prefService, Mockito.times(0)).setAllProjectSpecificDefaults(PROJECT_NAME);
+        Mockito.verify(prefService, Mockito.times(0)).initializeProjectActivation(PROJECT_NAME);
         Mockito.verify(inspectionQueueService, Mockito.times(1)).enqueueInspection(PROJECT_NAME);
     }
 }
