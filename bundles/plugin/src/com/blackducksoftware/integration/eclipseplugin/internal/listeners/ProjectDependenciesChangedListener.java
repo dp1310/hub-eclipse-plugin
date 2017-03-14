@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.eclipseplugin.common.constants.Namespaces;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
@@ -82,12 +83,11 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             final URL projectUrl = el.getPath().toFile().toURI().toURL();
             if (depService.isGradleDependency(projectUrl)) {
                 final Gav gav = extractor.getGradlePathGav(projectUrl);
-                // TODO: No hardcoded strings.
-                information.removeComponentFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.removeComponentFromProject(projName, new Gav(Namespaces.GRADLE, gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             } else if (depService.isMavenDependency(projectUrl)) {
                 final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
                 final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
-                information.removeComponentFromProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.removeComponentFromProject(projName, new Gav(Namespaces.MAVEN, gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
 
@@ -99,12 +99,11 @@ public class ProjectDependenciesChangedListener implements IElementChangedListen
             final URL projectUrl = el.getPath().toFile().toURI().toURL();
             if (depService.isGradleDependency(projectUrl)) {
                 final Gav gav = extractor.getGradlePathGav(projectUrl);
-                // TODO: No hardcoded strings.
-                information.addComponentToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.addComponentToProject(projName, new Gav(Namespaces.GRADLE, gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             } else if (depService.isMavenDependency(projectUrl)) {
                 final URL mavenURL = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
                 final Gav gav = extractor.getMavenPathGav(projectUrl, mavenURL);
-                information.addComponentToProject(projName, new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
+                information.addComponentToProject(projName, new Gav(Namespaces.MAVEN, gav.getGroupId(), gav.getArtifactId(), gav.getVersion()));
             }
         }
     }

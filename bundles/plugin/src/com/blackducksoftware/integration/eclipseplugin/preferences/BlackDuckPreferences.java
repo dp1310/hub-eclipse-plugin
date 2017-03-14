@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences;
 
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -41,7 +40,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.TestHubCredentialsSelectionListener;
@@ -70,8 +68,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
     @Override
     public void init(final IWorkbench workbench) {
         this.plugin = Activator.getPlugin();
-        securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
-                SecurePreferencesFactory.getDefault());
+        securePrefService = new SecurePreferencesService();
         setPreferenceStore(plugin.getPreferenceStore());
         hubAuthorizationConfig = new HubAuthorizationConfig();
     }

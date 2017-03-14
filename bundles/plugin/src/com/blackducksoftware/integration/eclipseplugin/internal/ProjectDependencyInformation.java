@@ -34,12 +34,10 @@ import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
@@ -112,8 +110,7 @@ public class ProjectDependencyInformation {
         final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
         final AuthorizationValidator authorizationValidator = new AuthorizationValidator(plugin.getConnectionService(),
                 new HubServerConfigBuilder());
-        final SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
-                SecurePreferencesFactory.getDefault());
+        final SecurePreferencesService securePrefService = new SecurePreferencesService();
         final IPreferenceStore prefStore = plugin.getPreferenceStore();
         final String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
         final String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);

@@ -27,7 +27,6 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -39,7 +38,6 @@ import org.osgi.framework.BundleContext;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
@@ -98,7 +96,7 @@ public class Activator extends AbstractUIPlugin {
         final DependencyInformationService depService = new DependencyInformationService(this);
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         workspaceInformationService = new WorkspaceInformationService(projService);
-        securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
+        securePrefService = new SecurePreferencesService();
         connectionService = new HubRestConnectionService(getInitialHubConnection());
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         inspectionQueueService = new InspectionQueueService(this, projService);

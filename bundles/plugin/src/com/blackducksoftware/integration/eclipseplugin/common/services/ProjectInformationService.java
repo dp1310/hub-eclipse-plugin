@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.eclipseplugin.common.constants.Namespaces;
 import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 
@@ -91,11 +92,10 @@ public class ProjectInformationService {
                 return null;
             }
             final Gav gav = extractor.getMavenPathGav(dependencyFilepath, m2Repo);
-            // TODO: No hardcoded strings
-            return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
+            return new Gav(Namespaces.MAVEN, gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
         } else if (dependencyInformationService.isGradleDependency(dependencyFilepath)) {
             final Gav gav = extractor.getGradlePathGav(dependencyFilepath);
-            return new Gav("maven", gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
+            return new Gav(Namespaces.GRADLE, gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
         } else {
             return null;
         }
@@ -130,15 +130,12 @@ public class ProjectInformationService {
             if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
                 return packageFragmentRoot.getPath().toFile().toURI().toURL();
             }
-        } catch (final JavaModelException e) {
+        } catch (final JavaModelException | MalformedURLException e) {
             /*
              * If root does not exist or exception occurs while accessing
              * resource, do not add its filepath to the list of binary
              * dependency filepaths
              */
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         return null;
     }

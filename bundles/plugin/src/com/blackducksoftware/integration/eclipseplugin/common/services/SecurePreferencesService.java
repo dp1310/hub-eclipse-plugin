@@ -24,36 +24,45 @@
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
 import org.eclipse.equinox.security.storage.ISecurePreferences;
+import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
+
+import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 
 public class SecurePreferencesService {
 
-	private final String nodeName;
-	private final ISecurePreferences root;
+    final private ISecurePreferences rootPreferencesObject;
 
-	public SecurePreferencesService(final String nodeName, final ISecurePreferences root) {
-		this.nodeName = nodeName;
-		this.root = root;
-	}
+    public SecurePreferencesService() {
+        this.rootPreferencesObject = SecurePreferencesFactory.getDefault();
+    }
 
-	public String getSecurePreference(final String name) {
-		final ISecurePreferences nodeToAccess = root.node(nodeName);
-		try {
-			return nodeToAccess.get(name, "");
-		} catch (final StorageException e) {
-			return "";
-		}
-	}
+    public String getSecurePreference(final String name) {
+        final ISecurePreferences nodeToAccess = getBlackDuckPreferencesObject();
+        try {
+            return nodeToAccess.get(name, "");
+        } catch (final StorageException e) {
+            return "";
+        }
+    }
 
-	public boolean saveSecurePreference(final String name, final String value, final boolean encrypt) {
-		boolean saveSuccess;
-		final ISecurePreferences nodeToAccess = root.node(nodeName);
-		try {
-			nodeToAccess.put(name, value, encrypt);
-			saveSuccess = true;
-		} catch (final StorageException e) {
-			saveSuccess = false;
-		}
-		return saveSuccess;
-	}
+    public boolean saveSecurePreference(final String name, final String value, final boolean encrypt) {
+        boolean saveSuccess;
+        final ISecurePreferences nodeToAccess = getBlackDuckPreferencesObject();
+        try {
+            nodeToAccess.put(name, value, encrypt);
+            saveSuccess = true;
+        } catch (final StorageException e) {
+            saveSuccess = false;
+        }
+        return saveSuccess;
+    }
+
+    public ISecurePreferences getBlackDuckPreferencesObject() {
+        try {
+            return rootPreferencesObject.node(SecurePreferenceNodes.BLACK_DUCK);
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
+    }
 }
