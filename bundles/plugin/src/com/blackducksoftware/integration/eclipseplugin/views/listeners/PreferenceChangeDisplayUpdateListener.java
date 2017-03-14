@@ -32,11 +32,17 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class PreferenceChangeDisplayUpdateListener implements IPropertyChangeListener {
 
+    final Activator plugin;
+
+    public PreferenceChangeDisplayUpdateListener(Activator plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public void propertyChange(final PropertyChangeEvent event) {
-        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
         if (workspaceInformationService.getIsSupportedProject(event.getProperty())) {
-            final InspectionQueueService inspectionQueue = Activator.getPlugin().getInspectionQueueService();
+            final InspectionQueueService inspectionQueue = plugin.getInspectionQueueService();
             inspectionQueue.enqueueInspection(event.getProperty());
         }
     }

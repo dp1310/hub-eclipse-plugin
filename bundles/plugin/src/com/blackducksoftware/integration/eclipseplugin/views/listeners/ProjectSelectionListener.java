@@ -74,7 +74,7 @@ public class ProjectSelectionListener implements ISelectionListener {
         }
         String projectName = "";
         try {
-            if (project != null && project.getDescription() != null && componentView.getDependencyTableViewer() != null) {
+            if (project != null && project.getDescription() != null && componentView.getDependencyTableViewerExists()) {
                 projectName = project.getDescription().getName();
                 componentView.setLastSelectedProjectName(projectName);
                 componentView.setTableInput(projectName);

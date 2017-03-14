@@ -44,6 +44,11 @@ import com.blackducksoftware.integration.hub.dataservice.vulnerability.Vulnerabi
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class DependencyInformationService {
+    private final Activator plugin;
+
+    public DependencyInformationService(final Activator plugin) {
+        this.plugin = plugin;
+    }
 
     public boolean isMavenDependency(final URL filePath) {
         URL m2Repo;
@@ -85,14 +90,14 @@ public class DependencyInformationService {
     }
 
     public ComponentModel load(final Gav gav) throws IOException, URISyntaxException, IntegrationException {
-        VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
+        VulnerabilityDataService vulnService = plugin.getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
         ComplexLicenseItem sLicense = null;
         try {
             vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
 
-            LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
+            LicenseDataService licenseService = plugin.getConnectionService().getLicenseDataService();
             sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
         } catch (HubIntegrationException e) {

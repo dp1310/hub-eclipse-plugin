@@ -27,6 +27,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 
+import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationResponse;
 import com.blackducksoftware.integration.eclipseplugin.preferences.services.HubAuthorizationConfig;
 
 public class TestHubCredentialsSelectionListener implements SelectionListener {
@@ -53,7 +54,8 @@ public class TestHubCredentialsSelectionListener implements SelectionListener {
     }
 
     private String attemptToConnect() {
-        return hubAuthorizationConfig.validateCredentialFields().getResponseMessage();
+        final AuthorizationResponse hubAuthorizationResponse = hubAuthorizationConfig.validateCredentialFields();
+        return hubAuthorizationResponse.getResponseMessage();
     }
 
 }

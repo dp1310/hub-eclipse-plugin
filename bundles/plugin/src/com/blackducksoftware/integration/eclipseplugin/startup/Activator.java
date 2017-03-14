@@ -95,17 +95,17 @@ public class Activator extends AbstractUIPlugin {
         System.out.println("STARTING HUB ECLIPSE PLUGIN");
         plugin = this;
         final FilePathGavExtractor extractor = new FilePathGavExtractor();
-        final DependencyInformationService depService = new DependencyInformationService();
+        final DependencyInformationService depService = new DependencyInformationService(this);
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         workspaceInformationService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK, SecurePreferencesFactory.getDefault());
         connectionService = new HubRestConnectionService(getInitialHubConnection());
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
-        inspectionQueueService = new InspectionQueueService(projService);
-        information = new ProjectDependencyInformation(componentCache);
+        inspectionQueueService = new InspectionQueueService(this, projService);
+        information = new ProjectDependencyInformation(this, componentCache);
         defaultPreferencesService = new PreferencesService(getPreferenceStore());
-        newJavaProjectListener = new NewJavaProjectListener();
-        defaultPrefChangeListener = new DefaultPreferenceChangeListener(defaultPreferencesService);
+        newJavaProjectListener = new NewJavaProjectListener(this);
+        defaultPrefChangeListener = new DefaultPreferenceChangeListener(this, defaultPreferencesService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener(information);
         ResourcesPlugin.getWorkspace().addResourceChangeListener(newJavaProjectListener);
@@ -181,6 +181,14 @@ public class Activator extends AbstractUIPlugin {
         super.stop(context);
     }
 
+    /**
+     * Returns the plugin instance.
+     * Use this method sparingly, it should only be used when you can't pass this instance.
+     * If it is used, use it once per class to set ONE (preferably final) variable.
+     * The only exceptions are with the setter methods present in this instance.
+     *
+     * @return the singleton instance of the plugin
+     */
     public static Activator getPlugin() {
         return plugin;
     }

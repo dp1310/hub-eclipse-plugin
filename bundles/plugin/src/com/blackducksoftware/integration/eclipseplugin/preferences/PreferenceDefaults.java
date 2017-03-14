@@ -63,6 +63,8 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
             new String[] { DO_NOT_ACTIVATE_BY_DEFAULT, "false" }
     };
 
+    private Activator plugin;
+
     private List<BooleanFieldEditor> activeProjectPreferences;
 
     private RadioGroupFieldEditor activateByDefault;
@@ -73,14 +75,15 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     @Override
     public void init(final IWorkbench workbench) {
-        final IPreferenceStore pluginPreferenceStore = Activator.getPlugin().getPreferenceStore();
+        this.plugin = Activator.getPlugin();
+        final IPreferenceStore pluginPreferenceStore = plugin.getPreferenceStore();
         this.setPreferenceStore(pluginPreferenceStore);
         pluginPreferenceStore.addPropertyChangeListener(this);
     }
 
     @Override
     protected Control createContents(final Composite parent) {
-        final PreferencesService preferencesService = Activator.getPlugin().getDefaultPreferencesService();
+        final PreferencesService preferencesService = plugin.getDefaultPreferencesService();
         defaultsComposite = new Composite(parent, SWT.LEFT);
         defaultsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         defaultsComposite.setLayout(new GridLayout());
@@ -132,7 +135,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
     }
 
     public void reloadActiveProjects(final String... newProjects) {
-        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
         final List<String> names = workspaceInformationService.getSupportedJavaProjectNames();
         if (activeProjectPreferences != null) {
             for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
@@ -154,7 +157,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
     }
 
     private BooleanFieldEditor addProject(final String projectName) {
-        PreferencesService defaultPreferencesService = Activator.getPlugin().getDefaultPreferencesService();
+        PreferencesService defaultPreferencesService = plugin.getDefaultPreferencesService();
         defaultPreferencesService.initializeProjectActivation(projectName);
         final BooleanFieldEditor isActive = new BooleanFieldEditor(projectName, projectName, activeComposite);
         isActive.setPage(this);
@@ -175,7 +178,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
             }
         }
         if (event.getOldValue() == null) {
-            final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+            final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
             final List<String> supportedProjectNames = workspaceInformationService.getSupportedJavaProjectNames();
             if (supportedProjectNames.contains(event.getProperty())) {
                 this.reloadActiveProjects(event.getProperty());

@@ -43,12 +43,15 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.Preferen
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
+import com.blackducksoftware.integration.eclipseplugin.internal.ProjectDependencyInformation;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.TestHubCredentialsSelectionListener;
 import com.blackducksoftware.integration.eclipseplugin.preferences.services.HubAuthorizationConfig;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
+import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPreferencePage {
+    private Activator plugin;
 
     private SecurePreferencesService securePrefService;
 
@@ -66,9 +69,10 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
 
     @Override
     public void init(final IWorkbench workbench) {
+        this.plugin = Activator.getPlugin();
         securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
                 SecurePreferencesFactory.getDefault());
-        setPreferenceStore(Activator.getPlugin().getPreferenceStore());
+        setPreferenceStore(plugin.getPreferenceStore());
         hubAuthorizationConfig = new HubAuthorizationConfig();
     }
 
@@ -172,6 +176,9 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         securePrefService.saveSecurePreference(SecurePreferenceNames.HUB_PASSWORD, hubAuthorizationConfig.getHubPasswordField().getText(), true);
         securePrefService.saveSecurePreference(SecurePreferenceNames.PROXY_PASSWORD, hubAuthorizationConfig.getProxyPasswordField().getText(), true);
         Activator.getPlugin().updateHubConnection(hubAuthorizationConfig.validateCredentialFields().getConnection());
+        ProjectDependencyInformation projectInfo = plugin.getProjectInformation();
+        VulnerabilityView componentView = projectInfo.getComponentView();
+        componentView.resetInput();
     }
 
     @Override

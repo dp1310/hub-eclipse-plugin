@@ -32,10 +32,12 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 
 public class ProjectDeletedListener implements IResourceChangeListener {
+    private final Activator plugin;
 
     private final VulnerabilityView componentView;
 
-    public ProjectDeletedListener(final VulnerabilityView componentView) {
+    public ProjectDeletedListener(final Activator plugin, final VulnerabilityView componentView) {
+        this.plugin = plugin;
         this.componentView = componentView;
     }
 
@@ -44,8 +46,7 @@ public class ProjectDeletedListener implements IResourceChangeListener {
         if (event != null && event.getResource() != null) {
             IResource resource = event.getResource();
             if (resource instanceof IProject) {
-                System.out.println(((IProject) resource).getName());
-                Activator.getPlugin().getProjectInformation().removeProject(((IProject) resource).getName());
+                plugin.getProjectInformation().removeProject(((IProject) resource).getName());
                 if (componentView.getLastSelectedProjectName().equals(((IProject) resource).getName())) {
                     componentView.setLastSelectedProjectName("");
                     componentView.resetInput();

@@ -44,24 +44,27 @@ public class InspectionQueueService implements IJobChangeListener {
 
     private final ProjectInformationService projService;
 
+    private final Activator plugin;
+
     private InspectionJob currentInspection = null;
 
-    public InspectionQueueService(ProjectInformationService projService) {
+    public InspectionQueueService(final Activator plugin, final ProjectInformationService projService) {
         inspectionQueue = new ConcurrentLinkedQueue<>();
         this.projService = projService;
+        this.plugin = plugin;
     }
 
     public boolean enqueueInspection(String projectName) {
         if (getInspectionIsRunning(projectName) || getInspectionIsScheduled(projectName)) return false;
-        if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()
-                || !Activator.getPlugin().getPreferenceStore().getBoolean(projectName)) {
+        if (!plugin.getConnectionService().hasActiveHubConnection()
+                || !plugin.getPreferenceStore().getBoolean(projectName)) {
             return false;
         }
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
+        VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
         if (componentView != null && currentInspection != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
             componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
         }
-        InspectionJob inspection = new InspectionJob(projectName, projService);
+        InspectionJob inspection = new InspectionJob(plugin, projectName, projService);
         inspection.addJobChangeListener(this);
         if (currentInspection == null) {
             currentInspection = inspection;
@@ -112,25 +115,26 @@ public class InspectionQueueService implements IJobChangeListener {
         return false;
     }
 
+    private void setComponentViewStatus(String statusMessage) {
+        final VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
+        if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
+            componentView.setStatusMessage(statusMessage);
+        }
+    }
+
     @Override
     public void aboutToRun(IJobChangeEvent event) {
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
-        if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
-            componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-        }
+        this.setComponentViewStatus(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
     }
 
     @Override
     public void awake(IJobChangeEvent event) {
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
-        if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
-            componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-        }
+        this.setComponentViewStatus(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
     }
 
     @Override
     public void done(IJobChangeEvent event) {
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
+        VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
         if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
             componentView.resetInput();
             if (event.getResult().equals(Status.OK_STATUS)) {
@@ -146,26 +150,17 @@ public class InspectionQueueService implements IJobChangeListener {
 
     @Override
     public void running(IJobChangeEvent event) {
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
-        if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
-            componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-        }
+        this.setComponentViewStatus(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
     }
 
     @Override
     public void scheduled(IJobChangeEvent event) {
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
-        if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
-            componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
-        }
+        this.setComponentViewStatus(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
     }
 
     @Override
     public void sleeping(IJobChangeEvent event) {
-        VulnerabilityView componentView = Activator.getPlugin().getProjectInformation().getComponentView();
-        if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
-            componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
-        }
+        this.setComponentViewStatus(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
     }
 
     public void shutDown() {

@@ -40,6 +40,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNodes;
+import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
@@ -64,14 +65,17 @@ public class ProjectDependencyInformation {
 
     public static final String INSPECTION_JOB = "Black Duck Hub Inspection";
 
+    private final Activator plugin;
+
     private final ComponentCache componentCache;
 
     private final Map<String, List<ComponentModel>> projectInfo = new HashMap<>();
 
     private VulnerabilityView componentView;
 
-    public ProjectDependencyInformation(ComponentCache componentCache) {
+    public ProjectDependencyInformation(final Activator plugin, final ComponentCache componentCache) {
         this.componentCache = componentCache;
+        this.plugin = plugin;
     }
 
     public VulnerabilityView getComponentView() {
@@ -97,20 +101,20 @@ public class ProjectDependencyInformation {
     }
 
     public void phoneHome() throws HubIntegrationException {
-        if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
+        if (!plugin.getConnectionService().hasActiveHubConnection()) {
             return;
         }
-        final PhoneHomeDataService phoneHomeService = Activator.getPlugin().getConnectionService().getPhoneHomeDataService();
-        final HubVersionRequestService hubVersionRequestService = Activator.getPlugin().getConnectionService().getHubVersionRequestService();
+        final PhoneHomeDataService phoneHomeService = plugin.getConnectionService().getPhoneHomeDataService();
+        final HubVersionRequestService hubVersionRequestService = plugin.getConnectionService().getHubVersionRequestService();
         final String hubVersion = hubVersionRequestService.getHubVersion();
         final IProduct eclipseProduct = Platform.getProduct();
         final String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
         final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
-        final AuthorizationValidator authorizationValidator = new AuthorizationValidator(Activator.getPlugin().getConnectionService(),
+        final AuthorizationValidator authorizationValidator = new AuthorizationValidator(plugin.getConnectionService(),
                 new HubServerConfigBuilder());
         final SecurePreferencesService securePrefService = new SecurePreferencesService(SecurePreferenceNodes.BLACK_DUCK,
                 SecurePreferencesFactory.getDefault());
-        final IPreferenceStore prefStore = Activator.getPlugin().getPreferenceStore();
+        final IPreferenceStore prefStore = plugin.getPreferenceStore();
         final String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
         final String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
         final String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
@@ -195,9 +199,10 @@ public class ProjectDependencyInformation {
     }
 
     public void updateCache(final RestConnection connection) throws HubIntegrationException {
-        if (projectInfo.isEmpty() && Activator.getPlugin().updateConnection(connection).hasActiveHubConnection()) {
-            final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
-            final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        HubRestConnectionService newConnectionService = Activator.getPlugin().updateConnection(connection);
+        if (projectInfo.isEmpty() && newConnectionService.hasActiveHubConnection()) {
+            final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
+            final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
             List<String> supportedJavaProjects = workspaceInformationService.getSupportedJavaProjectNames();
             inspectionQueueService.enqueueInspections(supportedJavaProjects);
         }

@@ -48,15 +48,18 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
 
     private final TableViewer viewer;
 
+    private final Activator plugin;
+
     private String inputProject;
 
     private ComponentModel[] parsedElements;
 
     private ComponentFilter componentFilter = null;
 
-    public DependencyTableViewContentProvider(VulnerabilityView view, TableViewer viewer) {
+    public DependencyTableViewContentProvider(final Activator plugin, final VulnerabilityView view, final TableViewer viewer) {
         this.view = view;
         this.viewer = viewer;
+        this.plugin = plugin;
     }
 
     @Override
@@ -80,11 +83,11 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
             view.setStatusMessage(InspectionStatus.NO_SELECTED_PROJECT);
             return NOTHING;
         }
-        InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
-        boolean isActivated = Activator.getPlugin().getPreferenceStore().getBoolean(projectName);
+        InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
+        boolean isActivated = plugin.getPreferenceStore().getBoolean(projectName);
         if (isActivated) {
-            if (Activator.getPlugin().getConnectionService().hasActiveHubConnection()) {
-                final List<ComponentModel> componentModels = Activator.getPlugin().getProjectInformation().getProjectComponents(projectName);
+            if (plugin.getConnectionService().hasActiveHubConnection()) {
+                final List<ComponentModel> componentModels = plugin.getProjectInformation().getProjectComponents(projectName);
                 if (inspectionQueueService.getInspectionIsRunning(projectName)) {
                     view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
                 } else {
@@ -101,7 +104,7 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
             view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
             return NOTHING;
         }
-        WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
+        WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
         if (workspaceInformationService.getIsSupportedProject(projectName)) {
             view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
         } else {
@@ -115,11 +118,11 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
     }
 
     public IPreferenceStore getPreferenceStore() {
-        return Activator.getPlugin().getPreferenceStore();
+        return plugin.getPreferenceStore();
     }
 
     public ProjectDependencyInformation getProjectInformation() {
-        return Activator.getPlugin().getProjectInformation();
+        return plugin.getProjectInformation();
     }
 
     @Override

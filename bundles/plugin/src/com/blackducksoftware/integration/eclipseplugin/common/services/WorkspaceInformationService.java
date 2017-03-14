@@ -40,7 +40,6 @@ import org.eclipse.ui.PlatformUI;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.NatureIDs;
 
 public class WorkspaceInformationService {
-
     private final ProjectInformationService projectInformationService;
 
     public WorkspaceInformationService(final ProjectInformationService projectInformationService) {

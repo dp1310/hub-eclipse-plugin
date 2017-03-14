@@ -37,24 +37,29 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
+import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.hub.dataservice.component.ComponentDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class TableDoubleClickListener implements IDoubleClickListener {
     public static final String JOB_GENERATE_URL = "Opening component in the Hub...";
 
+    private final Activator plugin;
+
     private VulnerabilityView vulnerabilityView;
 
-    public TableDoubleClickListener(VulnerabilityView vulnerabilityView) {
+    public TableDoubleClickListener(final Activator plugin, final VulnerabilityView vulnerabilityView) {
         this.vulnerabilityView = vulnerabilityView;
+        this.plugin = plugin;
     }
 
     @Override
-    public void doubleClick(DoubleClickEvent event) {
+    public void doubleClick(final DoubleClickEvent event) {
         IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
         if (selection.getFirstElement() instanceof ComponentModel) {
@@ -68,16 +73,16 @@ public class TableDoubleClickListener implements IDoubleClickListener {
                     Gav selectedGav = selectedObject.getGav();
                     String link;
                     try {
-                        ComponentVersion selectedComponentVersion = Activator.getPlugin().getConnectionService().getComponentDataService()
-                                .getExactComponentVersionFromComponent(selectedGav.getNamespace(), selectedGav.getGroupId(),
-                                        selectedGav.getArtifactId(),
-                                        selectedGav.getVersion());
+                        final HubRestConnectionService connectionService = plugin.getConnectionService();
+                        final ComponentDataService componentDataService = connectionService.getComponentDataService();
+                        final ComponentVersion selectedComponentVersion = componentDataService.getExactComponentVersionFromComponent(
+                                selectedGav.getNamespace(), selectedGav.getGroupId(), selectedGav.getArtifactId(), selectedGav.getVersion());
                         // Final solution, will work once the redirect is set up
-                        link = Activator.getPlugin().getConnectionService().getMetaService().getHref(selectedComponentVersion);
+                        link = plugin.getConnectionService().getMetaService().getHref(selectedComponentVersion);
 
                         // But for now...
                         String versionID = link.substring(link.lastIndexOf("/") + 1);
-                        link = Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl().toString();
+                        link = plugin.getConnectionService().getRestConnection().getBaseUrl().toString();
                         link = link + "/#versions/id:" + versionID + "/view:overview";
                         IWebBrowser browser;
                         boolean createInternalBrowser = true;
@@ -89,10 +94,10 @@ public class TableDoubleClickListener implements IDoubleClickListener {
                         browser.openURL(new URL(link));
                     } catch (PartInitException | MalformedURLException | HubIntegrationException e) {
                         vulnerabilityView.openError("Could not open Component in Hub instance",
-                                String.format("Problem opening %1$s %2$s in %3$s",
+                                String.format("Problem opening %1$s %2$s in %3$s, are you connected to your hub instance?",
                                         selectedGav.getArtifactId(),
                                         selectedGav.getVersion(),
-                                        Activator.getPlugin().getConnectionService().getRestConnection().getBaseUrl()),
+                                        plugin.getConnectionService().getRestConnection().getBaseUrl()),
                                 e);
                         return Status.CANCEL_STATUS;
                     }

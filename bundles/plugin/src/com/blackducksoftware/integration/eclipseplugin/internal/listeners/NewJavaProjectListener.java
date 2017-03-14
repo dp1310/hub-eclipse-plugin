@@ -35,13 +35,20 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.Workspace
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 public class NewJavaProjectListener implements IResourceChangeListener {
+    private final Activator plugin;
+
+    public NewJavaProjectListener(final Activator plugin) {
+        super();
+        this.plugin = plugin;
+    }
+
     @Override
     public void resourceChanged(final IResourceChangeEvent event) {
         final IResourceDelta eventDelta = event.getDelta();
         if (eventDelta == null) return;
-        final PreferencesService defaultPreferencesService = Activator.getPlugin().getDefaultPreferencesService();
-        final WorkspaceInformationService workspaceInformationService = Activator.getPlugin().getWorkspaceInformationService();
-        InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
+        final PreferencesService defaultPreferencesService = plugin.getDefaultPreferencesService();
+        final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
+        InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
         final IResourceDelta[] childrenDeltas = eventDelta.getAffectedChildren();
         for (final IResourceDelta delta : childrenDeltas) {
             String projectName = this.extractProjectNameIfMovedOrAdded(delta);

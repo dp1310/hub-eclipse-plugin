@@ -51,10 +51,13 @@ public class InspectionJob extends Job {
 
     private final String projectName;
 
-    public InspectionJob(final String projectName, final ProjectInformationService projectInformationService) {
+    private final Activator plugin;
+
+    public InspectionJob(final Activator plugin, final String projectName, final ProjectInformationService projectInformationService) {
         super(JOB_INSPECT_PROJECT_PREFACE + projectName);
         this.projectName = projectName;
         this.projectInformationService = projectInformationService;
+        this.plugin = plugin;
         this.setPriority(Job.BUILD);
     }
 
@@ -70,11 +73,11 @@ public class InspectionJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         try {
-            if (!Activator.getPlugin().getConnectionService().hasActiveHubConnection()
-                    || !Activator.getPlugin().getPreferenceStore().getBoolean(projectName)) {
+            if (!plugin.getConnectionService().hasActiveHubConnection()
+                    || !plugin.getPreferenceStore().getBoolean(projectName)) {
                 return Status.OK_STATUS;
             }
-            Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
+            plugin.getProjectInformation().initializeProjectComponents(projectName);
             SubMonitor subMonitor = SubMonitor.convert(monitor, ONE_HUNDRED_PERCENT);
             subMonitor.setTaskName("Gathering dependencies");
             final List<URL> dependencyFilepaths = projectInformationService.getProjectDependencyFilePaths(projectName);
@@ -83,7 +86,7 @@ public class InspectionJob extends Job {
                 subMonitor.setTaskName(String.format("Inspecting %s", filePath));
                 Gav gav = projectInformationService.getGavFromFilepath(filePath);
                 if (gav != null) {
-                    Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
+                    plugin.getProjectInformation().addComponentToProject(projectName, gav);
                     if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
                         subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
                     } else {

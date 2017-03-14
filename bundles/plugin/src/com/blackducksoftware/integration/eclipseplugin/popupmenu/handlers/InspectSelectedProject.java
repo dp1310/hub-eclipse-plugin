@@ -40,13 +40,14 @@ import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
 public class InspectSelectedProject extends AbstractHandler {
     @Override
     public Object execute(final ExecutionEvent event) throws ExecutionException {
-        final DependencyInformationService depService = new DependencyInformationService();
+        final Activator plugin = Activator.getPlugin();
+        final DependencyInformationService depService = new DependencyInformationService(plugin);
         final FilePathGavExtractor extractor = new FilePathGavExtractor();
         final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
         final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
         final List<String> selectedProjects = workspaceService.getAllSelectedProjects();
-        final PreferencesService preferencesService = Activator.getPlugin().getDefaultPreferencesService();
-        final InspectionQueueService inspectionQueueService = Activator.getPlugin().getInspectionQueueService();
+        final PreferencesService preferencesService = plugin.getDefaultPreferencesService();
+        final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
         for (String selectedProject : selectedProjects) {
             if (!preferencesService.isActivated(selectedProject)) {
                 preferencesService.setProjectActivation(selectedProject, true);
