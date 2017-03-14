@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.eclipseplugin.test.utils.swtbot;
+package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;

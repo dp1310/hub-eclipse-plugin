@@ -21,7 +21,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.eclipseplugin.views.ui;
+package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -38,11 +38,10 @@ import org.junit.runner.RunWith;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewIds;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewNames;
-import com.blackducksoftware.integration.eclipseplugin.test.utils.swtbot.SWTBotProjectUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class VulnerabilityViewBotTest {
-
+public class ComponentViewBotTest {
     private static SWTWorkbenchBot bot;
 
     private static SWTBotProjectUtils botUtils;
@@ -104,6 +103,37 @@ public class VulnerabilityViewBotTest {
         assertNotNull(bot.viewByTitle(ViewNames.VULNERABILITIES));
         assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
         bot.viewByTitle(ViewNames.VULNERABILITIES).close();
+    }
+
+    // @Test
+    public void testInspectionResults() {
+        // TODO: Test stub
+    }
+
+    // @Test
+    public void testStatusMessages() {
+        // TODO: Test stub
+        // This might get broken down into additional tests
+    }
+
+    // @Test
+    public void testFiltering() {
+        // TODO: Test stub
+    }
+
+    // @Test
+    public void testAttemptToOpenValidComponentWithValidHubCredentials() {
+        // TODO: Test stub
+    }
+
+    // @Test
+    public void testAttemptToOpenValidComponentWithInvalidHubCredentials() {
+        // TODO: Test stub
+    }
+
+    // @Test
+    public void testAttemptToOpenUnknownComponent() {
+        // TODO: Test stub
     }
 
     @AfterClass

@@ -1,5 +1,5 @@
 /**
- * hub-eclipse-plugin
+ * hub-eclipse-plugin-test
  *
  * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -21,19 +21,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.eclipseplugin.internal.listeners;
+package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 
-public class ProjectRenamedListener implements IResourceChangeListener {
+public class ButtonIsEnabledCondition extends DefaultCondition {
 
-    @Override
-    public void resourceChanged(IResourceChangeEvent event) {
-        if (event.getSource() != null && event.getSource().equals(ResourcesPlugin.getWorkspace())) {
-            // TODO: Implement
-        }
-    }
+	private final SWTBotButton button;
+
+	public ButtonIsEnabledCondition(final SWTBotButton button) {
+		this.button = button;
+	}
+
+	@Override
+	public boolean test() throws Exception {
+		return button.isEnabled();
+	}
+
+	@Override
+	public String getFailureMessage() {
+		return "Could not enable " + button.getText() + " button";
+	}
 
 }
