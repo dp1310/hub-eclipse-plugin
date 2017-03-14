@@ -27,7 +27,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -77,6 +80,15 @@ public class ProjectInformationServiceTest {
 
     @Mock
     IPath nonBinaryPath, binaryPath1, binaryPath2, mavenPath, mavenPath1, mavenPath2, gradlePath1, gradlePath2;
+
+    @Mock
+    File nonBinaryFile, binaryFile1, binaryFile2, mavenFile, mavenFile1, mavenFile2, gradleFile1, gradleFile2;
+
+    @Mock
+    URI nonBinaryURI, binaryURI1, binaryURI2, mavenURI, mavenURI1, mavenURI2, gradleURI1, gradleURI2;
+
+    @Mock
+    URL nonBinaryURL, binaryURL1, binaryURL2, mavenURL, mavenURL1, mavenURL2, gradleURL1, gradleURL2;
 
     @Mock
     FilePathGavExtractor extractor;
@@ -155,57 +167,39 @@ public class ProjectInformationServiceTest {
     }
 
     @Test
-    public void testGettingBinaryFilepathsWithoutDeviceIDs() throws CoreException {
+    public void testGettingBinaryFilepaths() throws CoreException, MalformedURLException {
         final ProjectInformationService service = new ProjectInformationService(depService, extractor);
         Mockito.when(nonBinaryRoot.getKind()).thenReturn(0);
-        Mockito.when(nonBinaryRoot.getPath()).thenReturn(nonBinaryPath);
-        Mockito.when(nonBinaryPath.getDevice()).thenReturn(null);
-        Mockito.when(nonBinaryPath.toOSString()).thenReturn("/non/binary");
+        Mockito.when(nonBinaryRoot.getPath()).thenReturn(new Path(""));
         Mockito.when(binaryRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(binaryRoot1.getPath()).thenReturn(binaryPath1);
-        Mockito.when(binaryPath1.getDevice()).thenReturn(null);
-        Mockito.when(binaryPath1.toOSString()).thenReturn("/binary/path/1");
-
+        Mockito.when(binaryRoot1.getPath()).thenReturn(new Path(""));
         final List<IPackageFragmentRoot> roots = Arrays.asList(nonBinaryRoot, binaryRoot1);
         final List<URL> binaryDependencies = service.getBinaryDependencyFilepaths(roots);
         assertEquals("Not gettting binary dependencies correctly", 1, binaryDependencies.size());
-        assertEquals("Not getting correct binary dependencies", Arrays.asList("/binary/path/1"), binaryDependencies);
-    }
-
-    @Test
-    public void testGettingBinaryFilepathsWithDeviceIDs() throws CoreException {
-        final ProjectInformationService service = new ProjectInformationService(depService, extractor);
-        Mockito.when(binaryRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(binaryRoot1.getPath()).thenReturn(binaryPath1);
-        Mockito.when(binaryPath1.getDevice()).thenReturn("fake/device/id/1");
-        Mockito.when(binaryPath1.toOSString()).thenReturn("fake/device/id/1/binary/path/1");
-        Mockito.when(binaryRoot2.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(binaryRoot2.getPath()).thenReturn(binaryPath2);
-        Mockito.when(binaryPath2.getDevice()).thenReturn("fake/device/id/2");
-        Mockito.when(binaryPath2.toOSString()).thenReturn("fake/device/id/2/binary/path/2");
-        final List<IPackageFragmentRoot> roots = Arrays.asList(binaryRoot1, binaryRoot2);
-        final List<URL> binaryDependencies = service.getBinaryDependencyFilepaths(roots);
-        assertEquals("Not gettting binary dependencies correctly", 2, binaryDependencies.size());
-        assertEquals("Not getting correct binary dependencies", Arrays.asList("/binary/path/1", "/binary/path/2"), binaryDependencies);
+        assertEquals("Not getting correct binary dependencies", Arrays.asList(binaryURL1), binaryDependencies);
     }
 
     private void prepareRootsAndPaths() throws CoreException, MalformedURLException {
         Mockito.when(mavenRoot1.getPath()).thenReturn(mavenPath1);
         Mockito.when(mavenRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(mavenPath1.getDevice()).thenReturn(null);
-        Mockito.when(mavenPath1.toFile().toURI().toURL()).thenReturn(MAVEN_1);
+        Mockito.when(mavenPath1.toFile()).thenReturn(mavenFile1);
+        Mockito.when(mavenFile1.toURI()).thenReturn(mavenURI1);
+        Mockito.when(mavenURI1.toURL()).thenReturn(MAVEN_1);
         Mockito.when(mavenRoot2.getPath()).thenReturn(mavenPath2);
         Mockito.when(mavenRoot2.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(mavenPath2.getDevice()).thenReturn(null);
-        Mockito.when(mavenPath2.toFile().toURI().toURL()).thenReturn(MAVEN_2);
+        Mockito.when(mavenPath2.toFile()).thenReturn(mavenFile2);
+        Mockito.when(mavenFile2.toURI()).thenReturn(mavenURI2);
+        Mockito.when(mavenURI2.toURL()).thenReturn(MAVEN_2);
         Mockito.when(gradleRoot1.getPath()).thenReturn(gradlePath1);
         Mockito.when(gradleRoot1.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(gradlePath1.getDevice()).thenReturn(null);
-        Mockito.when(gradlePath1.toFile().toURI().toURL()).thenReturn(GRADLE_1);
+        Mockito.when(gradlePath1.toFile()).thenReturn(gradleFile1);
+        Mockito.when(gradleFile1.toURI()).thenReturn(gradleURI1);
+        Mockito.when(gradleURI1.toURL()).thenReturn(GRADLE_1);
         Mockito.when(gradleRoot2.getPath()).thenReturn(gradlePath2);
         Mockito.when(gradleRoot2.getKind()).thenReturn(IPackageFragmentRoot.K_BINARY);
-        Mockito.when(gradlePath2.getDevice()).thenReturn(null);
-        Mockito.when(gradlePath2.toFile().toURI().toURL()).thenReturn(GRADLE_2);
+        Mockito.when(gradlePath2.toFile()).thenReturn(gradleFile2);
+        Mockito.when(gradleFile2.toURI()).thenReturn(gradleURI2);
+        Mockito.when(gradleURI2.toURL()).thenReturn(GRADLE_2);
     }
 
     private void prepareDependencyTypes() {

@@ -42,6 +42,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ClasspathVariables;
+import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(JavaCore.class)
@@ -58,7 +59,7 @@ public class DependencyInformationServiceTest {
 
     private URL[] NON_GRADLE_DEPENDENCIES_TO_TEST;
 
-    private final DependencyInformationService service = new DependencyInformationService();
+    private final DependencyInformationService service = new DependencyInformationService(Activator.getPlugin());
 
     @Test
     public void testIsMavenDependency() {
