@@ -24,7 +24,6 @@
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
@@ -37,6 +36,7 @@ import org.junit.runner.RunWith;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotPreferenceUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
@@ -49,24 +49,19 @@ public class BlackDuckHubPreferencesBotTest {
 
     public static SWTBotPreferenceUtils botPrefUtils;
 
+    public static SWTBotProjectCreationUtils botCreationUtils;
+
     @BeforeClass
     public static void setUpWorkspace() {
         bot = new SWTWorkbenchBot();
         botProjectUtils = new SWTBotProjectUtils(bot);
         botPrefUtils = new SWTBotPreferenceUtils(bot);
+        botCreationUtils = new SWTBotProjectCreationUtils(bot);
         try {
             bot.viewByTitle("Welcome").close();
         } catch (final RuntimeException e) {
         }
-        botProjectUtils.createJavaProject(TEST_JAVA_PROJECT);
-    }
-
-    @Test
-    public void testOpeningFromContextMenu() {
-        botPrefUtils.openBlackDuckPreferencesFromContextMenu(TEST_JAVA_PROJECT);
-        assertNotNull(bot.shell("Preferences (Filtered)"));
-        assertTrue(bot.shell("Preferences (Filtered)").isActive());
-        bot.shell("Preferences (Filtered)").close();
+        botCreationUtils.createJavaProject(TEST_JAVA_PROJECT);
     }
 
     @Test
@@ -81,7 +76,7 @@ public class BlackDuckHubPreferencesBotTest {
 
     @Test
     public void testContentsOfActiveJavaProjectsPage() {
-        botPrefUtils.openBlackDuckPreferencesFromContextMenu(TEST_JAVA_PROJECT);
+        botPrefUtils.openBlackDuckPreferencesFromContextMenu();
         final SWTBotTreeItem blackDuck = bot.activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
         bot.waitUntil(new DefaultCondition() {
 

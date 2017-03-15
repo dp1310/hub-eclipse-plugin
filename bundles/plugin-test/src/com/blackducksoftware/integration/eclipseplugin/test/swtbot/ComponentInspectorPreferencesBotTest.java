@@ -39,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotPreferenceUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
@@ -48,6 +49,8 @@ public class ComponentInspectorPreferencesBotTest {
     private static SWTBotPreferenceUtils botPrefUtils;
 
     private static SWTBotProjectUtils botProjectUtils;
+
+    private static SWTBotProjectCreationUtils botCreationUtils;
 
     private static final String TEST_JAVA_PROJECT_NAME = "pref-test-java-project";
 
@@ -62,13 +65,14 @@ public class ComponentInspectorPreferencesBotTest {
         bot = new SWTWorkbenchBot();
         botPrefUtils = new SWTBotPreferenceUtils(bot);
         botProjectUtils = new SWTBotProjectUtils(bot);
+        botCreationUtils = new SWTBotProjectCreationUtils(bot);
         try {
             bot.viewByTitle("Welcome").close();
         } catch (final RuntimeException e) {
         }
-        botProjectUtils.createJavaProject(TEST_JAVA_PROJECT_NAME);
-        botProjectUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
-        botProjectUtils.createMavenProject(TEST_MAVEN_PROJECT_GROUP_ID, TEST_MAVEN_PROJECT_ARTIFACT_ID);
+        botCreationUtils.createJavaProject(TEST_JAVA_PROJECT_NAME);
+        botCreationUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
+        botCreationUtils.createMavenProject(TEST_MAVEN_PROJECT_GROUP_ID, TEST_MAVEN_PROJECT_ARTIFACT_ID);
     }
 
     @Ignore

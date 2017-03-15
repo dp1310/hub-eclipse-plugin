@@ -21,27 +21,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
+package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions;
 
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 
-public class TreeItemIsExpandedCondition extends DefaultCondition {
+public class ButtonIsEnabledCondition extends DefaultCondition {
 
-	private final SWTBotTreeItem item;
+	private final SWTBotButton button;
 
-	public TreeItemIsExpandedCondition(final SWTBotTreeItem item) {
-		this.item = item;
+	public ButtonIsEnabledCondition(final SWTBotButton button) {
+		this.button = button;
 	}
 
 	@Override
 	public boolean test() throws Exception {
-		return item.isExpanded();
+		return button.isEnabled();
 	}
 
 	@Override
 	public String getFailureMessage() {
-		return "could not expand " + item.getText() + "node";
+		return "Could not enable " + button.getText() + " button";
 	}
 
 }

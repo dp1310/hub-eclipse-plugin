@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewIds;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewNames;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
@@ -45,6 +46,8 @@ public class ComponentViewBotTest {
     private static SWTWorkbenchBot bot;
 
     private static SWTBotProjectUtils botUtils;
+
+    private static SWTBotProjectCreationUtils creationUtils;
 
     private static final String TEST_JAVA_PROJECT_NAME = "warning-view-test-java-project";
 
@@ -54,12 +57,13 @@ public class ComponentViewBotTest {
     public static void setUpWorkspaceBot() {
         bot = new SWTWorkbenchBot();
         botUtils = new SWTBotProjectUtils(bot);
+        creationUtils = new SWTBotProjectCreationUtils(bot);
         try {
             bot.viewByTitle("Welcome").close();
         } catch (final RuntimeException e) {
         }
-        botUtils.createJavaProject(TEST_JAVA_PROJECT_NAME);
-        botUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
+        creationUtils.createJavaProject(TEST_JAVA_PROJECT_NAME);
+        creationUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
     }
 
     private void openVulnerabilityViewFromContextMenu(final String projectName) {
@@ -67,7 +71,7 @@ public class ComponentViewBotTest {
                 .getTreeItem(projectName);
         javaProjectNode.click();
         final SWTBotMenu blackDuckMenu = javaProjectNode.select().contextMenu(MenuLabels.BLACK_DUCK);
-        final SWTBotMenu warningViewMenu = blackDuckMenu.contextMenu(MenuLabels.VULNERABILITY_VIEW);
+        final SWTBotMenu warningViewMenu = blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR);
         warningViewMenu.click();
     }
 
