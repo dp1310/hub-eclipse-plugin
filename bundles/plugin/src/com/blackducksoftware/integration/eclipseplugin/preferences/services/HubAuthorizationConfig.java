@@ -51,8 +51,6 @@ public class HubAuthorizationConfig {
 
     private StringFieldEditor proxyPortField;
 
-    private StringFieldEditor ignoredProxyHostsField;
-
     public final String HUB_USERNAME_LABEL = "Username";
 
     public final String HUB_PASSWORD_LABEL = "Password";
@@ -68,8 +66,6 @@ public class HubAuthorizationConfig {
     public final String PROXY_HOST_LABEL = "Proxy Host";
 
     public final String PROXY_PORT_LABEL = "Proxy Port";
-
-    public final String IGNORED_PROXY_HOSTS_LABEL = "Ignored Proxy Hosts";
 
     public HubAuthorizationConfig() {
         this.validator = (new AuthorizationValidator(new HubRestConnectionService(), new HubServerConfigBuilder()));
@@ -139,23 +135,15 @@ public class HubAuthorizationConfig {
         this.proxyPortField = proxyPortField;
     }
 
-    public StringFieldEditor getIgnoredProxyHostsField() {
-        return ignoredProxyHostsField;
-    }
-
-    public void setIgnoredProxyHostsField(StringFieldEditor ignoredProxyHostsField) {
-        this.ignoredProxyHostsField = ignoredProxyHostsField;
-    }
-
     public StringFieldEditor[] getEditors() {
         return new StringFieldEditor[] { hubUsernameField, hubURLField, hubTimeoutField, proxyUsernameField,
-                proxyHostField, proxyPortField, ignoredProxyHostsField };
+                proxyHostField, proxyPortField };
     }
 
     public AuthorizationResponse validateCredentialFields() {
         return validator.validateCredentials(hubUsernameField.getStringValue(), hubPasswordField.getText(), hubURLField.getStringValue(),
                 proxyUsernameField.getStringValue(), proxyPasswordField.getText(), proxyPortField.getStringValue(), proxyHostField.getStringValue(),
-                ignoredProxyHostsField.getStringValue(), hubTimeoutField.getStringValue());
+                hubTimeoutField.getStringValue());
     }
 
 }

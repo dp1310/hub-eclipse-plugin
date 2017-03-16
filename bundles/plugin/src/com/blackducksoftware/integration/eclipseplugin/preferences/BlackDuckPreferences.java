@@ -93,19 +93,17 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
                 createPasswordField(parent, authComposite, hubAuthorizationConfig.PROXY_PASSWORD_LABEL, SecurePreferenceNames.PROXY_PASSWORD));
         hubAuthorizationConfig.setProxyHostField(createStringField(PreferenceNames.PROXY_HOST, hubAuthorizationConfig.PROXY_HOST_LABEL, authComposite, false));
         hubAuthorizationConfig.setProxyPortField(createStringField(PreferenceNames.PROXY_PORT, hubAuthorizationConfig.PROXY_PORT_LABEL, authComposite, true));
-        hubAuthorizationConfig.setIgnoredProxyHostsField(
-                createStringField(PreferenceNames.IGNORED_PROXY_HOSTS, hubAuthorizationConfig.IGNORED_PROXY_HOSTS_LABEL, authComposite, false));
         Composite connectionMessageComposite = new Composite(parent, SWT.LEFT);
         GridLayout connectionMessageCompositeLayout = new GridLayout();
         connectionMessageCompositeLayout.numColumns = 1;
         connectionMessageComposite.setLayout(connectionMessageCompositeLayout);
-        connectionMessageComposite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_BEGINNING));
-        GridData textData = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
+        connectionMessageComposite
+                .setLayoutData(new GridData(GridData.FILL_BOTH | GridData.BEGINNING));
+        GridData textData = new GridData(GridData.FILL_BOTH);
         connectionMessageText = new Text(connectionMessageComposite, SWT.READ_ONLY | SWT.MULTI | SWT.WRAP);
         connectionMessageText
                 .setBackground(connectionMessageText.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         connectionMessageText.setLayoutData(textData);
-        connectionMessageText.setText("\n");
         return parent;
     }
 

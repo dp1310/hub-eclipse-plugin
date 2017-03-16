@@ -23,21 +23,38 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.internal;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class AuthorizationResponse {
-
     private RestConnection connection;
 
     private String responseMessage;
 
+    private final Set<Object> invalidFields;
+
     public AuthorizationResponse(RestConnection connection, String responseMessage) {
+        this.invalidFields = new HashSet<>();
         this.connection = connection;
         this.responseMessage = responseMessage;
     }
 
     public AuthorizationResponse(String responseMessage) {
         this(null, responseMessage);
+    }
+
+    public AuthorizationResponse(ValidationResults responseResults) {
+        this.invalidFields = new HashSet<>();
+        this.connection = null;
+        this.responseMessage = parseResponseMessageFromValidationResults(responseResults);
     }
 
     public RestConnection getConnection() {
@@ -48,4 +65,26 @@ public class AuthorizationResponse {
         return responseMessage;
     }
 
+    public Set<Object> getInvalidFields() {
+        return invalidFields;
+    }
+
+    private String parseResponseMessageFromValidationResults(ValidationResults responseResults) {
+        final StringBuilder errBuilder = new StringBuilder();
+        final Set<String> results = new LinkedHashSet<>();
+        Map<Object, Set<String>> responseMap = responseResults.getResultMap();
+        for (final Entry<Object, Set<String>> result : responseMap.entrySet()) {
+            final String fieldResults = StringUtils.join(result.getValue(), ", ");
+            results.add(fieldResults);
+            invalidFields.add(result.getKey());
+        }
+        for (final String result : results) {
+            errBuilder.append(result);
+            errBuilder.append(System.lineSeparator());
+        }
+        String responseString = errBuilder.toString();
+        responseString = responseString.replaceAll("ERROR,", "");
+        responseString = responseString.substring(0, responseString.lastIndexOf(System.lineSeparator()));
+        return responseString;
+    }
 }

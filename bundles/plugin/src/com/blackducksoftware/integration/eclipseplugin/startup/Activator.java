@@ -150,13 +150,11 @@ public class Activator extends AbstractUIPlugin {
         final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
         final String proxyPort = prefs.getString(PreferenceNames.PROXY_PORT);
         final String proxyHost = prefs.getString(PreferenceNames.PROXY_HOST);
-        final String ignoredProxyHosts = prefs.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
         final HubServerConfigBuilder builder = new HubServerConfigBuilder();
         final HubRestConnectionService connectionService = new HubRestConnectionService();
         final AuthorizationValidator validator = new AuthorizationValidator(connectionService, builder);
         final AuthorizationResponse response = validator.validateCredentials(hubUsername, hubPassword, hubURL, proxyUsername, proxyPassword, proxyPort,
-                proxyHost,
-                ignoredProxyHosts, hubTimeout);
+                proxyHost, hubTimeout);
         if (response.getConnection() != null) {
             return response.getConnection();
         } else {

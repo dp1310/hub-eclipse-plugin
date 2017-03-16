@@ -119,11 +119,10 @@ public class ProjectDependencyInformation {
         final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
         final String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
         final String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
-        final String ignoredProxyHosts = prefStore.getString(PreferenceNames.IGNORED_PROXY_HOSTS);
         final String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
         authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
                 proxyUsername, proxyPassword, proxyPort,
-                proxyHost, ignoredProxyHosts, timeout);
+                proxyHost, timeout);
         HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
         phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion,
                 pluginVersion, hubVersion);

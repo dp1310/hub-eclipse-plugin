@@ -45,10 +45,9 @@ public class AuthorizationValidator {
     }
 
     public AuthorizationResponse validateCredentials(final String username, final String password, final String hubUrl,
-            final String proxyUsername, final String proxyPassword, final String proxyPort, final String proxyHost,
-            final String ignoredProxyHosts, final String timeout) {
+            final String proxyUsername, final String proxyPassword, final String proxyPort, final String proxyHost, final String timeout) {
         setHubServerConfigBuilderFields(username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
-                proxyHost, ignoredProxyHosts, timeout);
+                proxyHost, timeout);
 
         final ValidationResults results = builder.createValidator().assertValid();
         if (results.isSuccess()) {
@@ -63,8 +62,7 @@ public class AuthorizationValidator {
                 return new AuthorizationResponse(e.getMessage());
             }
         }
-
-        return new AuthorizationResponse(results.getAllResultString());
+        return new AuthorizationResponse(results);
     }
 
     public HubServerConfigBuilder getHubServerConfigBuilder() {
@@ -73,7 +71,7 @@ public class AuthorizationValidator {
 
     public void setHubServerConfigBuilderFields(final String username,
             final String password, final String hubUrl, final String proxyUsername, final String proxyPassword,
-            final String proxyPort, final String proxyHost, final String ignoredProxyHosts, final String timeout) {
+            final String proxyPort, final String proxyHost, final String timeout) {
         builder.setUsername(username);
         builder.setPassword(password);
         builder.setHubUrl(hubUrl);
@@ -82,6 +80,5 @@ public class AuthorizationValidator {
         builder.setProxyPassword(proxyPassword);
         builder.setProxyHost(proxyHost);
         builder.setProxyPort(proxyPort);
-        builder.setIgnoredProxyHosts(ignoredProxyHosts);
     }
 }
