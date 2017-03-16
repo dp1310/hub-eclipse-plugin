@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
@@ -38,19 +37,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotPreferenceUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentInspectorPreferencesBotTest {
-    private static SWTWorkbenchBot bot;
-
-    private static SWTBotPreferenceUtils botPrefUtils;
-
-    private static SWTBotProjectUtils botProjectUtils;
-
-    private static SWTBotProjectCreationUtils botCreationUtils;
+    private static BlackDuckBotUtils botUtils;
 
     private static final String TEST_JAVA_PROJECT_NAME = "pref-test-java-project";
 
@@ -62,23 +53,17 @@ public class ComponentInspectorPreferencesBotTest {
 
     @BeforeClass
     public static void setUpWorkspace() {
-        bot = new SWTWorkbenchBot();
-        botPrefUtils = new SWTBotPreferenceUtils(bot);
-        botProjectUtils = new SWTBotProjectUtils(bot);
-        botCreationUtils = new SWTBotProjectCreationUtils(bot);
-        try {
-            bot.viewByTitle("Welcome").close();
-        } catch (final RuntimeException e) {
-        }
-        botCreationUtils.createJavaProject(TEST_JAVA_PROJECT_NAME);
-        botCreationUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
-        botCreationUtils.createMavenProject(TEST_MAVEN_PROJECT_GROUP_ID, TEST_MAVEN_PROJECT_ARTIFACT_ID);
+        botUtils = new BlackDuckBotUtils();
+        botUtils.closeWelcomeView();
+        botUtils.workbench().createProject().createJavaProject(TEST_JAVA_PROJECT_NAME);
+        botUtils.workbench().createProject().createGeneralProject(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.workbench().createProject().createMavenProject(TEST_MAVEN_PROJECT_GROUP_ID, TEST_MAVEN_PROJECT_ARTIFACT_ID);
     }
 
     @Ignore
     public void testThatAllJavaProjectsShow() {
-        botPrefUtils.getActiveJavaProjectsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
+        botUtils.preferences().getActiveJavaProjectsPage();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
         assertNotNull(pageBot.checkBox(TEST_JAVA_PROJECT_NAME));
         assertNotNull(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID));
         try {
@@ -86,42 +71,42 @@ public class ComponentInspectorPreferencesBotTest {
             fail();
         } catch (final WidgetNotFoundException e) {
         }
-        bot.shell("Preferences").close();
+        botUtils.bot().shell("Preferences").close();
     }
 
     // TODO: Fix broken test
     @Ignore
     public void testAnalyzeByDefault() {
-        botPrefUtils.setPrefsToActivateScanByDefault();
-        botPrefUtils.getActiveJavaProjectsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
+        botUtils.preferences().setPrefsToActivateScanByDefault();
+        botUtils.preferences().getActiveJavaProjectsPage();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
         pageBot.button("Restore Defaults").click();
         assertTrue(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
         assertTrue(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID).isChecked());
-        bot.shell("Preferences").close();
+        botUtils.bot().shell("Preferences").close();
     }
 
     // TODO: Fix broken test
     @Ignore
     public void testDoNotAnalyzeByDefault() {
-        botPrefUtils.setPrefsToNotActivateScanByDefault();
-        botPrefUtils.getActiveJavaProjectsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
+        botUtils.preferences().setPrefsToNotActivateScanByDefault();
+        botUtils.preferences().getActiveJavaProjectsPage();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
         pageBot.button("Restore Defaults").click();
         assertFalse(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
         assertFalse(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID).isChecked());
-        bot.shell("Preferences").close();
+        botUtils.bot().shell("Preferences").close();
     }
 
     @Test
     public void testThatBlackDuckDefaultWorks() {
-        botPrefUtils.restoreAllBlackDuckDefaults();
-        botPrefUtils.getActiveJavaProjectsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
+        botUtils.preferences().restoreAllBlackDuckDefaults();
+        botUtils.preferences().getActiveJavaProjectsPage();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
         pageBot.button("Restore Defaults").click();
         assertTrue(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
         assertTrue(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID).isChecked());
-        bot.shell("Preferences").close();
+        botUtils.bot().shell("Preferences").close();
     }
 
     // @Test
@@ -157,10 +142,10 @@ public class ComponentInspectorPreferencesBotTest {
 
     @AfterClass
     public static void tearDownWorkspace() {
-        botProjectUtils.deleteProjectFromDisk(TEST_JAVA_PROJECT_NAME);
-        botProjectUtils.deleteProjectFromDisk(TEST_MAVEN_PROJECT_ARTIFACT_ID);
-        botProjectUtils.deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
-        bot.resetWorkbench();
+        botUtils.workbench().deleteProjectFromDisk(TEST_JAVA_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TEST_MAVEN_PROJECT_ARTIFACT_ID);
+        botUtils.workbench().deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.bot().resetWorkbench();
     }
 
 }

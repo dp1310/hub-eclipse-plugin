@@ -23,8 +23,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
-import java.util.Arrays;
-
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
@@ -36,7 +34,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
 
-public class SWTBotProjectUtils extends SWTBotCommonUtils {
+public class WorkbenchBotUtils extends AbstractBotUtils {
     public static final String PACKAGE_EXPLORER_VIEW = "Package Explorer";
 
     public static final String PROJECT_EXPLORER_VIEW = "Project Explorer";
@@ -57,8 +55,15 @@ public class SWTBotProjectUtils extends SWTBotCommonUtils {
 
     public static final String VIEW_TYPE_GENERAL = "General";
 
-    public SWTBotProjectUtils(SWTWorkbenchBot bot) {
-        super(bot);
+    private final ProjectCreationBotUtils projectCreationBotUtils;
+
+    public WorkbenchBotUtils(final BlackDuckBotUtils botUtils) {
+        super(botUtils);
+        projectCreationBotUtils = new ProjectCreationBotUtils(botUtils);
+    }
+
+    public ProjectCreationBotUtils createProject() {
+        return projectCreationBotUtils;
     }
 
     public SWTBot getPackageExplorerView() {
@@ -74,17 +79,6 @@ public class SWTBotProjectUtils extends SWTBotCommonUtils {
     public SWTBot getProjectsView() {
         final SWTBotView view = bot.viewByTitle(PROJECTS_VIEW);
         return view.bot();
-    }
-
-    public SWTBot getSupportedProjectView() {
-        for (final String viewTitle : Arrays.asList(PACKAGE_EXPLORER_VIEW, PROJECT_EXPLORER_VIEW)) {
-            try {
-                final SWTBotView view = bot.viewByTitle(viewTitle);
-                return view.bot();
-            } catch (WidgetNotFoundException e) {
-            }
-        }
-        throw new WidgetNotFoundException("Niether " + PACKAGE_EXPLORER_VIEW + " nor " + PROJECT_EXPLORER_VIEW + " was found");
     }
 
     public void openPackageExplorerView() {
@@ -166,7 +160,7 @@ public class SWTBotProjectUtils extends SWTBotCommonUtils {
     }
 
     private SWTBotTreeItem getProjectNodeByName(final String projectName) {
-        final SWTBot viewBot = this.getSupportedProjectView();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         return tree.getTreeItem(projectName);
     }

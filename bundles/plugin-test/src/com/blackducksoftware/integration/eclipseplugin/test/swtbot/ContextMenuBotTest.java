@@ -27,11 +27,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotRootMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -43,22 +41,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotComponentInspectorUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotPreferenceUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.PreferenceBotUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ContextMenuBotTest {
-    public static SWTWorkbenchBot bot;
-
-    public static SWTBotProjectUtils botProjectUtils;
-
-    public static SWTBotProjectCreationUtils botCreationUtils;
-
-    public static SWTBotComponentInspectorUtils botComponentInspectorUtils;
-
-    public static SWTBotPreferenceUtils botPreferenceUtils;
+    public static BlackDuckBotUtils botUtils;
 
     private static final String TEST_MAVEN_GROUP = "com.blackducksoftware.eclipseplugin.test";
 
@@ -70,31 +58,24 @@ public class ContextMenuBotTest {
 
     @BeforeClass
     public static void setUpWorkspaceBot() {
-        bot = new SWTWorkbenchBot();
-        botProjectUtils = new SWTBotProjectUtils(bot);
-        botCreationUtils = new SWTBotProjectCreationUtils(bot);
-        botComponentInspectorUtils = new SWTBotComponentInspectorUtils(bot);
-        botPreferenceUtils = new SWTBotPreferenceUtils(bot);
-        try {
-            bot.viewByTitle("Welcome").close();
-        } catch (final RuntimeException e) {
-        }
-        botCreationUtils.createMavenProject(TEST_MAVEN_GROUP, TEST_MAVEN_ARTIFACT);
-        botCreationUtils.createGradleProject(TEST_GRADLE_PROJECT_NAME);
-        botCreationUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
-        botProjectUtils.openProjectsView();
-        botProjectUtils.openPackageExplorerView();
-        botProjectUtils.openProjectExplorerview();
+        botUtils = new BlackDuckBotUtils();
+        botUtils.closeWelcomeView();
+        botUtils.workbench().createProject().createMavenProject(TEST_MAVEN_GROUP, TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().createProject().createGradleProject(TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().createProject().createGeneralProject(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.workbench().openProjectsView();
+        botUtils.workbench().openPackageExplorerView();
+        botUtils.workbench().openProjectExplorerview();
     }
 
     @Before
     public void resetTimeout() {
-        SWTBotPreferences.TIMEOUT = 5000;
+        botUtils.setSWTBotTimeoutDefault();
     }
 
     @Test
     public void testContextMenuLabelsForMavenProject() {
-        final SWTBot viewBot = botProjectUtils.getSupportedProjectView();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TEST_MAVEN_ARTIFACT);
         node.setFocus();
@@ -106,7 +87,7 @@ public class ContextMenuBotTest {
 
     @Test
     public void testContextMenuLabelsForGradleProject() {
-        final SWTBot viewBot = botProjectUtils.getSupportedProjectView();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TEST_GRADLE_PROJECT_NAME);
         node.setFocus();
@@ -118,8 +99,8 @@ public class ContextMenuBotTest {
 
     @Test
     public void testContextMenuLabelsForUnspportedProject() {
-        SWTBotPreferences.TIMEOUT = 500;
-        final SWTBot viewBot = botProjectUtils.getSupportedProjectView();
+        botUtils.setSWTBotTimeoutShort();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TEST_NON_JAVA_PROJECT_NAME);
         node.setFocus();
@@ -134,8 +115,8 @@ public class ContextMenuBotTest {
 
     @Test
     public void testVisibleInPackagExplorerView() {
-        SWTBotPreferences.TIMEOUT = 500;
-        final SWTBot viewBot = botProjectUtils.getPackageExplorerView();
+        botUtils.setSWTBotTimeoutShort();
+        final SWTBot viewBot = botUtils.workbench().getPackageExplorerView();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
@@ -144,7 +125,7 @@ public class ContextMenuBotTest {
 
     @Test
     public void testVisibleInProjectExplorerView() {
-        final SWTBot viewBot = botProjectUtils.getProjectExplorerView();
+        final SWTBot viewBot = botUtils.workbench().getProjectExplorerView();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
@@ -153,8 +134,8 @@ public class ContextMenuBotTest {
 
     @Test
     public void testNotVisibleInNonProjectNonPackageView() {
-        SWTBotPreferences.TIMEOUT = 500;
-        final SWTBot viewBot = botProjectUtils.getProjectsView();
+        botUtils.setSWTBotTimeoutShort();
+        final SWTBot viewBot = botUtils.workbench().getProjectsView();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
@@ -167,7 +148,7 @@ public class ContextMenuBotTest {
     // TODO: Update test once we have the utils to put in valid creds
     @Test
     public void testManualInspection() {
-        final SWTBot viewBot = botProjectUtils.getSupportedProjectView();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TEST_MAVEN_ARTIFACT);
         node.setFocus();
@@ -175,36 +156,36 @@ public class ContextMenuBotTest {
         final SWTBotMenu blackDuckMenu = rootMenu.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu inspectProject = blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT);
         inspectProject.click();
-        assertNotNull(botComponentInspectorUtils.getComponentInspectorView());
-        assertNotNull(botComponentInspectorUtils.getInspectionStatusCompleteOrInProgress());
+        assertNotNull(botUtils.componentInspector().getComponentInspectorView());
+        assertNotNull(botUtils.componentInspector().getInspectionStatusCompleteOrInProgress());
     }
 
     @Test
     public void testOpenComponentView() {
-        final SWTBot viewBot = botProjectUtils.getSupportedProjectView();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
         final SWTBotMenu blackDuckMenu = rootMenu.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu openComponentInspector = blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR);
         openComponentInspector.click();
-        assertNotNull(botComponentInspectorUtils.getComponentInspectorView());
+        assertNotNull(botUtils.componentInspector().getComponentInspectorView());
     }
 
     @Test
     public void testOpenBlackDuckHubPreferences() {
-        botPreferenceUtils.openBlackDuckPreferencesFromContextMenu();
-        assertNotNull(bot.shell(SWTBotPreferenceUtils.PREFERENCES_WINDOW_TITLE));
-        assertTrue(bot.shell(SWTBotPreferenceUtils.PREFERENCES_WINDOW_TITLE).isActive());
-        bot.shell(SWTBotPreferenceUtils.PREFERENCES_WINDOW_TITLE).close();
+        botUtils.preferences().openBlackDuckPreferencesFromContextMenu();
+        assertNotNull(botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_WINDOW_TITLE));
+        assertTrue(botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_WINDOW_TITLE).isActive());
+        botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_WINDOW_TITLE).close();
     }
 
     @AfterClass
     public static void tearDownWorkspace() {
-        botProjectUtils.deleteProjectFromDisk(TEST_MAVEN_ARTIFACT);
-        botProjectUtils.deleteProjectFromDisk(TEST_GRADLE_PROJECT_NAME);
-        botProjectUtils.deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
-        bot.resetWorkbench();
+        botUtils.workbench().deleteProjectFromDisk(TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().deleteProjectFromDisk(TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.bot().resetWorkbench();
     }
 
 }

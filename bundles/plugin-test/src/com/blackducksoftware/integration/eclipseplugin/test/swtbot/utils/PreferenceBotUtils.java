@@ -27,7 +27,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -45,23 +44,22 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.Preferen
 import com.blackducksoftware.integration.eclipseplugin.preferences.PreferenceDefaults;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
 
-public class SWTBotPreferenceUtils extends SWTBotCommonUtils {
+public class PreferenceBotUtils extends AbstractBotUtils {
     public static final String PREFERENCES_WINDOW_TITLE = "Preferences (Filtered)";
 
-    public SWTBotPreferenceUtils(final SWTWorkbenchBot bot) {
-        super(bot);
+    public PreferenceBotUtils(final BlackDuckBotUtils botUtils) {
+        super(botUtils);
     }
 
     public void openBlackDuckPreferencesFromContextMenu() {
-        final SWTBotProjectUtils projUtils = new SWTBotProjectUtils(bot);
-        final SWTBot viewBot = projUtils.getSupportedProjectView();
+        final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
         final SWTBotMenu blackDuckMenu = rootMenu.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu openHubSettings = blackDuckMenu.contextMenu(MenuLabels.HUB_SETTINGS);
         openHubSettings.click();
-        bot.waitUntil(Conditions.shellIsActive("Preferences (Filtered)"));
+        bot.waitUntil(Conditions.shellIsActive(PREFERENCES_WINDOW_TITLE));
     }
 
     public void openBlackDuckPreferencesFromEclipseMenu() {

@@ -25,7 +25,6 @@ package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -35,50 +34,36 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotPreferenceUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class BlackDuckHubPreferencesBotTest {
     private static final String TEST_JAVA_PROJECT = "testJavaProject";
 
-    public static SWTWorkbenchBot bot;
-
-    public static SWTBotProjectUtils botProjectUtils;
-
-    public static SWTBotPreferenceUtils botPrefUtils;
-
-    public static SWTBotProjectCreationUtils botCreationUtils;
+    public static BlackDuckBotUtils botUtils;
 
     @BeforeClass
     public static void setUpWorkspace() {
-        bot = new SWTWorkbenchBot();
-        botProjectUtils = new SWTBotProjectUtils(bot);
-        botPrefUtils = new SWTBotPreferenceUtils(bot);
-        botCreationUtils = new SWTBotProjectCreationUtils(bot);
-        try {
-            bot.viewByTitle("Welcome").close();
-        } catch (final RuntimeException e) {
-        }
-        botCreationUtils.createJavaProject(TEST_JAVA_PROJECT);
+        botUtils = new BlackDuckBotUtils();
+        botUtils.closeWelcomeView();
+        botUtils.workbench().createProject().createJavaProject(TEST_JAVA_PROJECT);
     }
 
     @Test
     public void testOpeningFromEclipseMenu() {
-        botPrefUtils.openBlackDuckPreferencesFromEclipseMenu();
-        final SWTBotTreeItem blackDuck = bot.activeShell().bot().tree().getTreeItem(PreferencePageNames.BLACK_DUCK);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        final SWTBotTreeItem blackDuck = botUtils.bot().activeShell().bot().tree().getTreeItem(PreferencePageNames.BLACK_DUCK);
         assertNotNull(blackDuck);
-        bot.activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
+        botUtils.bot().activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
         assertNotNull(blackDuck.getNode(PreferencePageNames.ACTIVE_JAVA_PROJECTS));
         assertNotNull(blackDuck.getNode(PreferencePageNames.BLACK_DUCK_DEFAULTS));
     }
 
     @Test
     public void testContentsOfActiveJavaProjectsPage() {
-        botPrefUtils.openBlackDuckPreferencesFromContextMenu();
-        final SWTBotTreeItem blackDuck = bot.activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
-        bot.waitUntil(new DefaultCondition() {
+        botUtils.preferences().openBlackDuckPreferencesFromContextMenu();
+        final SWTBotTreeItem blackDuck = botUtils.bot().activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
+        botUtils.bot().waitUntil(new DefaultCondition() {
 
             @Override
             public boolean test() throws Exception {
@@ -150,7 +135,7 @@ public class BlackDuckHubPreferencesBotTest {
 
     @AfterClass
     public static void tearDownWorkspace() {
-        botProjectUtils.deleteProjectFromDisk(TEST_JAVA_PROJECT);
-        bot.resetWorkbench();
+        botUtils.workbench().deleteProjectFromDisk(TEST_JAVA_PROJECT);
+        botUtils.bot().resetWorkbench();
     }
 }

@@ -26,10 +26,11 @@ package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 import static org.junit.Assert.assertNotNull;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,16 +39,11 @@ import org.junit.runner.RunWith;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewIds;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewNames;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectCreationUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.SWTBotProjectUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentViewBotTest {
-    private static SWTWorkbenchBot bot;
-
-    private static SWTBotProjectUtils botUtils;
-
-    private static SWTBotProjectCreationUtils creationUtils;
+    private static BlackDuckBotUtils botUtils;
 
     private static final String TEST_JAVA_PROJECT_NAME = "warning-view-test-java-project";
 
@@ -55,27 +51,23 @@ public class ComponentViewBotTest {
 
     @BeforeClass
     public static void setUpWorkspaceBot() {
-        bot = new SWTWorkbenchBot();
-        botUtils = new SWTBotProjectUtils(bot);
-        creationUtils = new SWTBotProjectCreationUtils(bot);
-        try {
-            bot.viewByTitle("Welcome").close();
-        } catch (final RuntimeException e) {
-        }
-        creationUtils.createJavaProject(TEST_JAVA_PROJECT_NAME);
-        creationUtils.createNonJavaProject(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils = new BlackDuckBotUtils();
+        botUtils.closeWelcomeView();
+        botUtils.workbench().createProject().createJavaProject(TEST_JAVA_PROJECT_NAME);
+        botUtils.workbench().createProject().createGeneralProject(TEST_NON_JAVA_PROJECT_NAME);
     }
 
     private void openVulnerabilityViewFromContextMenu(final String projectName) {
-        final SWTBotTreeItem javaProjectNode = bot.viewByTitle("Package Explorer").bot().tree()
-                .getTreeItem(projectName);
-        javaProjectNode.click();
-        final SWTBotMenu blackDuckMenu = javaProjectNode.select().contextMenu(MenuLabels.BLACK_DUCK);
+        final SWTBot viewBot = botUtils.workbench().getPackageExplorerView();
+        final SWTBotTree tree = viewBot.tree();
+        tree.setFocus();
+        final SWTBotMenu blackDuckMenu = tree.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu warningViewMenu = blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR);
         warningViewMenu.click();
     }
 
     private void openVulnerabilityViewFromWindowMenu() {
+        final SWTWorkbenchBot bot = botUtils.bot();
         bot.menu("Window").menu("Show View").menu("Other...").click();
         bot.shell("Show View").activate();
         bot.tree().expandNode(ViewNames.BLACK_DUCK).expandNode(ViewNames.VULNERABILITIES).click();
@@ -95,6 +87,7 @@ public class ComponentViewBotTest {
 
     @Test
     public void testThatWarningViewOpensFromContextMenu() {
+        final SWTWorkbenchBot bot = botUtils.bot();
         openVulnerabilityViewFromContextMenu(TEST_JAVA_PROJECT_NAME);
         assertNotNull(bot.viewByTitle(ViewNames.VULNERABILITIES));
         assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
@@ -103,6 +96,7 @@ public class ComponentViewBotTest {
 
     @Test
     public void testThatVulnerabilityViewOpensFromWindowMenu() {
+        final SWTWorkbenchBot bot = botUtils.bot();
         openVulnerabilityViewFromWindowMenu();
         assertNotNull(bot.viewByTitle(ViewNames.VULNERABILITIES));
         assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
@@ -142,9 +136,9 @@ public class ComponentViewBotTest {
 
     @AfterClass
     public static void tearDownWorkspaceBot() {
-        botUtils.deleteProjectFromDisk(TEST_JAVA_PROJECT_NAME);
-        botUtils.deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
-        bot.resetWorkbench();
+        botUtils.workbench().deleteProjectFromDisk(TEST_JAVA_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.bot().resetWorkbench();
     }
 
 }

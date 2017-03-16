@@ -17,11 +17,14 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.ButtonIsEnabledCondition;
 
-public class SWTBotCommonUtils {
+public abstract class AbstractBotUtils {
     protected final SWTWorkbenchBot bot;
 
-    public SWTBotCommonUtils(final SWTWorkbenchBot bot) {
-        this.bot = bot;
+    protected final BlackDuckBotUtils botUtils;
+
+    public AbstractBotUtils(final BlackDuckBotUtils botUtils) {
+        this.bot = new SWTWorkbenchBot();
+        this.botUtils = botUtils;
     }
 
     protected SWTBotButton pressButton(final String buttonTitle) {
@@ -30,11 +33,11 @@ public class SWTBotCommonUtils {
         return target.click();
     }
 
-    protected void setSWTBotTimeoutShort() {
+    public void setSWTBotTimeoutShort() {
         SWTBotPreferences.TIMEOUT = 500;
     }
 
-    protected void setSWTBotTimeoutDefault() {
+    public void setSWTBotTimeoutDefault() {
         SWTBotPreferences.TIMEOUT = 5000;
     }
 

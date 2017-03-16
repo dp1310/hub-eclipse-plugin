@@ -11,7 +11,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
@@ -21,7 +20,7 @@ import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
 
-public class SWTBotProjectCreationUtils extends SWTBotCommonUtils {
+public class ProjectCreationBotUtils extends AbstractBotUtils {
     public static final String MENU_FILE = "File";
 
     public static final String MENU_FILE_NEW = "New";
@@ -58,8 +57,8 @@ public class SWTBotProjectCreationUtils extends SWTBotCommonUtils {
 
     public static final String GENERAL_PROJECT = "Project";
 
-    public SWTBotProjectCreationUtils(SWTWorkbenchBot bot) {
-        super(bot);
+    public ProjectCreationBotUtils(final BlackDuckBotUtils botUtils) {
+        super(botUtils);
     }
 
     public void createJavaProject(final String projectName) {
@@ -89,7 +88,7 @@ public class SWTBotProjectCreationUtils extends SWTBotCommonUtils {
         this.finishAndOpenAssociatedPerspectiveIfNotOpen();
     }
 
-    public void createNonJavaProject(final String projectName) {
+    public void createGeneralProject(final String projectName) {
         this.openNewProjectWindow();
         final SWTBotTree optionTree = bot.tree();
         final SWTBotTreeItem generalNode = optionTree.expandNode(PROJECT_TYPE_GENERAL);

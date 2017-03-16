@@ -13,7 +13,6 @@ package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
 import java.util.Arrays;
 
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -21,12 +20,12 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
 
-public class SWTBotComponentInspectorUtils extends SWTBotCommonUtils {
-    public static final String COMPONENT_INSPECTOR_NAME = "Component Inspector";
-
-    public SWTBotComponentInspectorUtils(final SWTWorkbenchBot bot) {
-        super(bot);
+public class ComponentInspectorBotUtils extends AbstractBotUtils {
+    public ComponentInspectorBotUtils(final BlackDuckBotUtils parent) {
+        super(parent);
     }
+
+    public static final String COMPONENT_INSPECTOR_NAME = "Component Inspector";
 
     public SWTBot getComponentInspectorView() {
         final SWTBotView view = bot.viewByTitle(COMPONENT_INSPECTOR_NAME);
