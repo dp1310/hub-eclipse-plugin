@@ -23,11 +23,14 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences.listeners;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 
 import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationResponse;
+import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationValidator;
 import com.blackducksoftware.integration.eclipseplugin.preferences.services.HubAuthorizationConfig;
 
 public class TestHubCredentialsSelectionListener implements SelectionListener {
@@ -36,7 +39,7 @@ public class TestHubCredentialsSelectionListener implements SelectionListener {
 
     private final Text connectionMessageText;
 
-    public TestHubCredentialsSelectionListener(HubAuthorizationConfig hubAuthorizationConfig, final Text connectionMessageText) {
+    public TestHubCredentialsSelectionListener(final HubAuthorizationConfig hubAuthorizationConfig, final Text connectionMessageText) {
         this.hubAuthorizationConfig = hubAuthorizationConfig;
         this.connectionMessageText = connectionMessageText;
     }
@@ -50,7 +53,14 @@ public class TestHubCredentialsSelectionListener implements SelectionListener {
     @Override
     public void widgetSelected(final SelectionEvent arg0) {
         final String message = attemptToConnect();
-        connectionMessageText.setText(message);
+        Display display = Display.getCurrent();
+        if (message.equals(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE)) {
+            connectionMessageText.setText(message);
+            connectionMessageText.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
+        } else {
+            connectionMessageText.setText(message);
+            connectionMessageText.setForeground(display.getSystemColor(SWT.COLOR_RED));
+        }
     }
 
     private String attemptToConnect() {
