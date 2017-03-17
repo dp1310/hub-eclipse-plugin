@@ -34,8 +34,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotRootMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,32 +43,25 @@ import org.junit.runner.RunWith;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.PreferenceBotUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestConstants;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ContextMenuBotTest {
     public static BlackDuckBotUtils botUtils;
 
-    private static final String TEST_MAVEN_GROUP = "com.blackducksoftware.eclipseplugin.test";
-
-    private static final String TEST_MAVEN_ARTIFACT = "maven-project";
-
-    private static final String TEST_GRADLE_PROJECT_NAME = "gradle-project";
-
-    private static final String TEST_NON_JAVA_PROJECT_NAME = "non-java-project";
-
     @BeforeClass
     public static void setUpWorkspaceBot() {
         botUtils = new BlackDuckBotUtils();
         botUtils.closeWelcomeView();
-        botUtils.workbench().createProject().createMavenProject(TEST_MAVEN_GROUP, TEST_MAVEN_ARTIFACT);
-        botUtils.workbench().createProject().createGradleProject(TEST_GRADLE_PROJECT_NAME);
-        botUtils.workbench().createProject().createGeneralProject(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().createProject().createGradleProject(TestConstants.TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         botUtils.workbench().openProjectsView();
         botUtils.workbench().openPackageExplorerView();
         botUtils.workbench().openProjectExplorerview();
     }
 
-    @Before
+    @After
     public void resetTimeout() {
         botUtils.setSWTBotTimeoutDefault();
     }
@@ -77,7 +70,7 @@ public class ContextMenuBotTest {
     public void testContextMenuLabelsForMavenProject() {
         final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
-        final SWTBotTreeItem node = tree.getTreeItem(TEST_MAVEN_ARTIFACT);
+        final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_MAVEN_ARTIFACT);
         node.setFocus();
         final SWTBotMenu blackDuckMenu = node.select().contextMenu(MenuLabels.BLACK_DUCK);
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT));
@@ -89,7 +82,7 @@ public class ContextMenuBotTest {
     public void testContextMenuLabelsForGradleProject() {
         final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
-        final SWTBotTreeItem node = tree.getTreeItem(TEST_GRADLE_PROJECT_NAME);
+        final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_GRADLE_PROJECT_NAME);
         node.setFocus();
         final SWTBotMenu blackDuckMenu = node.select().contextMenu(MenuLabels.BLACK_DUCK);
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT));
@@ -102,7 +95,7 @@ public class ContextMenuBotTest {
         botUtils.setSWTBotTimeoutShort();
         final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
-        final SWTBotTreeItem node = tree.getTreeItem(TEST_NON_JAVA_PROJECT_NAME);
+        final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         node.setFocus();
         final SWTBotMenu blackDuckMenu = node.select().contextMenu(MenuLabels.BLACK_DUCK);
         try {
@@ -150,14 +143,14 @@ public class ContextMenuBotTest {
     public void testManualInspection() {
         final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
-        final SWTBotTreeItem node = tree.getTreeItem(TEST_MAVEN_ARTIFACT);
+        final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_MAVEN_ARTIFACT);
         node.setFocus();
         final SWTBotRootMenu rootMenu = node.select().contextMenu();
         final SWTBotMenu blackDuckMenu = rootMenu.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu inspectProject = blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT);
         inspectProject.click();
         assertNotNull(botUtils.componentInspector().getComponentInspectorView());
-        assertNotNull(botUtils.componentInspector().getInspectionStatusCompleteOrInProgress());
+        assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
     }
 
     @Test
@@ -175,16 +168,16 @@ public class ContextMenuBotTest {
     @Test
     public void testOpenBlackDuckHubPreferences() {
         botUtils.preferences().openBlackDuckPreferencesFromContextMenu();
-        assertNotNull(botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_WINDOW_TITLE));
-        assertTrue(botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_WINDOW_TITLE).isActive());
-        botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_WINDOW_TITLE).close();
+        assertNotNull(botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_FILTERED_WINDOW_TITLE));
+        assertTrue(botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_FILTERED_WINDOW_TITLE).isActive());
+        botUtils.bot().shell(PreferenceBotUtils.PREFERENCES_FILTERED_WINDOW_TITLE).close();
     }
 
     @AfterClass
     public static void tearDownWorkspace() {
-        botUtils.workbench().deleteProjectFromDisk(TEST_MAVEN_ARTIFACT);
-        botUtils.workbench().deleteProjectFromDisk(TEST_GRADLE_PROJECT_NAME);
-        botUtils.workbench().deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         botUtils.bot().resetWorkbench();
     }
 

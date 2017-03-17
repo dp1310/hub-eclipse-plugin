@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceFieldLabels;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
@@ -49,6 +50,8 @@ import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityVie
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 
 public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPreferencePage {
+    public static final String TEST_HUB_CREDENTIALS_TEXT = "Test Connection";
+
     private Activator plugin;
 
     private SecurePreferencesService securePrefService;
@@ -58,8 +61,6 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
     private Text connectionMessageText;
 
     private HubAuthorizationConfig hubAuthorizationConfig;
-
-    private final String TEST_HUB_CREDENTIALS_TEXT = "Test Connection";
 
     private final int NUM_COLUMNS = 2;
 
@@ -71,6 +72,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         securePrefService = new SecurePreferencesService();
         setPreferenceStore(plugin.getPreferenceStore());
         hubAuthorizationConfig = new HubAuthorizationConfig();
+        this.noDefaultButton();
     }
 
     @Override
@@ -81,18 +83,18 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         authComposite.setLayout(authCompositeLayout);
         authComposite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_BEGINNING));
         hubAuthorizationConfig
-                .setHubUsernameField(createStringField(PreferenceNames.HUB_USERNAME, hubAuthorizationConfig.HUB_USERNAME_LABEL, authComposite, false));
+                .setHubUsernameField(createStringField(PreferenceNames.HUB_USERNAME, PreferenceFieldLabels.HUB_USERNAME_LABEL, authComposite, false));
         hubAuthorizationConfig
-                .setHubPasswordField(createPasswordField(parent, authComposite, hubAuthorizationConfig.HUB_PASSWORD_LABEL, SecurePreferenceNames.HUB_PASSWORD));
-        hubAuthorizationConfig.setHubURLField(createStringField(PreferenceNames.HUB_URL, hubAuthorizationConfig.HUB_URL_LABEL, authComposite, false));
+                .setHubPasswordField(createPasswordField(parent, authComposite, PreferenceFieldLabels.HUB_PASSWORD_LABEL, SecurePreferenceNames.HUB_PASSWORD));
+        hubAuthorizationConfig.setHubURLField(createStringField(PreferenceNames.HUB_URL, PreferenceFieldLabels.HUB_URL_LABEL, authComposite, false));
         hubAuthorizationConfig
-                .setHubTimeoutField(createStringField(PreferenceNames.HUB_TIMEOUT, hubAuthorizationConfig.HUB_TIMEOUT_LABEL, authComposite, true));
+                .setHubTimeoutField(createStringField(PreferenceNames.HUB_TIMEOUT, PreferenceFieldLabels.HUB_TIMEOUT_LABEL, authComposite, true));
         hubAuthorizationConfig
-                .setProxyUsernameField(createStringField(PreferenceNames.PROXY_USERNAME, hubAuthorizationConfig.PROXY_USERNAME_LABEL, authComposite, false));
+                .setProxyUsernameField(createStringField(PreferenceNames.PROXY_USERNAME, PreferenceFieldLabels.PROXY_USERNAME_LABEL, authComposite, false));
         hubAuthorizationConfig.setProxyPasswordField(
-                createPasswordField(parent, authComposite, hubAuthorizationConfig.PROXY_PASSWORD_LABEL, SecurePreferenceNames.PROXY_PASSWORD));
-        hubAuthorizationConfig.setProxyHostField(createStringField(PreferenceNames.PROXY_HOST, hubAuthorizationConfig.PROXY_HOST_LABEL, authComposite, false));
-        hubAuthorizationConfig.setProxyPortField(createStringField(PreferenceNames.PROXY_PORT, hubAuthorizationConfig.PROXY_PORT_LABEL, authComposite, true));
+                createPasswordField(parent, authComposite, PreferenceFieldLabels.PROXY_PASSWORD_LABEL, SecurePreferenceNames.PROXY_PASSWORD));
+        hubAuthorizationConfig.setProxyHostField(createStringField(PreferenceNames.PROXY_HOST, PreferenceFieldLabels.PROXY_HOST_LABEL, authComposite, false));
+        hubAuthorizationConfig.setProxyPortField(createStringField(PreferenceNames.PROXY_PORT, PreferenceFieldLabels.PROXY_PORT_LABEL, authComposite, true));
         Composite connectionMessageComposite = new Composite(parent, SWT.LEFT);
         GridLayout connectionMessageCompositeLayout = new GridLayout();
         connectionMessageCompositeLayout.numColumns = 1;
@@ -171,15 +173,15 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         securePrefService.saveSecurePreference(SecurePreferenceNames.HUB_PASSWORD, hubAuthorizationConfig.getHubPasswordField().getText(), true);
         securePrefService.saveSecurePreference(SecurePreferenceNames.PROXY_PASSWORD, hubAuthorizationConfig.getProxyPasswordField().getText(), true);
         Activator.getPlugin().updateHubConnection(hubAuthorizationConfig.validateCredentialFields().getConnection());
-        ProjectDependencyInformation projectInfo = plugin.getProjectInformation();
-        VulnerabilityView componentView = projectInfo.getComponentView();
+        final ProjectDependencyInformation projectInfo = Activator.getPlugin().getProjectInformation();
+        final VulnerabilityView componentView = projectInfo.getComponentView();
         componentView.resetInput();
     }
 
     @Override
     public void performApply() {
         try {
-            storeValues();
+            this.storeValues();
         } catch (HubIntegrationException e) {
             // Do nothing
         }
@@ -188,7 +190,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
     @Override
     public boolean performOk() {
         try {
-            storeValues();
+            this.storeValues();
         } catch (HubIntegrationException e) {
             // Do nothing
         }

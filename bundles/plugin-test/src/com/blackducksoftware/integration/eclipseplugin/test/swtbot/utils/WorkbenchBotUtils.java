@@ -32,7 +32,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
+import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewNames;
 
 public class WorkbenchBotUtils extends AbstractBotUtils {
     public static final String PACKAGE_EXPLORER_VIEW = "Package Explorer";
@@ -83,28 +83,29 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
 
     public void openPackageExplorerView() {
         this.openShowViewDialog();
-        final SWTBotTree optionTree = bot.tree();
-        final SWTBotTreeItem javaNode = optionTree.expandNode(VIEW_TYPE_JAVA);
-        bot.waitUntil(new TreeItemIsExpandedCondition(javaNode));
+        final SWTBotTreeItem javaNode = this.expandSuperNode(VIEW_TYPE_JAVA);
         javaNode.expandNode(PACKAGE_EXPLORER_VIEW).select();
         this.pressButton("OK");
     }
 
     public void openProjectExplorerview() {
         this.openShowViewDialog();
-        final SWTBotTree optionTree = bot.tree();
-        final SWTBotTreeItem generalNode = optionTree.expandNode(VIEW_TYPE_GENERAL);
-        bot.waitUntil(new TreeItemIsExpandedCondition(generalNode));
+        final SWTBotTreeItem generalNode = this.expandSuperNode(VIEW_TYPE_GENERAL);
         generalNode.expandNode(PROJECT_EXPLORER_VIEW).select();
         this.pressButton("OK");
     }
 
     public void openProjectsView() {
         this.openShowViewDialog();
-        final SWTBotTree optionTree = bot.tree();
-        final SWTBotTreeItem javaNode = optionTree.expandNode(VIEW_TYPE_JAVA_BROWSING);
-        bot.waitUntil(new TreeItemIsExpandedCondition(javaNode));
-        javaNode.expandNode(PROJECTS_VIEW).select();
+        final SWTBotTreeItem javaBrowsingNode = this.expandSuperNode(VIEW_TYPE_JAVA_BROWSING);
+        javaBrowsingNode.expandNode(PROJECTS_VIEW).select();
+        this.pressButton("OK");
+    }
+
+    public void openComponentInspectorView() {
+        this.openShowViewDialog();
+        final SWTBotTreeItem blackDuckNode = this.expandSuperNode(ViewNames.BLACK_DUCK_HUB);
+        blackDuckNode.getNode(ViewNames.COMPONENT_INSPECTOR).select();
         this.pressButton("OK");
     }
 
@@ -117,7 +118,7 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
     }
 
     public void updateMavenProject(final String projectName) {
-        final SWTBotTreeItem mavenProjectNode = this.getProjectNodeByName(projectName);
+        final SWTBotTreeItem mavenProjectNode = this.getProject(projectName);
         final SWTBotMenu mavenMenu = mavenProjectNode.contextMenu().menu("Maven");
         mavenMenu.menu("Update Project...").click();
         bot.waitUntil(Conditions.shellIsActive("Update Maven Project"));
@@ -126,7 +127,7 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
 
     public void addMavenDependency(final String projectName, final String groupId, final String artifactId,
             final String version) {
-        final SWTBotTreeItem mavenProjectNode = this.getProjectNodeByName(projectName);
+        final SWTBotTreeItem mavenProjectNode = this.getProject(projectName);
         final SWTBotMenu mavenMenu = mavenProjectNode.contextMenu().menu("Maven");
         mavenMenu.menu("Add Dependency").click();
         bot.waitUntil(Conditions.shellIsActive("Add Dependency"));
@@ -137,7 +138,7 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
     }
 
     public void deleteProjectFromDisk(final String projectName) {
-        final SWTBotTreeItem projectNode = this.getProjectNodeByName(projectName);
+        final SWTBotTreeItem projectNode = this.getProject(projectName);
         projectNode.contextMenu().menu("Delete").click();
         bot.waitUntil(Conditions.shellIsActive("Delete Resources"));
         bot.checkBox().select();
@@ -149,7 +150,7 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
     }
 
     public void deleteProjectFromWorkspace(final String projectName, final SWTWorkbenchBot bot) {
-        final SWTBotTreeItem projectNode = this.getProjectNodeByName(projectName);
+        final SWTBotTreeItem projectNode = this.getProject(projectName);
         projectNode.contextMenu().menu("Delete").click();
         bot.waitUntil(Conditions.shellIsActive("Delete Resources"));
         this.pressButton("OK");
@@ -159,7 +160,7 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
         }
     }
 
-    private SWTBotTreeItem getProjectNodeByName(final String projectName) {
+    public SWTBotTreeItem getProject(final String projectName) {
         final SWTBot viewBot = botUtils.getSupportedProjectView();
         final SWTBotTree tree = viewBot.tree();
         return tree.getTreeItem(projectName);

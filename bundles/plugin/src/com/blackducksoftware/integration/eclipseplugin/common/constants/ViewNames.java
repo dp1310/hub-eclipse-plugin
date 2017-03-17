@@ -24,7 +24,7 @@
 package com.blackducksoftware.integration.eclipseplugin.common.constants;
 
 public class ViewNames {
-    public static final String BLACK_DUCK = "Black Duck";
+    public static final String BLACK_DUCK_HUB = "Black Duck Hub";
 
-    public static final String VULNERABILITIES = "Black Duck Vulnerabilities";
+    public static final String COMPONENT_INSPECTOR = "Component Inspector";
 }

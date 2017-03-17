@@ -140,7 +140,8 @@ public class ProjectDependencyInformation {
         final List<ComponentModel> models = projectInfo.get(projectName);
         if (models != null) {
             try {
-                models.add(componentCache.get(gav));
+                final ComponentModel newModel = componentCache.get(gav);
+                models.add(newModel);
                 models.sort(new DependencyTableViewerComparator());
                 projectInfo.put(projectName, models);
                 if (componentView != null) {

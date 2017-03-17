@@ -62,7 +62,7 @@ public class ComponentCache {
 
     public ComponentModel get(Gav gav) throws IntegrationException {
         ComponentModel model = cache.get(gav);
-        Timestamp stalestamp = new Timestamp(System.currentTimeMillis() - TTL_IN_MILLIS);
+        final Timestamp stalestamp = new Timestamp(System.currentTimeMillis() - TTL_IN_MILLIS);
         if (oldestKeyAge != null && oldestKeyAge.before(stalestamp)) {
             removeStaleKeys(stalestamp);
         }

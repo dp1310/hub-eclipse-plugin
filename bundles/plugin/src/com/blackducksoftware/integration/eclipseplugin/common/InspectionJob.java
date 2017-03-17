@@ -77,7 +77,7 @@ public class InspectionJob extends Job {
                     || !plugin.getPreferenceStore().getBoolean(projectName)) {
                 return Status.OK_STATUS;
             }
-            plugin.getProjectInformation().initializeProjectComponents(projectName);
+            Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
             SubMonitor subMonitor = SubMonitor.convert(monitor, ONE_HUNDRED_PERCENT);
             subMonitor.setTaskName("Gathering dependencies");
             final List<URL> dependencyFilepaths = projectInformationService.getProjectDependencyFilePaths(projectName);
@@ -86,7 +86,7 @@ public class InspectionJob extends Job {
                 subMonitor.setTaskName(String.format("Inspecting %s", filePath));
                 Gav gav = projectInformationService.getGavFromFilepath(filePath);
                 if (gav != null) {
-                    plugin.getProjectInformation().addComponentToProject(projectName, gav);
+                    Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
                     if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
                         subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
                     } else {

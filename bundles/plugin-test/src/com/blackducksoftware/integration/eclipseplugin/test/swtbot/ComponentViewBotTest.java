@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.junit.AfterClass;
@@ -62,45 +61,26 @@ public class ComponentViewBotTest {
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotMenu blackDuckMenu = tree.contextMenu(MenuLabels.BLACK_DUCK);
-        final SWTBotMenu warningViewMenu = blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR);
-        warningViewMenu.click();
-    }
-
-    private void openVulnerabilityViewFromWindowMenu() {
-        final SWTWorkbenchBot bot = botUtils.bot();
-        bot.menu("Window").menu("Show View").menu("Other...").click();
-        bot.shell("Show View").activate();
-        bot.tree().expandNode(ViewNames.BLACK_DUCK).expandNode(ViewNames.VULNERABILITIES).click();
-        bot.waitUntil(new DefaultCondition() {
-            @Override
-            public String getFailureMessage() {
-                return "ok button could not be enabled";
-            }
-
-            @Override
-            public boolean test() {
-                return bot.button("OK").isEnabled();
-            }
-        });
-        bot.button("OK").click();
+        final SWTBotMenu openComponentInspector = blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR);
+        openComponentInspector.click();
     }
 
     @Test
     public void testThatWarningViewOpensFromContextMenu() {
         final SWTWorkbenchBot bot = botUtils.bot();
         openVulnerabilityViewFromContextMenu(TEST_JAVA_PROJECT_NAME);
-        assertNotNull(bot.viewByTitle(ViewNames.VULNERABILITIES));
+        assertNotNull(bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR));
         assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
-        bot.viewByTitle(ViewNames.VULNERABILITIES).close();
+        bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR).close();
     }
 
     @Test
     public void testThatVulnerabilityViewOpensFromWindowMenu() {
         final SWTWorkbenchBot bot = botUtils.bot();
-        openVulnerabilityViewFromWindowMenu();
-        assertNotNull(bot.viewByTitle(ViewNames.VULNERABILITIES));
+        botUtils.workbench().openComponentInspectorView();
+        assertNotNull(bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR));
         assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
-        bot.viewByTitle(ViewNames.VULNERABILITIES).close();
+        bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR).close();
     }
 
     // @Test
@@ -131,6 +111,16 @@ public class ComponentViewBotTest {
 
     // @Test
     public void testAttemptToOpenUnknownComponent() {
+        // TODO: Test stub
+    }
+
+    // @Test
+    public void testSwitchHubInstanceFromValidInstanceToOtherValidInstance() {
+        // TODO: Test stub
+    }
+
+    // @Test
+    public void testSwitchHubInstanceFromValidInstanceToOtherInvalidInstance() {
         // TODO: Test stub
     }
 

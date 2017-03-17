@@ -51,22 +51,6 @@ public class HubAuthorizationConfig {
 
     private StringFieldEditor proxyPortField;
 
-    public final String HUB_USERNAME_LABEL = "Username";
-
-    public final String HUB_PASSWORD_LABEL = "Password";
-
-    public final String HUB_URL_LABEL = "Instance URL";
-
-    public final String HUB_TIMEOUT_LABEL = "Timeout in Seconds";
-
-    public final String PROXY_USERNAME_LABEL = "Proxy Username";
-
-    public final String PROXY_PASSWORD_LABEL = "Proxy Password";
-
-    public final String PROXY_HOST_LABEL = "Proxy Host";
-
-    public final String PROXY_PORT_LABEL = "Proxy Port";
-
     public HubAuthorizationConfig() {
         this.validator = (new AuthorizationValidator(new HubRestConnectionService(), new HubServerConfigBuilder()));
     }

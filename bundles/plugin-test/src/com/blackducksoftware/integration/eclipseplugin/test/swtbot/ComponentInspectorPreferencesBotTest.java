@@ -31,13 +31,16 @@ import static org.junit.Assert.fail;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentInspectorPreferencesBotTest {
@@ -60,9 +63,16 @@ public class ComponentInspectorPreferencesBotTest {
         botUtils.workbench().createProject().createMavenProject(TEST_MAVEN_PROJECT_GROUP_ID, TEST_MAVEN_PROJECT_ARTIFACT_ID);
     }
 
+    @Test
+    public void testContentsOfActiveJavaProjectsPage() {
+        botUtils.preferences().openBlackDuckPreferencesFromContextMenu();
+        final SWTBotTreeItem blackDuck = botUtils.bot().activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK_HUB);
+        botUtils.bot().waitUntil(new TreeItemIsExpandedCondition(blackDuck));
+    }
+
     @Ignore
     public void testThatAllJavaProjectsShow() {
-        botUtils.preferences().getActiveJavaProjectsPage();
+        botUtils.preferences().getDefaultSettingsPage();
         final SWTBot pageBot = botUtils.bot().activeShell().bot();
         assertNotNull(pageBot.checkBox(TEST_JAVA_PROJECT_NAME));
         assertNotNull(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID));
@@ -78,7 +88,7 @@ public class ComponentInspectorPreferencesBotTest {
     @Ignore
     public void testAnalyzeByDefault() {
         botUtils.preferences().setPrefsToActivateScanByDefault();
-        botUtils.preferences().getActiveJavaProjectsPage();
+        botUtils.preferences().getDefaultSettingsPage();
         final SWTBot pageBot = botUtils.bot().activeShell().bot();
         pageBot.button("Restore Defaults").click();
         assertTrue(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
@@ -90,7 +100,7 @@ public class ComponentInspectorPreferencesBotTest {
     @Ignore
     public void testDoNotAnalyzeByDefault() {
         botUtils.preferences().setPrefsToNotActivateScanByDefault();
-        botUtils.preferences().getActiveJavaProjectsPage();
+        botUtils.preferences().getDefaultSettingsPage();
         final SWTBot pageBot = botUtils.bot().activeShell().bot();
         pageBot.button("Restore Defaults").click();
         assertFalse(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
@@ -101,7 +111,7 @@ public class ComponentInspectorPreferencesBotTest {
     @Test
     public void testThatBlackDuckDefaultWorks() {
         botUtils.preferences().restoreAllBlackDuckDefaults();
-        botUtils.preferences().getActiveJavaProjectsPage();
+        botUtils.preferences().getDefaultSettingsPage();
         final SWTBot pageBot = botUtils.bot().activeShell().bot();
         pageBot.button("Restore Defaults").click();
         assertTrue(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
@@ -116,11 +126,6 @@ public class ComponentInspectorPreferencesBotTest {
 
     // @Test
     public void testDeactivateProject() {
-        // TODO: Test stub
-    }
-
-    // @Test
-    public void testRestoreDefaults() {
         // TODO: Test stub
     }
 

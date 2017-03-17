@@ -1,5 +1,5 @@
 /**
- * hub-eclipse-plugin
+ * hub-eclipse-plugin-test
  *
  * Copyright (C) 2017 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
@@ -21,10 +21,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.blackducksoftware.integration.eclipseplugin.common.constants;
+package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
-public class Namespaces {
-    public static final String MAVEN = "maven";
+public class TestConstants {
+    public static final String TEST_MAVEN_GROUP = "com.blackducksoftware.eclipseplugin.test";
 
-    public static final String GRADLE = "maven";
+    public static final String TEST_MAVEN_ARTIFACT = "maven-project";
+
+    public static final String TEST_GRADLE_PROJECT_NAME = "gradle-project";
+
+    public static final String TEST_NON_JAVA_PROJECT_NAME = "non-java-project";
 }

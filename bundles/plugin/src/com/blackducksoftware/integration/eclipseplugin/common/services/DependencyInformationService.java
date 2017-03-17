@@ -90,14 +90,14 @@ public class DependencyInformationService {
     }
 
     public ComponentModel load(final Gav gav) throws IOException, URISyntaxException, IntegrationException {
-        VulnerabilityDataService vulnService = plugin.getConnectionService().getVulnerabilityDataService();
+        VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
         ComplexLicenseItem sLicense = null;
         try {
             vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
 
-            LicenseDataService licenseService = plugin.getConnectionService().getLicenseDataService();
+            LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
             sLicense = licenseService.getComplexLicenseItemFromComponent(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
         } catch (HubIntegrationException e) {

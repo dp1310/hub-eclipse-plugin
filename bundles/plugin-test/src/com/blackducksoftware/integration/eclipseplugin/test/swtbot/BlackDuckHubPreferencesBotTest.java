@@ -24,118 +24,191 @@
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
+import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationValidator;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestConstants;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class BlackDuckHubPreferencesBotTest {
-    private static final String TEST_JAVA_PROJECT = "testJavaProject";
 
     public static BlackDuckBotUtils botUtils;
+
+    private final String validHubUsername = "sysadmin";
+
+    private final String validHubPassword = "blackduck";
+
+    private final String validHubUrl = "http://int-hub01.dc1.lan:8080";
+
+    private final String validHubTimeout = "120";
+
+    private final String invalidHubUsername = "INVALID";
+
+    private final String invalidHubPassword = "INVALID";
+
+    private final String invalidHubUrl = "http://int-not-a-hub.dc1.lan";
+
+    private final String invalidHubTimeout = "0";
 
     @BeforeClass
     public static void setUpWorkspace() {
         botUtils = new BlackDuckBotUtils();
         botUtils.closeWelcomeView();
-        botUtils.workbench().createProject().createJavaProject(TEST_JAVA_PROJECT);
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
     }
 
-    @Test
-    public void testOpeningFromEclipseMenu() {
+    @Before
+    public void setUp() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        final SWTBotTreeItem blackDuck = botUtils.bot().activeShell().bot().tree().getTreeItem(PreferencePageNames.BLACK_DUCK);
-        assertNotNull(blackDuck);
-        botUtils.bot().activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
-        assertNotNull(blackDuck.getNode(PreferencePageNames.ACTIVE_JAVA_PROJECTS));
-        assertNotNull(blackDuck.getNode(PreferencePageNames.BLACK_DUCK_DEFAULTS));
+    }
+
+    @After
+    public void tearDown() {
+        botUtils.setSWTBotTimeoutDefault();
     }
 
     @Test
-    public void testContentsOfActiveJavaProjectsPage() {
-        botUtils.preferences().openBlackDuckPreferencesFromContextMenu();
-        final SWTBotTreeItem blackDuck = botUtils.bot().activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK);
-        botUtils.bot().waitUntil(new DefaultCondition() {
-
-            @Override
-            public boolean test() throws Exception {
-                return (blackDuck.isExpanded());
-            }
-
-            @Override
-            public String getFailureMessage() {
-                return "Could not expand Black Duck preference node";
-            }
-
-        });
+    public void testAppearsInEclipseMenu() {
+        final SWTWorkbenchBot bot = botUtils.bot();
+        final SWTBotTree preferencesTree = bot.tree();
+        final SWTBotTreeItem blackDuckNode = preferencesTree.getTreeItem(PreferencePageNames.BLACK_DUCK_HUB);
+        assertNotNull(blackDuckNode);
+        blackDuckNode.expand();
+        assertNotNull(blackDuckNode.getNode(PreferencePageNames.COMPONENT_INSPECTOR_SETTINGS));
+        botUtils.closeActiveShellIfExists();
     }
 
-    // @Test
-    public void testSwitchHubInstanceToOtherValidInstance() {
-        // TODO: Test stub
-    }
-
-    // @Test
-    public void testSwitchHubInstanceToOtherInvalidInstance() {
-        // TODO: Test stub
-    }
-
-    // @Test
+    @Test
     public void testValidHubConfiguration() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().testCurrentCredentials();
+        final SWTWorkbenchBot bot = botUtils.bot();
+        assertNotNull(bot.text(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE));
+        botUtils.closeActiveShellIfExists();
     }
 
-    // @Test
+    @Test
     public void testInvalidHubURL() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, invalidHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().testCurrentCredentials();
+        final SWTWorkbenchBot bot = botUtils.bot();
+        try {
+            botUtils.setSWTBotTimeoutShort();
+            assertNull(bot.text(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE));
+        } catch (WidgetNotFoundException e) {
+            // Expected
+        } finally {
+            botUtils.closeActiveShellIfExists();
+        }
     }
 
-    // @Test
+    @Test
     public void testInvalidHubUsername() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(invalidHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().testCurrentCredentials();
+        final SWTWorkbenchBot bot = botUtils.bot();
+        try {
+            botUtils.setSWTBotTimeoutShort();
+            assertNull(bot.text(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE));
+        } catch (WidgetNotFoundException e) {
+            // Expected
+        } finally {
+            botUtils.closeActiveShellIfExists();
+        }
     }
 
-    // @Test
+    @Test
     public void testInvalidHubPassword() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, invalidHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().testCurrentCredentials();
+        final SWTWorkbenchBot bot = botUtils.bot();
+        try {
+            botUtils.setSWTBotTimeoutShort();
+            assertNull(bot.text(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE));
+        } catch (WidgetNotFoundException e) {
+            // Expected
+        } finally {
+            botUtils.closeActiveShellIfExists();
+        }
     }
 
-    // @Test
+    @Test
     public void testInvalidHubTimeout() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, invalidHubTimeout);
+        botUtils.preferences().hubSettings().testCurrentCredentials();
+        final SWTWorkbenchBot bot = botUtils.bot();
+        try {
+            botUtils.setSWTBotTimeoutShort();
+            assertNull(bot.text(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE));
+        } catch (WidgetNotFoundException e) {
+            // Expected
+        } finally {
+            botUtils.closeActiveShellIfExists();
+        }
     }
 
-    // @Test
+    @Test
     public void testApplyChanges() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().pressApply();
+        botUtils.closeActiveShell();
+        botUtils.workbench().openComponentInspectorView();
+        SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        node.click();
+        try {
+            assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+        } finally {
+            botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+            botUtils.preferences().hubSettings().resetCredentials();
+        }
     }
 
-    // @Test
+    @Test
     public void testOK() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().pressOK();
+        botUtils.workbench().openComponentInspectorView();
+        SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        node.click();
+        try {
+            assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+        } finally {
+            botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+            botUtils.preferences().hubSettings().resetCredentials();
+        }
     }
 
-    // @Test
+    @Test
     public void testCancel() {
-        // TODO: Test stub
-    }
-
-    // @Test
-    public void testRestoreDefaults() {
-        // TODO: Test stub
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().pressCancel();
+        botUtils.workbench().openComponentInspectorView();
+        SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        node.click();
+        try {
+            assertNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+        } catch (WidgetNotFoundException e) {
+            // Expected
+        }
     }
 
     @AfterClass
     public static void tearDownWorkspace() {
-        botUtils.workbench().deleteProjectFromDisk(TEST_JAVA_PROJECT);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_ARTIFACT);
         botUtils.bot().resetWorkbench();
     }
 }

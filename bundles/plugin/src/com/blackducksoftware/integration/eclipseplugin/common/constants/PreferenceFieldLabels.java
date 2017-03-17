@@ -23,8 +23,20 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.constants;
 
-public class Namespaces {
-    public static final String MAVEN = "maven";
+public class PreferenceFieldLabels {
+    public static final String HUB_USERNAME_LABEL = "Username";
 
-    public static final String GRADLE = "maven";
+    public static final String HUB_PASSWORD_LABEL = "Password";
+
+    public static final String HUB_URL_LABEL = "Instance URL";
+
+    public static final String HUB_TIMEOUT_LABEL = "Timeout in Seconds";
+
+    public static final String PROXY_USERNAME_LABEL = "Proxy Username";
+
+    public static final String PROXY_PASSWORD_LABEL = "Proxy Password";
+
+    public static final String PROXY_HOST_LABEL = "Proxy Host";
+
+    public static final String PROXY_PORT_LABEL = "Proxy Port";
 }

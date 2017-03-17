@@ -79,6 +79,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         final IPreferenceStore pluginPreferenceStore = plugin.getPreferenceStore();
         this.setPreferenceStore(pluginPreferenceStore);
         pluginPreferenceStore.addPropertyChangeListener(this);
+        this.noDefaultButton();
     }
 
     @Override
