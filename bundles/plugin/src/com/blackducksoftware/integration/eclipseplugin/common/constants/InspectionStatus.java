@@ -40,5 +40,7 @@ public class InspectionStatus {
 
     public static final String CONNECTION_OK = "Connected to Hub instance - double-click any component to open it in the Hub";
 
+    public static final String CONNECTION_OK_NO_COMPONENTS = "Connected to Hub instance - No components found.";
+
     public static final String PROJECT_NOT_SUPPORTED = "Cannot inspect selected project - either it is not a Java project or no Maven or Gradle nature was detected";
 }

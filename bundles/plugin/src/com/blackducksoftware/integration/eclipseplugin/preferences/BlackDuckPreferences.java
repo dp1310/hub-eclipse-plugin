@@ -175,7 +175,9 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         Activator.getPlugin().updateHubConnection(hubAuthorizationConfig.validateCredentialFields().getConnection());
         final ProjectDependencyInformation projectInfo = Activator.getPlugin().getProjectInformation();
         final VulnerabilityView componentView = projectInfo.getComponentView();
-        componentView.resetInput();
+        if (componentView != null) {
+            componentView.resetInput();
+        }
     }
 
     @Override

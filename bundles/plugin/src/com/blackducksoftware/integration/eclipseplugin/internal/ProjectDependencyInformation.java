@@ -160,7 +160,7 @@ public class ProjectDependencyInformation {
     public List<ComponentModel> getProjectComponents(final String projectName) {
         List<ComponentModel> models = projectInfo.get(projectName);
         if (models == null) {
-            return new ArrayList<>();
+            return null;
         }
         return projectInfo.get(projectName);
     }

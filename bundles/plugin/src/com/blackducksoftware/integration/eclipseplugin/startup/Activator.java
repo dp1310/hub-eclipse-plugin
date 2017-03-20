@@ -24,15 +24,12 @@
 package com.blackducksoftware.integration.eclipseplugin.startup;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -73,19 +70,21 @@ public class Activator extends AbstractUIPlugin {
 
     private InspectionQueueService inspectionQueueService;
 
-    private IResourceChangeListener newJavaProjectListener;
+    private NewJavaProjectListener newJavaProjectListener;
 
-    private IResourceChangeListener javaProjectDeletedListener;
+    private JavaProjectDeletedListener javaProjectDeletedListener;
 
-    private IPropertyChangeListener defaultPrefChangeListener;
+    private DefaultPreferenceChangeListener defaultPrefChangeListener;
 
-    private IElementChangedListener depsChangedListener;
+    private ProjectDependenciesChangedListener depsChangedListener;
 
     private SecurePreferencesService securePrefService;
 
     private PreferencesService defaultPreferencesService;
 
     private WorkspaceInformationService workspaceInformationService;
+
+    private ProjectInformationService projService;
 
     @Override
     public void start(final BundleContext context) throws Exception {
@@ -94,7 +93,7 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
         final FilePathGavExtractor extractor = new FilePathGavExtractor();
         final DependencyInformationService depService = new DependencyInformationService(this);
-        final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
+        projService = new ProjectInformationService(depService, extractor);
         workspaceInformationService = new WorkspaceInformationService(projService);
         securePrefService = new SecurePreferencesService();
         connectionService = new HubRestConnectionService(getInitialHubConnection());
@@ -103,7 +102,7 @@ public class Activator extends AbstractUIPlugin {
         information = new ProjectDependencyInformation(this, componentCache);
         defaultPreferencesService = new PreferencesService(getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(this);
-        defaultPrefChangeListener = new DefaultPreferenceChangeListener(this, defaultPreferencesService);
+        defaultPrefChangeListener = new DefaultPreferenceChangeListener(inspectionQueueService, defaultPreferencesService);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener(information);
         ResourcesPlugin.getWorkspace().addResourceChangeListener(newJavaProjectListener);

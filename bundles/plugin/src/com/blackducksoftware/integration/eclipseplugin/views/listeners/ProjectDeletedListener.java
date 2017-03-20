@@ -47,9 +47,11 @@ public class ProjectDeletedListener implements IResourceChangeListener {
             IResource resource = event.getResource();
             if (resource instanceof IProject) {
                 plugin.getProjectInformation().removeProject(((IProject) resource).getName());
-                if (componentView.getLastSelectedProjectName().equals(((IProject) resource).getName())) {
-                    componentView.setLastSelectedProjectName("");
-                    componentView.resetInput();
+                if (componentView != null) {
+                    if (componentView.getLastSelectedProjectName().equals(((IProject) resource).getName())) {
+                        componentView.setLastSelectedProjectName("");
+                        componentView.resetInput();
+                    }
                 }
             }
         }

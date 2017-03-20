@@ -76,35 +76,39 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
         }
     }
 
-    public ComponentModel[] parseElements(Object inputElement) {
-        String projectName = (String) inputElement;
+    public ComponentModel[] parseElements(final Object inputElement) {
+        final String projectName = (String) inputElement;
         inputProject = projectName;
         if (projectName.equals("")) {
             view.setStatusMessage(InspectionStatus.NO_SELECTED_PROJECT);
             return NOTHING;
         }
-        InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
-        boolean isActivated = plugin.getPreferenceStore().getBoolean(projectName);
+        final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
+        final boolean isActivated = plugin.getPreferenceStore().getBoolean(projectName);
         if (isActivated) {
             if (plugin.getConnectionService().hasActiveHubConnection()) {
                 final List<ComponentModel> componentModels = plugin.getProjectInformation().getProjectComponents(projectName);
-                if (inspectionQueueService.getInspectionIsRunning(projectName)) {
-                    view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
-                } else {
-                    if (inspectionQueueService.getInspectionIsScheduled(projectName)) {
-                        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
-                    } else if (componentModels.size() == 0) {
-                        view.setStatusMessage(InspectionStatus.PROJECT_NEEDS_INSPECTION);
+                if (componentModels != null) {
+                    if (inspectionQueueService.getInspectionIsRunning(projectName)) {
+                        view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_ACTIVE);
                     } else {
-                        view.setStatusMessage(InspectionStatus.CONNECTION_OK);
+                        if (inspectionQueueService.getInspectionIsScheduled(projectName)) {
+                            view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
+                        } else if (componentModels.size() == 0) {
+                            view.setStatusMessage(InspectionStatus.CONNECTION_OK_NO_COMPONENTS);
+                        } else {
+                            view.setStatusMessage(InspectionStatus.CONNECTION_OK);
+                        }
                     }
+                    return componentModels.toArray(new ComponentModel[componentModels.size()]);
                 }
-                return componentModels.toArray(new ComponentModel[componentModels.size()]);
+                view.setStatusMessage(InspectionStatus.PROJECT_NEEDS_INSPECTION);
+                return NOTHING;
             }
             view.setStatusMessage(InspectionStatus.CONNECTION_DISCONNECTED);
             return NOTHING;
         }
-        WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
+        final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
         if (workspaceInformationService.getIsSupportedProject(projectName)) {
             view.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_INACTIVE);
         } else {

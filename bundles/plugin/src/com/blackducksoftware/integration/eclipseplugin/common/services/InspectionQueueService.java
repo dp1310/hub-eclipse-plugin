@@ -60,11 +60,11 @@ public class InspectionQueueService implements IJobChangeListener {
                 || !plugin.getPreferenceStore().getBoolean(projectName)) {
             return false;
         }
-        VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
+        final VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
         if (componentView != null && currentInspection != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
             componentView.setStatusMessage(InspectionStatus.PROJECT_INSPECTION_SCHEDULED);
         }
-        InspectionJob inspection = new InspectionJob(plugin, projectName, projService);
+        final InspectionJob inspection = new InspectionJob(plugin, projectName, projService);
         inspection.addJobChangeListener(this);
         if (currentInspection == null) {
             currentInspection = inspection;
@@ -87,15 +87,15 @@ public class InspectionQueueService implements IJobChangeListener {
     }
 
     public List<String> getScheduledInspectionsNames() {
-        ArrayList<String> scheduledInspectionList = new ArrayList<>();
+        final ArrayList<String> scheduledInspectionList = new ArrayList<>();
         inspectionQueue.forEach(inspection -> scheduledInspectionList.add(inspection.getName()));
         return scheduledInspectionList;
     }
 
     public List<String> getRunningInspectionsNames() {
-        IJobManager jobMan = Job.getJobManager();
-        ArrayList<String> inspectionList = new ArrayList<>();
-        Job[] inspections = jobMan.find(InspectionJob.FAMILY);
+        final IJobManager jobMan = Job.getJobManager();
+        final ArrayList<String> inspectionList = new ArrayList<>();
+        final Job[] inspections = jobMan.find(InspectionJob.FAMILY);
         for (Job inspection : inspections) {
             inspectionList.add(inspection.getName());
         }

@@ -75,6 +75,7 @@ public class InspectionJob extends Job {
         try {
             if (!plugin.getConnectionService().hasActiveHubConnection()
                     || !plugin.getPreferenceStore().getBoolean(projectName)) {
+                System.err.println("Job failed at hub connection or activation");
                 return Status.OK_STATUS;
             }
             Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
@@ -87,6 +88,7 @@ public class InspectionJob extends Job {
                 Gav gav = projectInformationService.getGavFromFilepath(filePath);
                 if (gav != null) {
                     Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
+                    System.err.println("Gav added to project: " + gav);
                     if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
                         subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
                     } else {

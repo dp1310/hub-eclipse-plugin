@@ -28,7 +28,7 @@ import java.util.Arrays;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotLabel;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCLabel;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
 
@@ -44,21 +44,23 @@ public class ComponentInspectorBotUtils extends AbstractBotUtils {
         return view.bot();
     }
 
-    public SWTBotLabel getInspectionStatusIfCompleteOrInProgress() {
+    public SWTBotCLabel getInspectionStatusIfCompleteOrInProgress() {
         final SWTBot viewBot = this.getComponentInspectorView();
         this.setSWTBotTimeoutShort();
         for (String statusMessage : Arrays.asList(InspectionStatus.CONNECTION_OK, InspectionStatus.PROJECT_INSPECTION_ACTIVE,
-                InspectionStatus.PROJECT_INSPECTION_SCHEDULED)) {
+                InspectionStatus.PROJECT_INSPECTION_SCHEDULED, InspectionStatus.CONNECTION_OK_NO_COMPONENTS)) {
             try {
-                final SWTBotLabel label = viewBot.label(statusMessage);
+                final SWTBotCLabel clabel = viewBot.clabel(statusMessage);
                 this.setSWTBotTimeoutDefault();
-                return label;
+                return clabel;
             } catch (final WidgetNotFoundException e) {
             }
         }
         this.setSWTBotTimeoutDefault();
-        throw new WidgetNotFoundException(String.format("Inspection status widget not found with value '%s', '%s', or '%s'", InspectionStatus.CONNECTION_OK,
-                InspectionStatus.PROJECT_INSPECTION_ACTIVE, InspectionStatus.PROJECT_INSPECTION_SCHEDULED));
+        throw new WidgetNotFoundException(
+                String.format("Inspection status widget not found with value '%s', '%s', '%s', or '%s'", InspectionStatus.CONNECTION_OK,
+                        InspectionStatus.PROJECT_INSPECTION_ACTIVE, InspectionStatus.PROJECT_INSPECTION_SCHEDULED,
+                        InspectionStatus.CONNECTION_OK_NO_COMPONENTS));
     }
 
 }

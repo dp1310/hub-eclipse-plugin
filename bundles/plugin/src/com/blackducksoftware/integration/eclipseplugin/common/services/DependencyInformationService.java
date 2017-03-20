@@ -90,7 +90,7 @@ public class DependencyInformationService {
     }
 
     public ComponentModel load(final Gav gav) throws IOException, URISyntaxException, IntegrationException {
-        VulnerabilityDataService vulnService = Activator.getPlugin().getConnectionService().getVulnerabilityDataService();
+        final VulnerabilityDataService vulnService = plugin.getConnectionService().getVulnerabilityDataService();
         List<VulnerabilityItem> vulns = null;
         ComplexLicenseItem sLicense = null;
         try {
