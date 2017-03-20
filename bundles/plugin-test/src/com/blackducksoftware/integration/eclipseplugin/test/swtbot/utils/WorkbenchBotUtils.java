@@ -66,19 +66,19 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
         return projectCreationBotUtils;
     }
 
-    public SWTBot getPackageExplorerView() {
+    public SWTBotView getPackageExplorerView() {
         final SWTBotView view = bot.viewByTitle(PACKAGE_EXPLORER_VIEW);
-        return view.bot();
+        return view;
     }
 
-    public SWTBot getProjectExplorerView() {
+    public SWTBotView getProjectExplorerView() {
         final SWTBotView view = bot.viewByTitle(PROJECT_EXPLORER_VIEW);
-        return view.bot();
+        return view;
     }
 
-    public SWTBot getProjectsView() {
+    public SWTBotView getProjectsView() {
         final SWTBotView view = bot.viewByTitle(PROJECTS_VIEW);
-        return view.bot();
+        return view;
     }
 
     public void openPackageExplorerView() {
@@ -161,7 +161,9 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
     }
 
     public SWTBotTreeItem getProject(final String projectName) {
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         return tree.getTreeItem(projectName);
     }

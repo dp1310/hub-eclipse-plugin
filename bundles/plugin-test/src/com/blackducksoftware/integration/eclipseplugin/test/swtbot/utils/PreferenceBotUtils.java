@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -67,7 +68,9 @@ public class PreferenceBotUtils extends AbstractPreferenceBotUtils {
     }
 
     public void openBlackDuckPreferencesFromContextMenu() {
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         this.selectFromMenu(tree.contextMenu(), MenuLabels.BLACK_DUCK, MenuLabels.HUB_SETTINGS);

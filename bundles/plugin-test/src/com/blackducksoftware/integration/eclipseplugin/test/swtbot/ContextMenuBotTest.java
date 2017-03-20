@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
@@ -49,6 +50,14 @@ import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestCon
 public class ContextMenuBotTest {
     public static BlackDuckBotUtils botUtils;
 
+    private final String validHubUsername = "sysadmin";
+
+    private final String validHubPassword = "blackduck";
+
+    private final String validHubUrl = "http://int-hub01.dc1.lan:8080";
+
+    private final String validHubTimeout = "120";
+
     @BeforeClass
     public static void setUpWorkspaceBot() {
         botUtils = new BlackDuckBotUtils();
@@ -68,11 +77,15 @@ public class ContextMenuBotTest {
 
     @Test
     public void testContextMenuLabelsForMavenProject() {
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
+        tree.setFocus();
         final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_MAVEN_ARTIFACT);
         node.setFocus();
-        final SWTBotMenu blackDuckMenu = node.select().contextMenu(MenuLabels.BLACK_DUCK);
+        node.select();
+        final SWTBotMenu blackDuckMenu = node.contextMenu(MenuLabels.BLACK_DUCK);
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT));
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.HUB_SETTINGS));
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR));
@@ -80,11 +93,14 @@ public class ContextMenuBotTest {
 
     @Test
     public void testContextMenuLabelsForGradleProject() {
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_GRADLE_PROJECT_NAME);
         node.setFocus();
-        final SWTBotMenu blackDuckMenu = node.select().contextMenu(MenuLabels.BLACK_DUCK);
+        node.select();
+        final SWTBotMenu blackDuckMenu = node.contextMenu(MenuLabels.BLACK_DUCK);
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT));
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.HUB_SETTINGS));
         assertNotNull(blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR));
@@ -93,11 +109,14 @@ public class ContextMenuBotTest {
     @Test
     public void testContextMenuLabelsForUnspportedProject() {
         botUtils.setSWTBotTimeoutShort();
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         node.setFocus();
-        final SWTBotMenu blackDuckMenu = node.select().contextMenu(MenuLabels.BLACK_DUCK);
+        node.select();
+        final SWTBotMenu blackDuckMenu = node.contextMenu(MenuLabels.BLACK_DUCK);
         try {
             assertNull(blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT));
         } catch (WidgetNotFoundException e) {
@@ -109,7 +128,9 @@ public class ContextMenuBotTest {
     @Test
     public void testVisibleInPackagExplorerView() {
         botUtils.setSWTBotTimeoutShort();
-        final SWTBot viewBot = botUtils.workbench().getPackageExplorerView();
+        final SWTBotView view = botUtils.workbench().getPackageExplorerView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
@@ -118,7 +139,9 @@ public class ContextMenuBotTest {
 
     @Test
     public void testVisibleInProjectExplorerView() {
-        final SWTBot viewBot = botUtils.workbench().getProjectExplorerView();
+        final SWTBotView view = botUtils.workbench().getProjectExplorerView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
@@ -128,7 +151,9 @@ public class ContextMenuBotTest {
     @Test
     public void testNotVisibleInNonProjectNonPackageView() {
         botUtils.setSWTBotTimeoutShort();
-        final SWTBot viewBot = botUtils.workbench().getProjectsView();
+        final SWTBotView view = botUtils.workbench().getProjectsView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();
@@ -138,10 +163,14 @@ public class ContextMenuBotTest {
         }
     }
 
-    // TODO: Update test once we have the utils to put in valid creds
     @Test
     public void testManualInspection() {
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().pressOK();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_MAVEN_ARTIFACT);
         node.setFocus();
@@ -149,13 +178,16 @@ public class ContextMenuBotTest {
         final SWTBotMenu blackDuckMenu = rootMenu.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu inspectProject = blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT);
         inspectProject.click();
-        assertNotNull(botUtils.componentInspector().getComponentInspectorView());
+        botUtils.workbench().openComponentInspectorView();
+        node.select();
         assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
     }
 
     @Test
     public void testOpenComponentView() {
-        final SWTBot viewBot = botUtils.getSupportedProjectView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotRootMenu rootMenu = tree.contextMenu();

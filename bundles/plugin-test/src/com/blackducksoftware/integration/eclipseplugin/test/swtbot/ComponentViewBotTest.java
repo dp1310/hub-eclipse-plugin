@@ -26,6 +26,7 @@ package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 import static org.junit.Assert.assertNotNull;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
@@ -57,7 +58,9 @@ public class ComponentViewBotTest {
     }
 
     private void openVulnerabilityViewFromContextMenu(final String projectName) {
-        final SWTBot viewBot = botUtils.workbench().getPackageExplorerView();
+        final SWTBotView view = botUtils.getSupportedProjectView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
         final SWTBotTree tree = viewBot.tree();
         tree.setFocus();
         final SWTBotMenu blackDuckMenu = tree.contextMenu(MenuLabels.BLACK_DUCK);

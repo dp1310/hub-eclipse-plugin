@@ -27,7 +27,6 @@ import java.util.Arrays;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
-import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
@@ -72,11 +71,11 @@ public class BlackDuckBotUtils extends AbstractBotUtils {
         this.setSWTBotTimeoutDefault();
     }
 
-    public SWTBot getSupportedProjectView() {
+    public SWTBotView getSupportedProjectView() {
         for (final String viewTitle : Arrays.asList(WorkbenchBotUtils.PACKAGE_EXPLORER_VIEW, WorkbenchBotUtils.PROJECT_EXPLORER_VIEW)) {
             try {
                 final SWTBotView view = bot.viewByTitle(viewTitle);
-                return view.bot();
+                return view;
             } catch (WidgetNotFoundException e) {
             }
         }
