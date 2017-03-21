@@ -61,6 +61,7 @@ public class ComponentInspectorPreferencesBotTest {
         botUtils.closeWelcomeView();
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
         botUtils.preferences().hubSettings().enterCredentials(VALID_HUB_USERNAME, VALID_HUB_PASSWORD, VALID_HUB_URL, VALID_HUB_TIMEOUT);
+        botUtils.preferences().hubSettings().pressOK();
         botUtils.workbench().createProject().createGradleProject(TestConstants.TEST_GRADLE_PROJECT_NAME);
         botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
     }
