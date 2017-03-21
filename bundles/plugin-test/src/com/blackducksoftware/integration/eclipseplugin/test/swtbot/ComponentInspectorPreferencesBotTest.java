@@ -25,131 +25,194 @@ package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestConstants;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentInspectorPreferencesBotTest {
     private static BlackDuckBotUtils botUtils;
 
-    private static final String TEST_JAVA_PROJECT_NAME = "pref-test-java-project";
+    private static final String VALID_HUB_USERNAME = "sysadmin";
 
-    private static final String TEST_NON_JAVA_PROJECT_NAME = "pref-test-non-java-project";
+    private static final String VALID_HUB_PASSWORD = "blackduck";
 
-    private static final String TEST_MAVEN_PROJECT_ARTIFACT_ID = "test.artifact.id";
+    private static final String VALID_HUB_URL = "http://int-hub01.dc1.lan:8080";
 
-    private static final String TEST_MAVEN_PROJECT_GROUP_ID = "test.group.id";
+    private static final String VALID_HUB_TIMEOUT = "120";
 
     @BeforeClass
     public static void setUpWorkspace() {
         botUtils = new BlackDuckBotUtils();
         botUtils.closeWelcomeView();
-        botUtils.workbench().createProject().createJavaProject(TEST_JAVA_PROJECT_NAME);
-        botUtils.workbench().createProject().createGeneralProject(TEST_NON_JAVA_PROJECT_NAME);
-        botUtils.workbench().createProject().createMavenProject(TEST_MAVEN_PROJECT_GROUP_ID, TEST_MAVEN_PROJECT_ARTIFACT_ID);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().hubSettings().enterCredentials(VALID_HUB_USERNAME, VALID_HUB_PASSWORD, VALID_HUB_URL, VALID_HUB_TIMEOUT);
+        botUtils.workbench().createProject().createGradleProject(TestConstants.TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
+    }
+
+    @After
+    public void cleanUp() {
+        botUtils.setSWTBotTimeoutShort();
+        try {
+            botUtils.bot().shell("Preferences").close();
+        } catch (WidgetNotFoundException e) {
+            // Do nothing, because shell is closed
+        }
+        botUtils.setSWTBotTimeoutDefault();
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_ARTIFACT);
     }
 
     @Test
-    public void testContentsOfActiveJavaProjectsPage() {
-        botUtils.preferences().openBlackDuckPreferencesFromContextMenu();
-        final SWTBotTreeItem blackDuck = botUtils.bot().activeShell().bot().tree().expandNode(PreferencePageNames.BLACK_DUCK_HUB);
-        botUtils.bot().waitUntil(new TreeItemIsExpandedCondition(blackDuck));
-    }
-
-    @Ignore
     public void testThatAllJavaProjectsShow() {
-        botUtils.preferences().getDefaultSettingsPage();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
         final SWTBot pageBot = botUtils.bot().activeShell().bot();
-        assertNotNull(pageBot.checkBox(TEST_JAVA_PROJECT_NAME));
-        assertNotNull(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID));
+        assertNotNull(pageBot.checkBox(TestConstants.TEST_GRADLE_PROJECT_NAME));
+        assertNotNull(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT));
         try {
-            pageBot.checkBox(TEST_NON_JAVA_PROJECT_NAME);
+            pageBot.checkBox(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
             fail();
         } catch (final WidgetNotFoundException e) {
         }
-        botUtils.bot().shell("Preferences").close();
-    }
-
-    // TODO: Fix broken test
-    @Ignore
-    public void testAnalyzeByDefault() {
-        botUtils.preferences().setPrefsToActivateScanByDefault();
-        botUtils.preferences().getDefaultSettingsPage();
-        final SWTBot pageBot = botUtils.bot().activeShell().bot();
-        pageBot.button("Restore Defaults").click();
-        assertTrue(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
-        assertTrue(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID).isChecked());
-        botUtils.bot().shell("Preferences").close();
-    }
-
-    // TODO: Fix broken test
-    @Ignore
-    public void testDoNotAnalyzeByDefault() {
-        botUtils.preferences().setPrefsToNotActivateScanByDefault();
-        botUtils.preferences().getDefaultSettingsPage();
-        final SWTBot pageBot = botUtils.bot().activeShell().bot();
-        pageBot.button("Restore Defaults").click();
-        assertFalse(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
-        assertFalse(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID).isChecked());
-        botUtils.bot().shell("Preferences").close();
     }
 
     @Test
-    public void testThatBlackDuckDefaultWorks() {
-        botUtils.preferences().restoreAllBlackDuckDefaults();
-        botUtils.preferences().getDefaultSettingsPage();
+    public void testAnalyzeByDefault() {
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultTrue();
+        botUtils.preferences().inspectorSettings().pressOK();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
         final SWTBot pageBot = botUtils.bot().activeShell().bot();
-        pageBot.button("Restore Defaults").click();
-        assertTrue(pageBot.checkBox(TEST_JAVA_PROJECT_NAME).isChecked());
-        assertTrue(pageBot.checkBox(TEST_MAVEN_PROJECT_ARTIFACT_ID).isChecked());
-        botUtils.bot().shell("Preferences").close();
+        assertNotNull(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT));
+        assertTrue(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT).isChecked());
     }
 
-    // @Test
+    @Test
+    public void testDoNotAnalyzeByDefault() {
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultFalse();
+        botUtils.preferences().pressOK();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
+        assertNotNull(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT));
+        assertFalse(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT).isChecked());
+    }
+
+    @Test
     public void testActivateProject() {
-        // TODO: Test stub
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultFalse();
+        botUtils.preferences().pressOK();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().openComponentInspectorView();
+        final SWTBotTreeItem project = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        project.select();
+        botUtils.setSWTBotTimeoutShort();
+        try {
+            assertNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+        } catch (final WidgetNotFoundException e) {
+            // Do nothing, this is expected
+        }
+        botUtils.setSWTBotTimeoutDefault();
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
+        final SWTBotCheckBox mavenBox = pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT);
+        mavenBox.click();
+        botUtils.preferences().inspectorSettings().pressOK();
+        assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
     }
 
-    // @Test
+    @Test
     public void testDeactivateProject() {
-        // TODO: Test stub
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultTrue();
+        botUtils.preferences().pressOK();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().openComponentInspectorView();
+        final SWTBotTreeItem project = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        project.select();
+        assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
+        final SWTBotCheckBox mavenBox = pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT);
+        mavenBox.click();
+        botUtils.preferences().inspectorSettings().pressOK();
+        botUtils.setSWTBotTimeoutShort();
+        try {
+            assertNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+        } catch (final WidgetNotFoundException e) {
+            // Do nothing, this is expected
+        }
+        botUtils.setSWTBotTimeoutDefault();
     }
 
-    // @Test
-    public void testOK() {
-        // TODO: Test stub
-    }
-
-    // @Test
+    @Test
     public void testCancel() {
-        // TODO: Test stub
-
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultFalse();
+        botUtils.preferences().inspectorSettings().pressOK();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().activateProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().inspectorSettings().pressCancel();
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
+        assertNotNull(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT));
+        assertFalse(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT).isChecked());
     }
 
-    // @Test
+    @Test
     public void testApply() {
-        // TODO: Test stub
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultFalse();
+        botUtils.preferences().inspectorSettings().pressOK();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        botUtils.preferences().inspectorSettings().activateProject(TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.preferences().inspectorSettings().pressApply();
+        botUtils.preferences().inspectorSettings().pressCancel();
+        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+        final SWTBot pageBot = botUtils.bot().activeShell().bot();
+        assertNotNull(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT));
+        assertTrue(pageBot.checkBox(TestConstants.TEST_MAVEN_ARTIFACT).isChecked());
     }
 
     @AfterClass
     public static void tearDownWorkspace() {
-        botUtils.workbench().deleteProjectFromDisk(TEST_JAVA_PROJECT_NAME);
-        botUtils.workbench().deleteProjectFromDisk(TEST_MAVEN_PROJECT_ARTIFACT_ID);
-        botUtils.workbench().deleteProjectFromDisk(TEST_NON_JAVA_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         botUtils.bot().resetWorkbench();
     }
 

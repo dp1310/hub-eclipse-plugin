@@ -32,8 +32,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
@@ -57,12 +55,6 @@ import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class ProjectDependencyInformation {
-    public static final String JOB_INSPECT_ALL = "Black Duck Hub inspecting all projects";
-
-    public static final String JOB_INSPECT_PROJECT_PREFACE = "Black Duck Hub inspecting ";
-
-    public static final String INSPECTION_JOB = "Black Duck Hub Inspection";
-
     private final Activator plugin;
 
     private final ComponentCache componentCache;
@@ -86,16 +78,6 @@ public class ProjectDependencyInformation {
 
     public void removeComponentView() {
         componentView = null;
-    }
-
-    public List<String> getRunningInspections() {
-        IJobManager jobMan = Job.getJobManager();
-        ArrayList<String> inspectionList = new ArrayList<>();
-        Job[] inspections = jobMan.find(INSPECTION_JOB);
-        for (Job inspection : inspections) {
-            inspectionList.add(inspection.getName());
-        }
-        return inspectionList;
     }
 
     public void phoneHome() throws HubIntegrationException {
@@ -123,7 +105,7 @@ public class ProjectDependencyInformation {
         authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
                 proxyUsername, proxyPassword, proxyPort,
                 proxyHost, timeout);
-        HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
+        final HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
         phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion,
                 pluginVersion, hubVersion);
     }
@@ -158,7 +140,7 @@ public class ProjectDependencyInformation {
     }
 
     public List<ComponentModel> getProjectComponents(final String projectName) {
-        List<ComponentModel> models = projectInfo.get(projectName);
+        final List<ComponentModel> models = projectInfo.get(projectName);
         if (models == null) {
             return null;
         }
@@ -167,13 +149,19 @@ public class ProjectDependencyInformation {
 
     public void removeProject(final String projectName) {
         projectInfo.remove(projectName);
+        plugin.getDefaultPreferencesService().removeProject(projectName);
+        if (componentView != null) {
+            if (componentView.getLastSelectedProjectName().equals(projectName)) {
+                componentView.setLastSelectedProjectName("");
+            }
+        }
     }
 
     public void removeComponentFromProject(final String projectName, final Gav gav) {
         final List<ComponentModel> models = projectInfo.get(projectName);
         if (models != null) {
             for (Iterator<ComponentModel> iterator = models.iterator(); iterator.hasNext();) {
-                ComponentModel model = iterator.next();
+                final ComponentModel model = iterator.next();
                 if (model.getGav().equals(gav)) {
                     iterator.remove();
                 }
@@ -190,7 +178,7 @@ public class ProjectDependencyInformation {
     }
 
     public void renameProject(final String oldName, final String newName) {
-        List<ComponentModel> models = projectInfo.get(oldName);
+        final List<ComponentModel> models = projectInfo.get(oldName);
         projectInfo.put(newName, models);
         projectInfo.remove(oldName);
     }
@@ -200,7 +188,7 @@ public class ProjectDependencyInformation {
         if (projectInfo.isEmpty() && newConnectionService.hasActiveHubConnection()) {
             final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
             final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
-            List<String> supportedJavaProjects = workspaceInformationService.getSupportedJavaProjectNames();
+            final List<String> supportedJavaProjects = workspaceInformationService.getSupportedJavaProjectNames();
             inspectionQueueService.enqueueInspections(supportedJavaProjects);
         }
     }

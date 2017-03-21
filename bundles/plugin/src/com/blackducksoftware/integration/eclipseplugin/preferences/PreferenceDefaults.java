@@ -115,19 +115,8 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     @Override
     public boolean performOk() {
-        if (this.getApplyButton().isEnabled()) {
-            this.storeValues();
-        }
+        this.storeValues();
         return super.performOk();
-    }
-
-    @Override
-    protected void performDefaults() {
-        activateByDefault.loadDefault();
-        for (final BooleanFieldEditor isActive : activeProjectPreferences) {
-            isActive.loadDefault();
-        }
-        super.performDefaults();
     }
 
     private void storeValues() {
@@ -140,7 +129,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         final List<String> names = workspaceInformationService.getSupportedJavaProjectNames();
         if (activeProjectPreferences != null) {
             for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
-                BooleanFieldEditor currentField = iterator.next();
+                final BooleanFieldEditor currentField = iterator.next();
                 currentField.dispose();
                 iterator.remove();
             }
@@ -148,7 +137,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
             activeProjectPreferences = new ArrayList<>();
         }
         for (final String name : names) {
-            BooleanFieldEditor isActive = addProject(name);
+            final BooleanFieldEditor isActive = addProject(name);
             for (final String newProjectName : newProjects) {
                 if (name.equals(newProjectName)) {
                     isActive.loadDefault();
@@ -171,7 +160,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         if (event.getNewValue() == null) {
-            for (BooleanFieldEditor fieldEditor : activeProjectPreferences) {
+            for (final BooleanFieldEditor fieldEditor : activeProjectPreferences) {
                 if (fieldEditor.getPreferenceName().equals(event.getProperty())) {
                     this.removeProject(event.getProperty());
                     return;
@@ -190,9 +179,9 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
 
     private void removeProject(final String projectName) {
         for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
-            BooleanFieldEditor currentField = iterator.next();
+            final BooleanFieldEditor currentField = iterator.next();
             if (currentField.getPreferenceName().equals(projectName)) {
-                this.getPreferenceStore().setValue(projectName, null);
+                this.getPreferenceStore().setToDefault(projectName);
                 currentField.dispose();
                 iterator.remove();
             }

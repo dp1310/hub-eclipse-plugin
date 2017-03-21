@@ -40,14 +40,8 @@ import org.eclipse.ui.PlatformUI;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
-import com.blackducksoftware.integration.eclipseplugin.preferences.PreferenceDefaults;
-import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
 
 public class PreferenceBotUtils extends AbstractPreferenceBotUtils {
-    public static final String PREFERENCES_WINDOW_TITLE = "Preferences";
-
-    public static final String PREFERENCES_FILTERED_WINDOW_TITLE = PREFERENCES_WINDOW_TITLE + " (Filtered)";
-
     public static final String OK_BUTTON_TEXT = "OK";
 
     public static final String APPLY_BUTTON_TEXT = "Apply";
@@ -58,13 +52,20 @@ public class PreferenceBotUtils extends AbstractPreferenceBotUtils {
 
     private final HubPreferencesBotUtils hubPreferencesBotUtils;
 
+    private final InspectorPreferencesBotUtils inspectorPreferencesBotUtils;
+
     public PreferenceBotUtils(final BlackDuckBotUtils botUtils) {
         super(botUtils);
         this.hubPreferencesBotUtils = new HubPreferencesBotUtils(botUtils);
+        this.inspectorPreferencesBotUtils = new InspectorPreferencesBotUtils(botUtils);
     }
 
     public HubPreferencesBotUtils hubSettings() {
         return hubPreferencesBotUtils;
+    }
+
+    public InspectorPreferencesBotUtils inspectorSettings() {
+        return inspectorPreferencesBotUtils;
     }
 
     public void openBlackDuckPreferencesFromContextMenu() {
@@ -118,73 +119,6 @@ public class PreferenceBotUtils extends AbstractPreferenceBotUtils {
         SWTBotTree tree = bot.tree();
         SWTBotTreeItem blackDuckNode = tree.getTreeItem(PreferencePageNames.BLACK_DUCK_HUB);
         blackDuckNode.click();
-    }
-
-    public void setPrefsToActivateScanByDefault() {
-        getDefaultSettingsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
-        pageBot.radio(PreferenceDefaults.ACTIVATE_BY_DEFAULT).click();
-        this.pressButton(OK_BUTTON_TEXT);
-        try {
-            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
-        } catch (final WidgetNotFoundException e) {
-
-        }
-    }
-
-    public void setPrefsToNotActivateScanByDefault() {
-        getDefaultSettingsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
-        pageBot.radio(PreferenceDefaults.DO_NOT_ACTIVATE_BY_DEFAULT).click();
-        this.pressButton(OK_BUTTON_TEXT);
-        try {
-            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
-        } catch (final WidgetNotFoundException e) {
-
-        }
-    }
-
-    public void activateProject(final String projectName) {
-        getDefaultSettingsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
-        pageBot.checkBox(projectName).select();
-        this.pressButton(OK_BUTTON_TEXT);
-        try {
-            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
-        } catch (final WidgetNotFoundException e) {
-
-        }
-    }
-
-    public void deactivateProject(final String projectName) {
-        getDefaultSettingsPage();
-        final SWTBot pageBot = bot.activeShell().bot();
-        pageBot.checkBox(projectName).deselect();
-        this.pressButton(OK_BUTTON_TEXT);
-        try {
-            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
-        } catch (final WidgetNotFoundException e) {
-
-        }
-    }
-
-    public void restoreAllBlackDuckDefaults() {
-        getDefaultSettingsPage();
-        this.pressButton(DEFAULTS_BUTTON_TEXT);
-        this.pressButton(OK_BUTTON_TEXT);
-        try {
-            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
-        } catch (final WidgetNotFoundException e) {
-
-        }
-    }
-
-    public void getDefaultSettingsPage() {
-        openBlackDuckPreferencesFromEclipseMenu();
-        final SWTBot pageBot = bot.activeShell().bot();
-        final SWTBotTreeItem blackDuck = pageBot.tree().expandNode(PreferencePageNames.BLACK_DUCK_HUB);
-        bot.waitUntil(new TreeItemIsExpandedCondition(blackDuck));
-        blackDuck.getNode(PreferencePageNames.COMPONENT_INSPECTOR_SETTINGS).click();
     }
 
 }

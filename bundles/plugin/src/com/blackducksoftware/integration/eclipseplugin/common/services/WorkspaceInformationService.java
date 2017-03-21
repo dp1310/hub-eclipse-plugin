@@ -62,8 +62,8 @@ public class WorkspaceInformationService {
         return supportedProjects;
     }
 
-    public boolean getIsSupportedProject(String projectName) {
-        for (String supportedProjectName : getSupportedJavaProjectNames()) {
+    public boolean getIsSupportedProject(final String projectName) {
+        for (final String supportedProjectName : getSupportedJavaProjectNames()) {
             if (projectName.equals(supportedProjectName)) {
                 return true;
             }

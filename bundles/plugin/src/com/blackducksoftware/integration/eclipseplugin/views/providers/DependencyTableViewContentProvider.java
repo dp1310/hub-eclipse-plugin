@@ -84,7 +84,7 @@ public class DependencyTableViewContentProvider implements ILazyContentProvider 
             return NOTHING;
         }
         final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
-        final boolean isActivated = plugin.getPreferenceStore().getBoolean(projectName);
+        final boolean isActivated = plugin.getDefaultPreferencesService().isActivated(projectName);
         if (isActivated) {
             if (plugin.getConnectionService().hasActiveHubConnection()) {
                 final List<ComponentModel> componentModels = plugin.getProjectInformation().getProjectComponents(projectName);

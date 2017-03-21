@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.IJobManager;
@@ -134,12 +133,9 @@ public class InspectionQueueService implements IJobChangeListener {
 
     @Override
     public void done(IJobChangeEvent event) {
-        VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
+        final VulnerabilityView componentView = plugin.getProjectInformation().getComponentView();
         if (componentView != null && componentView.getLastSelectedProjectName().equals(currentInspection.getProjectName())) {
             componentView.resetInput();
-            if (event.getResult().equals(Status.OK_STATUS)) {
-                componentView.setStatusMessage(InspectionStatus.CONNECTION_OK);
-            }
         }
         currentInspection = null;
         if (!inspectionQueue.isEmpty()) {

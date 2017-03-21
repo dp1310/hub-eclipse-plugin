@@ -23,7 +23,14 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+
 public abstract class AbstractPreferenceBotUtils extends AbstractBotUtils {
+    public static final String PREFERENCES_WINDOW_TITLE = "Preferences";
+
+    public static final String PREFERENCES_FILTERED_WINDOW_TITLE = PREFERENCES_WINDOW_TITLE + " (Filtered)";
+
     public AbstractPreferenceBotUtils(final BlackDuckBotUtils botUtils) {
         super(botUtils);
     }
@@ -34,9 +41,19 @@ public abstract class AbstractPreferenceBotUtils extends AbstractBotUtils {
 
     public void pressOK() {
         this.pressButton("OK");
+        try {
+            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
+        } catch (final WidgetNotFoundException e) {
+            // Do nothing because the window has already closed
+        }
     }
 
     public void pressCancel() {
         this.pressButton("Cancel");
+        try {
+            bot.waitUntil(Conditions.shellCloses(bot.shell(PREFERENCES_WINDOW_TITLE)));
+        } catch (final WidgetNotFoundException e) {
+            // Do nothing because the window has already closed
+        }
     }
 }

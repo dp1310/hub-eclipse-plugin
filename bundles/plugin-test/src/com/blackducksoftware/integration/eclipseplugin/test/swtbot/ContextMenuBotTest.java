@@ -168,12 +168,7 @@ public class ContextMenuBotTest {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
         botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
         botUtils.preferences().pressOK();
-        final SWTBotView view = botUtils.getSupportedProjectView();
-        view.setFocus();
-        final SWTBot viewBot = view.bot();
-        final SWTBotTree tree = viewBot.tree();
-        final SWTBotTreeItem node = tree.getTreeItem(TestConstants.TEST_MAVEN_ARTIFACT);
-        node.setFocus();
+        final SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
         final SWTBotRootMenu rootMenu = node.select().contextMenu();
         final SWTBotMenu blackDuckMenu = rootMenu.contextMenu(MenuLabels.BLACK_DUCK);
         final SWTBotMenu inspectProject = blackDuckMenu.contextMenu(MenuLabels.INSPECT_PROJECT);

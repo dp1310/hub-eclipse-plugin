@@ -51,7 +51,7 @@ public class NewJavaProjectListener implements IResourceChangeListener {
         InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
         final IResourceDelta[] childrenDeltas = eventDelta.getAffectedChildren();
         for (final IResourceDelta delta : childrenDeltas) {
-            String projectName = this.extractProjectNameIfMovedOrAdded(delta);
+            final String projectName = this.extractProjectNameIfMovedOrAdded(delta);
             if (projectName != null && workspaceInformationService.getIsSupportedProject(projectName)) {
                 if (defaultPreferencesService.checkIfProjectNeedsInitialization(projectName)) {
                     // If the preferences page hasn't been set up yet, we need to do it manually
