@@ -102,7 +102,7 @@ public class Activator extends AbstractUIPlugin {
         information = new ProjectDependencyInformation(this, componentCache);
         defaultPreferencesService = new PreferencesService(plugin, getPreferenceStore());
         newJavaProjectListener = new NewJavaProjectListener(this);
-        defaultPrefChangeListener = new DefaultPreferenceChangeListener(inspectionQueueService, defaultPreferencesService);
+        defaultPrefChangeListener = new DefaultPreferenceChangeListener(this);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
         javaProjectDeletedListener = new JavaProjectDeletedListener();
         ResourcesPlugin.getWorkspace().addResourceChangeListener(newJavaProjectListener);

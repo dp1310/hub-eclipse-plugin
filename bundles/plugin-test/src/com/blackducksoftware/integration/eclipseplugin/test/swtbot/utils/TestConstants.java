@@ -24,11 +24,13 @@
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
 public class TestConstants {
-    public static final String TEST_MAVEN_GROUP = "com.blackducksoftware.eclipseplugin.test";
+    public static final String TEST_MAVEN_GROUP = "com.blackducksoftware.integration.eclipseplugin.test";
 
-    public static final String TEST_MAVEN_ARTIFACT = "maven-project";
+    public static final String TEST_MAVEN_ARTIFACT = "just-a-maven-project";
 
-    public static final String TEST_GRADLE_PROJECT_NAME = "gradle-project";
+    public static final String TEST_MAVEN_ARTIFACT_2 = "just-another-maven-project";
 
-    public static final String TEST_NON_JAVA_PROJECT_NAME = "non-java-project";
+    public static final String TEST_GRADLE_PROJECT_NAME = "just-a-gradle-project";
+
+    public static final String TEST_NON_JAVA_PROJECT_NAME = "just-a-non-java-project";
 }

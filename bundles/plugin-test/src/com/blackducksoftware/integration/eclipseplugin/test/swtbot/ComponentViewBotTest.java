@@ -26,20 +26,16 @@ package com.blackducksoftware.integration.eclipseplugin.test.swtbot;
 import static org.junit.Assert.assertNotNull;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
-import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.blackducksoftware.integration.eclipseplugin.common.constants.MenuLabels;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewIds;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.ViewNames;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestConstants;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentViewBotTest {
@@ -53,28 +49,8 @@ public class ComponentViewBotTest {
     public static void setUpWorkspaceBot() {
         botUtils = new BlackDuckBotUtils();
         botUtils.closeWelcomeView();
-        botUtils.workbench().createProject().createJavaProject(TEST_JAVA_PROJECT_NAME);
-        botUtils.workbench().createProject().createGeneralProject(TEST_NON_JAVA_PROJECT_NAME);
-    }
-
-    private void openVulnerabilityViewFromContextMenu(final String projectName) {
-        final SWTBotView view = botUtils.getSupportedProjectView();
-        view.setFocus();
-        final SWTBot viewBot = view.bot();
-        final SWTBotTree tree = viewBot.tree();
-        tree.setFocus();
-        final SWTBotMenu blackDuckMenu = tree.contextMenu(MenuLabels.BLACK_DUCK);
-        final SWTBotMenu openComponentInspector = blackDuckMenu.contextMenu(MenuLabels.OPEN_COMPONENT_INSPECTOR);
-        openComponentInspector.click();
-    }
-
-    @Test
-    public void testThatWarningViewOpensFromContextMenu() {
-        final SWTWorkbenchBot bot = botUtils.bot();
-        openVulnerabilityViewFromContextMenu(TEST_JAVA_PROJECT_NAME);
-        assertNotNull(bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR));
-        assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
-        bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR).close();
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT_2);
     }
 
     @Test
@@ -82,7 +58,7 @@ public class ComponentViewBotTest {
         final SWTWorkbenchBot bot = botUtils.bot();
         botUtils.workbench().openComponentInspectorView();
         assertNotNull(bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR));
-        assertNotNull(bot.viewById(ViewIds.VULNERABILITIES));
+        assertNotNull(bot.viewById(ViewIds.COMPONENT_INSPECTOR));
         bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR).close();
     }
 
