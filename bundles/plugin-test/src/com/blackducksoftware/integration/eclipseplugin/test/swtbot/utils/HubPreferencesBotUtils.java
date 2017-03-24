@@ -29,8 +29,28 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.Preferen
 import com.blackducksoftware.integration.eclipseplugin.preferences.BlackDuckPreferences;
 
 public class HubPreferencesBotUtils extends AbstractPreferenceBotUtils {
+    public static final String VALID_HUB_USERNAME = "sysadmin";
+
+    public static final String VALID_HUB_PASSWORD = "blackduck";
+
+    public static final String VALID_HUB_URL = "http://int-auto01.dc1.lan:9000";
+
+    public static final String ALT_VALID_HUB_URL = "http://int-hub01.dc1.lan:8080";
+
+    public static final String VALID_HUB_TIMEOUT = "120";
+
+    public static final String INVALID_STRING = "INVALID";
+
     public HubPreferencesBotUtils(final BlackDuckBotUtils botUtils) {
         super(botUtils);
+    }
+
+    public void enterValidCredentials() {
+        this.enterCredentials(VALID_HUB_USERNAME, VALID_HUB_PASSWORD, VALID_HUB_URL, VALID_HUB_TIMEOUT);
+    }
+
+    public void enterInvalidCredentials() {
+        this.enterCredentials(INVALID_STRING, INVALID_STRING, INVALID_STRING, INVALID_STRING);
     }
 
     public void enterCredentials(final String hubUsername, final String hubPassword, final String hubUrl, final String hubTimeout) {

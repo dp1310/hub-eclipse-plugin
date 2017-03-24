@@ -23,8 +23,15 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -97,4 +104,14 @@ public class BlackDuckBotUtils extends AbstractBotUtils {
         }
     }
 
+    public void addJarToProject(final String jarPath, final String projectName) throws IOException {
+        final File resourceJar = new File(jarPath);
+        final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+        IPath workspacePath = workspaceRoot.getLocation();
+        final String projectPomRelativePath = String.format("/%s/target/%s", projectName, resourceJar.toPath().getFileName());
+        workspacePath = workspacePath.append(projectPomRelativePath);
+        final File projectLocation = workspacePath.toFile();
+        Files.copy(resourceJar.toPath(), projectLocation.toPath());
+    }
 }

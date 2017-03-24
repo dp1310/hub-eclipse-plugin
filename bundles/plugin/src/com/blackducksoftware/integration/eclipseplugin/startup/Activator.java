@@ -100,7 +100,7 @@ public class Activator extends AbstractUIPlugin {
         componentCache = new ComponentCache(COMPONENT_CACHE_CAPACITY, depService);
         inspectionQueueService = new InspectionQueueService(this, projService);
         information = new ProjectDependencyInformation(this, componentCache);
-        defaultPreferencesService = new PreferencesService(plugin, getPreferenceStore());
+        defaultPreferencesService = new PreferencesService(plugin);
         newJavaProjectListener = new NewJavaProjectListener(this);
         defaultPrefChangeListener = new DefaultPreferenceChangeListener(this);
         depsChangedListener = new ProjectDependenciesChangedListener(information, extractor, depService);
@@ -108,7 +108,7 @@ public class Activator extends AbstractUIPlugin {
         ResourcesPlugin.getWorkspace().addResourceChangeListener(newJavaProjectListener);
         ResourcesPlugin.getWorkspace().addResourceChangeListener(javaProjectDeletedListener,
                 IResourceChangeEvent.PRE_DELETE);
-        getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
+        plugin.getPreferenceStore().addPropertyChangeListener(defaultPrefChangeListener);
         JavaCore.addElementChangedListener(depsChangedListener);
         defaultPreferencesService.setDefaultConfig();
         inspectionQueueService.enqueueInspections(workspaceInformationService.getSupportedJavaProjectNames());
@@ -140,7 +140,7 @@ public class Activator extends AbstractUIPlugin {
     }
 
     public RestConnection getInitialHubConnection() throws HubIntegrationException {
-        final IPreferenceStore prefs = getPlugin().getPreferenceStore();
+        final IPreferenceStore prefs = plugin.getPreferenceStore();
         final String hubURL = prefs.getString(PreferenceNames.HUB_URL);
         final String hubUsername = prefs.getString(PreferenceNames.HUB_USERNAME);
         final String hubPassword = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
@@ -171,7 +171,7 @@ public class Activator extends AbstractUIPlugin {
         inspectionQueueService.shutDown();
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(newJavaProjectListener);
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(javaProjectDeletedListener);
-        getPreferenceStore().removePropertyChangeListener(defaultPrefChangeListener);
+        plugin.getPreferenceStore().removePropertyChangeListener(defaultPrefChangeListener);
         JavaCore.removeElementChangedListener(depsChangedListener);
         super.stop(context);
     }

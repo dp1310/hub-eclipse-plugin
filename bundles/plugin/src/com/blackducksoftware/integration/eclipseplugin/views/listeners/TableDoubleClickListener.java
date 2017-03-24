@@ -85,8 +85,7 @@ public class TableDoubleClickListener implements IDoubleClickListener {
                         link = plugin.getConnectionService().getRestConnection().getBaseUrl().toString();
                         link = link + "/#versions/id:" + versionID + "/view:overview";
                         IWebBrowser browser;
-                        boolean createInternalBrowser = true;
-                        if (createInternalBrowser) {
+                        if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
                             browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Hub-Eclipse-Browser");
                         } else {
                             browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();

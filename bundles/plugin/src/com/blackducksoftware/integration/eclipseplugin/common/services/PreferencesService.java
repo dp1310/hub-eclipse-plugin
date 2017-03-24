@@ -30,7 +30,6 @@ import java.util.Set;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
@@ -38,13 +37,9 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 public class PreferencesService implements IPropertyChangeListener {
     private final Set<String> initializedProjects;
 
-    private final ScopedPreferenceStore prefStore;
-
     private final Activator plugin;
 
-    public PreferencesService(final Activator plugin, final IPreferenceStore prefStore) {
-        this.prefStore = (ScopedPreferenceStore) prefStore;
-        this.prefStore.setSearchContexts(null);
+    public PreferencesService(final Activator plugin) {
         this.plugin = plugin;
         this.initializedProjects = this.getInitializedProjects();
     }
@@ -60,11 +55,13 @@ public class PreferencesService implements IPropertyChangeListener {
     }
 
     public void setDefaultConfig() {
+        final IPreferenceStore prefStore = plugin.getPreferenceStore();
         prefStore.setDefault(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT, "true");
     }
 
     public void initializeProjectActivation(final String projectName) {
         if (!initializedProjects.contains(projectName)) {
+            final IPreferenceStore prefStore = plugin.getPreferenceStore();
             final String defaultBooleanAsString = prefStore.getString(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT);
             final boolean defaultBoolean = Boolean.parseBoolean(defaultBooleanAsString);
             prefStore.setDefault(projectName, defaultBoolean);
@@ -78,10 +75,12 @@ public class PreferencesService implements IPropertyChangeListener {
     }
 
     public void setProjectActivation(final String projectName, final boolean value) {
+        final IPreferenceStore prefStore = plugin.getPreferenceStore();
         prefStore.setValue(projectName, value);
     }
 
     public boolean isActivated(final String projectName) {
+        final IPreferenceStore prefStore = plugin.getPreferenceStore();
         return prefStore.getBoolean(projectName);
     }
 
@@ -94,6 +93,7 @@ public class PreferencesService implements IPropertyChangeListener {
         if (event.getProperty().equals(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT) && event.getNewValue() != null) {
             final String stringValue = (String) event.getNewValue();
             final boolean newValue = Boolean.parseBoolean(stringValue);
+            final IPreferenceStore prefStore = plugin.getPreferenceStore();
             initializedProjects.forEach(initializedProject -> prefStore.setDefault(initializedProject, newValue));
         }
     }

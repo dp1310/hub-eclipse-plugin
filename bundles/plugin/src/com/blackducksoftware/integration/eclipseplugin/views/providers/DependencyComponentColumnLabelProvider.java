@@ -72,7 +72,7 @@ public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLa
     @Override
     public void styleCell(ViewerCell cell) {
         String[] compChunks = cell.getText().split(":");
-        cell.setText(String.format("%1$s  %2$s ", compChunks[0], compChunks[1]));
+        cell.setText(String.format("%s  %s ", compChunks[0], compChunks[1]));
         Display display = Display.getCurrent();
         final Color versionColor = decodeHex(display, "#285F8F");
         final Color backgroundColor = decodeHex(display, "#fafafa");

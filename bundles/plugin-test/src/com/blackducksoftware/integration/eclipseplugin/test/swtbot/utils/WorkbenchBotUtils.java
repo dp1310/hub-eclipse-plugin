@@ -23,12 +23,22 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotRootMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
@@ -168,4 +178,22 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
         return tree.getTreeItem(projectName);
     }
 
+    public void copyPomToProject(final String resourcePomPath, final String projectName) throws IOException {
+        final File resourcePom = new File(resourcePomPath);
+        final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+        IPath workspacePath = workspaceRoot.getLocation();
+        final String projectPomRelativePath = String.format("/%s/pom.xml", projectName);
+        workspacePath = workspacePath.append(projectPomRelativePath);
+        final File projectPom = workspacePath.toFile();
+        Files.copy(resourcePom.toPath(), projectPom.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        this.updateMavenProject(projectName);
+    }
+
+    public void closeProject(final String projectName) {
+        final SWTBotTreeItem projectNode = getProject(projectName);
+        final SWTBotRootMenu projectMenu = projectNode.contextMenu();
+        final SWTBotMenu closeProject = projectMenu.menu("Close Project");
+        closeProject.click();
+    }
 }

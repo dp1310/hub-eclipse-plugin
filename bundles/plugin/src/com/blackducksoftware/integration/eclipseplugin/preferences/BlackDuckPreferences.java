@@ -78,7 +78,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
     @Override
     protected Control createContents(final Composite parent) {
         final Composite authComposite = new Composite(parent, SWT.LEFT);
-        GridLayout authCompositeLayout = new GridLayout();
+        final GridLayout authCompositeLayout = new GridLayout();
         authCompositeLayout.numColumns = NUM_COLUMNS;
         authComposite.setLayout(authCompositeLayout);
         authComposite.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_BEGINNING));
@@ -95,8 +95,8 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
                 createPasswordField(parent, authComposite, PreferenceFieldLabels.PROXY_PASSWORD_LABEL, SecurePreferenceNames.PROXY_PASSWORD));
         hubAuthorizationConfig.setProxyHostField(createStringField(PreferenceNames.PROXY_HOST, PreferenceFieldLabels.PROXY_HOST_LABEL, authComposite, false));
         hubAuthorizationConfig.setProxyPortField(createStringField(PreferenceNames.PROXY_PORT, PreferenceFieldLabels.PROXY_PORT_LABEL, authComposite, true));
-        Composite connectionMessageComposite = new Composite(parent, SWT.LEFT);
-        GridLayout connectionMessageCompositeLayout = new GridLayout();
+        final Composite connectionMessageComposite = new Composite(parent, SWT.LEFT);
+        final GridLayout connectionMessageCompositeLayout = new GridLayout();
         connectionMessageCompositeLayout.numColumns = 1;
         connectionMessageComposite.setLayout(connectionMessageCompositeLayout);
         connectionMessageComposite
@@ -118,8 +118,8 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
                 new TestHubCredentialsSelectionListener(hubAuthorizationConfig, connectionMessageText));
     }
 
-    private StringFieldEditor createStringField(String preferenceName, String label, Composite composite, boolean integerValidation) {
-        StringFieldEditor editor;
+    private StringFieldEditor createStringField(final String preferenceName, final String label, final Composite composite, final boolean integerValidation) {
+        final StringFieldEditor editor;
         if (integerValidation) {
             // String field editor w/ integer validation, we can make this a separate class if we need to.
             editor = new StringFieldEditor(preferenceName, label, composite) {

@@ -40,28 +40,13 @@ import org.junit.runner.RunWith;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferencePageNames;
 import com.blackducksoftware.integration.eclipseplugin.internal.AuthorizationValidator;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.BlackDuckBotUtils;
+import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.HubPreferencesBotUtils;
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestConstants;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class BlackDuckHubPreferencesBotTest {
 
     public static BlackDuckBotUtils botUtils;
-
-    private final String validHubUsername = "sysadmin";
-
-    private final String validHubPassword = "blackduck";
-
-    private final String validHubUrl = "http://int-hub01.dc1.lan:8080";
-
-    private final String validHubTimeout = "120";
-
-    private final String invalidHubUsername = "INVALID";
-
-    private final String invalidHubPassword = "INVALID";
-
-    private final String invalidHubUrl = "http://int-not-a-hub.dc1.lan";
-
-    private final String invalidHubTimeout = "0";
 
     @BeforeClass
     public static void setUpWorkspace() {
@@ -94,7 +79,7 @@ public class BlackDuckHubPreferencesBotTest {
     @Test
     public void testValidHubConfiguration() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterValidCredentials();
         botUtils.preferences().hubSettings().testCurrentCredentials();
         final SWTWorkbenchBot bot = botUtils.bot();
         assertNotNull(bot.text(AuthorizationValidator.LOGIN_SUCCESS_MESSAGE));
@@ -104,7 +89,8 @@ public class BlackDuckHubPreferencesBotTest {
     @Test
     public void testInvalidHubURL() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, invalidHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterCredentials(HubPreferencesBotUtils.VALID_HUB_USERNAME, HubPreferencesBotUtils.VALID_HUB_PASSWORD,
+                HubPreferencesBotUtils.INVALID_STRING, HubPreferencesBotUtils.VALID_HUB_TIMEOUT);
         botUtils.preferences().hubSettings().testCurrentCredentials();
         final SWTWorkbenchBot bot = botUtils.bot();
         try {
@@ -120,7 +106,8 @@ public class BlackDuckHubPreferencesBotTest {
     @Test
     public void testInvalidHubUsername() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(invalidHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterCredentials(HubPreferencesBotUtils.INVALID_STRING, HubPreferencesBotUtils.VALID_HUB_PASSWORD,
+                HubPreferencesBotUtils.VALID_HUB_URL, HubPreferencesBotUtils.VALID_HUB_TIMEOUT);
         botUtils.preferences().hubSettings().testCurrentCredentials();
         final SWTWorkbenchBot bot = botUtils.bot();
         try {
@@ -136,7 +123,8 @@ public class BlackDuckHubPreferencesBotTest {
     @Test
     public void testInvalidHubPassword() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, invalidHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterCredentials(HubPreferencesBotUtils.VALID_HUB_USERNAME, HubPreferencesBotUtils.INVALID_STRING,
+                HubPreferencesBotUtils.VALID_HUB_URL, HubPreferencesBotUtils.VALID_HUB_TIMEOUT);
         botUtils.preferences().hubSettings().testCurrentCredentials();
         final SWTWorkbenchBot bot = botUtils.bot();
         try {
@@ -152,7 +140,8 @@ public class BlackDuckHubPreferencesBotTest {
     @Test
     public void testInvalidHubTimeout() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, invalidHubTimeout);
+        botUtils.preferences().hubSettings().enterCredentials(HubPreferencesBotUtils.VALID_HUB_USERNAME, HubPreferencesBotUtils.VALID_HUB_PASSWORD,
+                HubPreferencesBotUtils.VALID_HUB_URL, HubPreferencesBotUtils.INVALID_STRING);
         botUtils.preferences().hubSettings().testCurrentCredentials();
         final SWTWorkbenchBot bot = botUtils.bot();
         try {
@@ -169,7 +158,7 @@ public class BlackDuckHubPreferencesBotTest {
     public void testApplyChanges() {
         botUtils.workbench().openComponentInspectorView();
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterValidCredentials();
         botUtils.preferences().pressApply();
         botUtils.closeActiveShell();
         SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
@@ -186,7 +175,7 @@ public class BlackDuckHubPreferencesBotTest {
     public void testOK() {
         botUtils.workbench().openComponentInspectorView();
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterValidCredentials();
         botUtils.preferences().pressOK();
         SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
         node.click();
@@ -202,10 +191,10 @@ public class BlackDuckHubPreferencesBotTest {
     public void testCancel() {
         botUtils.workbench().openComponentInspectorView();
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(invalidHubUsername, invalidHubPassword, invalidHubUrl, invalidHubTimeout);
+        botUtils.preferences().hubSettings().enterInvalidCredentials();
         botUtils.preferences().pressOK();
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(validHubUsername, validHubPassword, validHubUrl, validHubTimeout);
+        botUtils.preferences().hubSettings().enterValidCredentials();
         botUtils.preferences().pressCancel();
         SWTBotTreeItem node = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_ARTIFACT);
         node.click();

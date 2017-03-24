@@ -23,7 +23,9 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.constants;
 
-public class ViewIds {
+public class PluginIDs {
+    public static final String ECLIPSE_PLUGIN = "com.blackducksoftware.integration.eclipseplugin.hub-eclipse-plugin";
+
     public static final String BLACK_DUCK = "com.blackducksoftware.integration.eclipseplugin.views";
 
     public static final String COMPONENT_INSPECTOR = "com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView";

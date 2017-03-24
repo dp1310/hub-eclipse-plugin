@@ -47,20 +47,12 @@ import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestCon
 public class ComponentInspectorPreferencesBotTest {
     private static BlackDuckBotUtils botUtils;
 
-    private static final String VALID_HUB_USERNAME = "sysadmin";
-
-    private static final String VALID_HUB_PASSWORD = "blackduck";
-
-    private static final String VALID_HUB_URL = "http://int-hub01.dc1.lan:8080";
-
-    private static final String VALID_HUB_TIMEOUT = "120";
-
     @BeforeClass
     public static void setUpWorkspace() {
         botUtils = new BlackDuckBotUtils();
         botUtils.closeWelcomeView();
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(VALID_HUB_USERNAME, VALID_HUB_PASSWORD, VALID_HUB_URL, VALID_HUB_TIMEOUT);
+        botUtils.preferences().hubSettings().enterValidCredentials();
         botUtils.preferences().hubSettings().pressOK();
         botUtils.workbench().createProject().createGradleProject(TestConstants.TEST_GRADLE_PROJECT_NAME);
         botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
