@@ -32,7 +32,6 @@ import java.io.IOException;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -50,9 +49,9 @@ import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestCon
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentViewBotTest {
+	private static final String COMMONS_FILEUPLOAD = "commons-fileupload";
+	
     private final String[] testMavenComponents = { "commons-fileupload  1.0 ", "just-a-maven-project  0.0.1-SNAPSHOT ", "junit  3.8.1 " };
-
-    private final String unknownComponent = "just-a-maven-project  0.0.1-SNAPSHOT ";
 
     private final String filterBoxMessage = "type filter text";
 
@@ -71,9 +70,9 @@ public class ComponentViewBotTest {
         botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
         botUtils.workbench().closeProject(TestConstants.TEST_MAVEN_ARTIFACT);
         botUtils.addJarToProject(TestConstants.TEST_MAVEN_ARTIFACT_JAR, TestConstants.TEST_MAVEN_ARTIFACT);
+        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
         botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
         botUtils.workbench().copyPomToProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT_POM_PATH, TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        botUtils.workbench().createProject().createGradleProject(TestConstants.TEST_GRADLE_PROJECT_NAME);
         botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
     }
 
@@ -104,6 +103,8 @@ public class ComponentViewBotTest {
         botUtils.preferences().pressOK();
         final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
         projectNode.select();
+        botUtils.workbench().openComponentInspectorView();
+        botUtils.componentInspector().getInspectionResultsTable().setFocus();
         assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
     }
 
@@ -112,8 +113,10 @@ public class ComponentViewBotTest {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
         botUtils.preferences().hubSettings().enterValidCredentials();
         botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_GRADLE_PROJECT_NAME);
+        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
         projectNode.select();
+        botUtils.workbench().openComponentInspectorView();
+        botUtils.componentInspector().getInspectionResultsTable().setFocus();
         assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK_NO_COMPONENTS));
     }
 
@@ -124,6 +127,8 @@ public class ComponentViewBotTest {
         botUtils.preferences().pressOK();
         final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
         projectNode.select();
+        botUtils.workbench().openComponentInspectorView();
+        botUtils.componentInspector().getInspectionResultsTable().setFocus();
         assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_DISCONNECTED));
     }
 
@@ -131,28 +136,29 @@ public class ComponentViewBotTest {
     public void testProjectNotSupported() {
         final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         projectNode.select();
+        botUtils.workbench().openComponentInspectorView();
+        botUtils.componentInspector().getInspectionResultsTable().setFocus();
         assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_NOT_SUPPORTED));
     }
 
     @Test
-    public void testConnectionDeactivated() {
+    public void testInspectionDeactivated() {
         botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
         botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
         botUtils.preferences().inspectorSettings().deactivateProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_INSPECTION_INACTIVE));
-    }
-
-    // @Test
-    public void testStatusMessages() {
-        // TODO: Unfinished tests
-        // No project selected:
-        // InspectionStatus.NO_SELECTED_PROJECT
-
-        // Requires a big project, only active when that project is being inspected:
-        // InspectionStatus.PROJECT_INSPECTION_ACTIVE
-        // InspectionStatus.PROJECT_INSPECTION_SCHEDULED
+        botUtils.preferences().inspectorSettings().pressOK();
+        try{
+        	final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+        	projectNode.select();
+        	botUtils.workbench().openComponentInspectorView();
+        	botUtils.componentInspector().getInspectionResultsTable().setFocus();
+        	assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_INSPECTION_INACTIVE));
+        }finally{
+            botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+            botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+            botUtils.preferences().inspectorSettings().activateProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+            botUtils.preferences().inspectorSettings().pressOK();
+        }
     }
 
     @Test
@@ -160,9 +166,10 @@ public class ComponentViewBotTest {
         botUtils.workbench().openComponentInspectorView();
         final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
         projectNode.select();
+        botUtils.componentInspector().getInspectionResultsTable().setFocus();
         final SWTBot viewBot = botUtils.componentInspector().getComponentInspectorView();
         final SWTBotText filterbox = viewBot.textWithMessage(filterBoxMessage);
-        filterbox.typeText(testMavenComponents[0]);
+        filterbox.typeText(COMMONS_FILEUPLOAD);
         try {
             final SWTBotTable table = botUtils.componentInspector().getInspectionResultsTable();
             for (final String componentName : testMavenComponents) {
@@ -175,24 +182,6 @@ public class ComponentViewBotTest {
         } finally {
             filterbox.setText("");
         }
-    }
-
-    // @Test
-    public void testAttemptToOpenValidComponentWithValidHubCredentials() {
-        // TODO: Test stub
-    }
-
-    @Test
-    public void testAttemptToOpenUnknownComponent() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterValidCredentials();
-        botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        final SWTBot bot = botUtils.bot();
-        final String activeShellText = bot.activeShell().getText();
-        botUtils.componentInspector().openComponent(unknownComponent);
-        bot.waitUntil(Conditions.shellIsActive(activeShellText));
     }
 
     @Test
@@ -228,7 +217,8 @@ public class ComponentViewBotTest {
     public static void tearDownWorkspaceBot() {
         botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_ARTIFACT);
         botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_GRADLE_PROJECT_NAME);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
+        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
         botUtils.bot().resetWorkbench();
     }
 

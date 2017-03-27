@@ -23,7 +23,6 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.preferences;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -147,7 +146,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
             editor = new StringFieldEditor(preferenceName, label, composite);
         }
         editor.setPage(this);
-        editor.setPreferenceStore(this.getPreferenceStore());
+        editor.setPreferenceStore(plugin.getPreferenceStore());
         editor.fillIntoGrid(composite, NUM_COLUMNS);
         editor.load();
         return editor;
@@ -165,10 +164,9 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
     }
 
     private void storeValues() throws HubIntegrationException {
-        final IPreferenceStore prefStore = getPreferenceStore();
         final StringFieldEditor[] editors = hubAuthorizationConfig.getEditors();
         for (final StringFieldEditor editor : editors) {
-            prefStore.setValue(editor.getPreferenceName(), editor.getStringValue());
+            plugin.getPreferenceStore().setValue(editor.getPreferenceName(), editor.getStringValue());
         }
         securePrefService.saveSecurePreference(SecurePreferenceNames.HUB_PASSWORD, hubAuthorizationConfig.getHubPasswordField().getText(), true);
         securePrefService.saveSecurePreference(SecurePreferenceNames.PROXY_PASSWORD, hubAuthorizationConfig.getProxyPasswordField().getText(), true);
@@ -185,7 +183,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         try {
             this.storeValues();
         } catch (HubIntegrationException e) {
-            // Do nothing
+            // e.printStackTrace();
         }
     }
 
@@ -194,7 +192,7 @@ public class BlackDuckPreferences extends PreferencePage implements IWorkbenchPr
         try {
             this.storeValues();
         } catch (HubIntegrationException e) {
-            // Do nothing
+            // e.printStackTrace();
         }
         return super.performOk();
     }

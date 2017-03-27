@@ -90,7 +90,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         defaultsComposite.setLayout(new GridLayout());
         activateByDefault = new RadioGroupFieldEditor(PreferenceNames.ACTIVATE_SCAN_BY_DEFAULT,
                 ACTIVATE_BY_DEFAULT_LABEL, 1, DEFAULT_ACTIVATION_LABELS_AND_VALUES, defaultsComposite);
-        activateByDefault.setPreferenceStore(getPreferenceStore());
+        activateByDefault.setPreferenceStore(plugin.getPreferenceStore());
         activateByDefault.setPropertyChangeListener(preferencesService);
         activateByDefault.load();
         final Label spacer = new Label(defaultsComposite, SWT.HORIZONTAL);
@@ -151,7 +151,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         defaultPreferencesService.initializeProjectActivation(projectName);
         final BooleanFieldEditor isActive = new BooleanFieldEditor(projectName, projectName, activeComposite);
         isActive.setPage(this);
-        isActive.setPreferenceStore(getPreferenceStore());
+        isActive.setPreferenceStore(plugin.getPreferenceStore());
         isActive.load();
         activeProjectPreferences.add(isActive);
         return isActive;
@@ -181,7 +181,7 @@ public class PreferenceDefaults extends PreferencePage implements IWorkbenchPref
         for (Iterator<BooleanFieldEditor> iterator = activeProjectPreferences.iterator(); iterator.hasNext();) {
             final BooleanFieldEditor currentField = iterator.next();
             if (currentField.getPreferenceName().equals(projectName)) {
-                this.getPreferenceStore().setToDefault(projectName);
+                plugin.getPreferenceStore().setToDefault(projectName);
                 currentField.dispose();
                 iterator.remove();
             }

@@ -148,7 +148,7 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
     }
 
     public void deleteProjectFromDisk(final String projectName) {
-        final SWTBotTreeItem projectNode = this.getProject(projectName);
+        final SWTBotTreeItem projectNode = this.getProjectInPackageExplorer(projectName);
         projectNode.contextMenu().menu("Delete").click();
         bot.waitUntil(Conditions.shellIsActive("Delete Resources"));
         bot.checkBox().select();
@@ -160,7 +160,8 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
     }
 
     public void deleteProjectFromWorkspace(final String projectName, final SWTWorkbenchBot bot) {
-        final SWTBotTreeItem projectNode = this.getProject(projectName);
+    	this.openPackageExplorerView();
+        final SWTBotTreeItem projectNode = this.getProjectInPackageExplorer(projectName);
         projectNode.contextMenu().menu("Delete").click();
         bot.waitUntil(Conditions.shellIsActive("Delete Resources"));
         this.pressButton("OK");
@@ -168,6 +169,15 @@ public class WorkbenchBotUtils extends AbstractBotUtils {
             bot.waitUntil(Conditions.shellCloses(bot.shell("Delete Resources")));
         } catch (final WidgetNotFoundException e) {
         }
+    }
+    
+    public SWTBotTreeItem getProjectInPackageExplorer(final String projectName){
+        this.openPackageExplorerView();
+        final SWTBotView view = this.getPackageExplorerView();
+        view.setFocus();
+        final SWTBot viewBot = view.bot();
+        final SWTBotTree tree = viewBot.tree();
+        return tree.getTreeItem(projectName);
     }
 
     public SWTBotTreeItem getProject(final String projectName) {

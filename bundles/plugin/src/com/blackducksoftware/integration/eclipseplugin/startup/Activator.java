@@ -163,15 +163,16 @@ public class Activator extends AbstractUIPlugin {
 
     public void updateHubConnection(final RestConnection connection) throws HubIntegrationException {
         information.updateCache(connection);
+        inspectionQueueService.enqueueInspections(workspaceInformationService.getSupportedJavaProjectNames());
     }
 
     @Override
     public void stop(final BundleContext context) throws Exception {
+        plugin.getPreferenceStore().removePropertyChangeListener(defaultPrefChangeListener);
         plugin = null;
         inspectionQueueService.shutDown();
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(newJavaProjectListener);
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(javaProjectDeletedListener);
-        plugin.getPreferenceStore().removePropertyChangeListener(defaultPrefChangeListener);
         JavaCore.removeElementChangedListener(depsChangedListener);
         super.stop(context);
     }

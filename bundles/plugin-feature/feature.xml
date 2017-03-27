@@ -2,8 +2,8 @@
 <feature
       id="hub.eclipse.plugin.feature"
       label="Black Duck Hub Plugin for Eclipse"
-      version="1.0.0.qualifier"
-      provider-name="Black Duck Software">
+      version="1.0.0"
+      provider-name="Black Duck Software Inc.">
 
    <description url="https://github.com/blackducksoftware/hub-eclipse-plugin">
       Black Duck Hub plugin for Eclipse.
@@ -220,6 +220,10 @@ Unless required by applicable law or agreed to in writing, software distributed 
    See the License for the specific language governing permissions and
    limitations under the License.
    </license>
+
+   <url>
+      <update label="Hub Eclipse Plugin Update Site" url="https://blackducksoftware.github.io/hub-eclipse-plugin/update-site/"/>
+   </url>
 
    <plugin
          id="hub-eclipse-plugin"

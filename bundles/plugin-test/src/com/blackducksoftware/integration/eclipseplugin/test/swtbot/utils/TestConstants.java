@@ -29,6 +29,8 @@ public class TestConstants {
     public static final String TEST_MAVEN_ARTIFACT = "just-a-maven-project";
 
     public static final String TEST_MAVEN_COMPONENTS_ARTIFACT = "just-another-maven-project";
+    
+    public static final String TEST_MAVEN_EMPTY_ARTIFACT = "just-a-third-maven-project";
 
     public static final String TEST_GRADLE_PROJECT_NAME = "just-a-gradle-project";
 
