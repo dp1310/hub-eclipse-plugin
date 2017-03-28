@@ -41,71 +41,71 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestCo
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
-import com.blackducksoftware.integration.hub.api.component.version.ComponentVersion;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.component.ComponentDataService;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
+import com.blackducksoftware.integration.hub.model.view.ComponentVersionView;
 
 public class TableDoubleClickListener implements IDoubleClickListener {
-    public static final String JOB_GENERATE_URL = "Opening component in the Hub...";
+	public static final String JOB_GENERATE_URL = "Opening component in the Hub...";
 
-    private final Activator plugin;
+	private final Activator plugin;
 
-    private VulnerabilityView vulnerabilityView;
+	private final VulnerabilityView vulnerabilityView;
 
-    public TableDoubleClickListener(final Activator plugin, final VulnerabilityView vulnerabilityView) {
-        this.vulnerabilityView = vulnerabilityView;
-        this.plugin = plugin;
-    }
+	public TableDoubleClickListener(final Activator plugin, final VulnerabilityView vulnerabilityView) {
+		this.vulnerabilityView = vulnerabilityView;
+		this.plugin = plugin;
+	}
 
-    @Override
-    public void doubleClick(final DoubleClickEvent event) {
-        IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+	@Override
+	public void doubleClick(final DoubleClickEvent event) {
+		final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-        if (selection.getFirstElement() instanceof ComponentModel) {
-            ComponentModel selectedObject = (ComponentModel) selection.getFirstElement();
-            if (!selectedObject.getComponentIsKnown()) {
-                return;
-            }
-            Job job = new Job(JOB_GENERATE_URL) {
-                @Override
-                protected IStatus run(IProgressMonitor arg0) {
-                    Gav selectedGav = selectedObject.getGav();
-                    String link;
-                    try {
-                        final HubRestConnectionService connectionService = plugin.getConnectionService();
-                        final ComponentDataService componentDataService = connectionService.getComponentDataService();
-                        final ComponentVersion selectedComponentVersion = componentDataService.getExactComponentVersionFromComponent(
-                                selectedGav.getNamespace(), selectedGav.getGroupId(), selectedGav.getArtifactId(), selectedGav.getVersion());
-                        // Final solution, will work once the redirect is set up
-                        link = plugin.getConnectionService().getMetaService().getHref(selectedComponentVersion);
+		if (selection.getFirstElement() instanceof ComponentModel) {
+			final ComponentModel selectedObject = (ComponentModel) selection.getFirstElement();
+			if (!selectedObject.getComponentIsKnown()) {
+				return;
+			}
+			final Job job = new Job(JOB_GENERATE_URL) {
+				@Override
+				protected IStatus run(final IProgressMonitor arg0) {
+					final Gav selectedGav = selectedObject.getGav();
+					String link;
+					try {
+						final HubRestConnectionService connectionService = plugin.getConnectionService();
+						final ComponentDataService componentDataService = connectionService.getComponentDataService();
+						final ComponentVersionView selectedComponentVersion = componentDataService.getExactComponentVersionFromComponent(
+								selectedGav.getNamespace(), selectedGav.getGroupId(), selectedGav.getArtifactId(), selectedGav.getVersion());
+						// Final solution, will work once the redirect is set up
+						link = plugin.getConnectionService().getMetaService().getHref(selectedComponentVersion);
 
-                        // But for now...
-                        String versionID = link.substring(link.lastIndexOf("/") + 1);
-                        link = plugin.getConnectionService().getRestConnection().getBaseUrl().toString();
-                        link = link + "/#versions/id:" + versionID + "/view:overview";
-                        IWebBrowser browser;
-                        if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
-                            browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Hub-Eclipse-Browser");
-                        } else {
-                            browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
-                        }
-                        browser.openURL(new URL(link));
-                    } catch (PartInitException | MalformedURLException | HubIntegrationException e) {
-                        vulnerabilityView.openError("Could not open Component in Hub instance",
-                                String.format("Problem opening %1$s %2$s in %3$s, are you connected to your hub instance?",
-                                        selectedGav.getArtifactId(),
-                                        selectedGav.getVersion(),
-                                        plugin.getConnectionService().getRestConnection().getBaseUrl()),
-                                e);
-                        return Status.CANCEL_STATUS;
-                    }
-                    return Status.OK_STATUS;
-                }
+						// But for now...
+						final String versionID = link.substring(link.lastIndexOf("/") + 1);
+						link = plugin.getConnectionService().getRestConnection().hubBaseUrl.toString();
+						link = link + "/#versions/id:" + versionID + "/view:overview";
+						IWebBrowser browser;
+						if (PlatformUI.getWorkbench().getBrowserSupport().isInternalWebBrowserAvailable()) {
+							browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser("Hub-Eclipse-Browser");
+						} else {
+							browser = PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser();
+						}
+						browser.openURL(new URL(link));
+					} catch (PartInitException | MalformedURLException | IntegrationException e) {
+						vulnerabilityView.openError("Could not open Component in Hub instance",
+								String.format("Problem opening %1$s %2$s in %3$s, are you connected to your hub instance?",
+										selectedGav.getArtifactId(),
+										selectedGav.getVersion(),
+										plugin.getConnectionService().getRestConnection().hubBaseUrl),
+								e);
+						return Status.CANCEL_STATUS;
+					}
+					return Status.OK_STATUS;
+				}
 
-            };
-            job.schedule();
-        }
-    }
+			};
+			job.schedule();
+		}
+	}
 
 }

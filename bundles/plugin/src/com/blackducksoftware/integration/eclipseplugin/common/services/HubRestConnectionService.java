@@ -23,15 +23,15 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.common.services;
 
-import com.blackducksoftware.integration.exception.EncryptionException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import com.blackducksoftware.integration.hub.api.item.MetaService;
 import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
 import com.blackducksoftware.integration.hub.dataservice.component.ComponentDataService;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
@@ -39,7 +39,6 @@ import com.blackducksoftware.integration.log.IntBufferedLogger;
 import com.blackducksoftware.integration.log.IntLogger;
 
 public class HubRestConnectionService {
-
     private final HubServicesFactory hubServicesFactory;
 
     private final IntLogger logger;
@@ -70,14 +69,15 @@ public class HubRestConnectionService {
         this.hubServicesFactory = new HubServicesFactory(restConnection);
     }
 
-    public CredentialsRestConnection getCredentialsRestConnection(final HubServerConfig config)
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
-        return new CredentialsRestConnection(config);
+    public CredentialsRestConnection getCredentialsRestConnection(final String hubBaseUrlString, final String hubUsername, final String hubPassword, final String timeout) throws MalformedURLException{
+        final URL hubBaseUrl = new URL(hubBaseUrlString);
+        final int timeoutInt = Integer.parseInt(timeout);
+    	return new CredentialsRestConnection(logger, hubBaseUrl, hubUsername, hubPassword, timeoutInt);
     }
 
     public LicenseDataService getLicenseDataService() {
         if (licenseDataService == null) {
-            licenseDataService = hubServicesFactory.createLicenseDataService(logger);
+            licenseDataService = hubServicesFactory.createLicenseDataService();
         }
         return licenseDataService;
     }

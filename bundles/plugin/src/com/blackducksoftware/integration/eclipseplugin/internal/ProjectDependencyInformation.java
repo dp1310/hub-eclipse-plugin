@@ -51,146 +51,147 @@ import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.phonehome.IntegrationInfo;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class ProjectDependencyInformation {
-    private final Activator plugin;
+	private final Activator plugin;
 
-    private final ComponentCache componentCache;
+	private final ComponentCache componentCache;
 
-    private final Map<String, List<ComponentModel>> projectInfo = new HashMap<>();
+	private final Map<String, List<ComponentModel>> projectInfo = new HashMap<>();
 
-    private VulnerabilityView componentView;
+	private VulnerabilityView componentView;
 
-    public ProjectDependencyInformation(final Activator plugin, final ComponentCache componentCache) {
-        this.componentCache = componentCache;
-        this.plugin = plugin;
-    }
+	public ProjectDependencyInformation(final Activator plugin, final ComponentCache componentCache) {
+		this.componentCache = componentCache;
+		this.plugin = plugin;
+	}
 
-    public VulnerabilityView getComponentView() {
-        return componentView;
-    }
+	public VulnerabilityView getComponentView() {
+		return componentView;
+	}
 
-    public void setComponentView(final VulnerabilityView componentView) {
-        this.componentView = componentView;
-    }
+	public void setComponentView(final VulnerabilityView componentView) {
+		this.componentView = componentView;
+	}
 
-    public void removeComponentView() {
-        componentView = null;
-    }
+	public void removeComponentView() {
+		componentView = null;
+	}
 
-    public void phoneHome() throws HubIntegrationException {
-        if (!plugin.getConnectionService().hasActiveHubConnection()) {
-            return;
-        }
-        final PhoneHomeDataService phoneHomeService = plugin.getConnectionService().getPhoneHomeDataService();
-        final HubVersionRequestService hubVersionRequestService = plugin.getConnectionService().getHubVersionRequestService();
-        final String hubVersion = hubVersionRequestService.getHubVersion();
-        final IProduct eclipseProduct = Platform.getProduct();
-        final String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
-        final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
-        final AuthorizationValidator authorizationValidator = new AuthorizationValidator(plugin.getConnectionService(),
-                new HubServerConfigBuilder());
-        final SecurePreferencesService securePrefService = new SecurePreferencesService();
-        final IPreferenceStore prefStore = plugin.getPreferenceStore();
-        final String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
-        final String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
-        final String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
-        final String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
-        final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
-        final String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
-        final String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
-        final String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
-        authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
-                proxyUsername, proxyPassword, proxyPort,
-                proxyHost, timeout);
-        final HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
-        phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion,
-                pluginVersion, hubVersion);
-    }
+	public void phoneHome() throws IntegrationException {
+		if (!plugin.getConnectionService().hasActiveHubConnection()) {
+			return;
+		}
+		final PhoneHomeDataService phoneHomeService = plugin.getConnectionService().getPhoneHomeDataService();
+		final HubVersionRequestService hubVersionRequestService = plugin.getConnectionService().getHubVersionRequestService();
+		final String hubVersion = hubVersionRequestService.getHubVersion();
+		final IProduct eclipseProduct = Platform.getProduct();
+		final String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
+		final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
+		final AuthorizationValidator authorizationValidator = new AuthorizationValidator(plugin.getConnectionService(),
+				new HubServerConfigBuilder());
+		final SecurePreferencesService securePrefService = new SecurePreferencesService();
+		final IPreferenceStore prefStore = plugin.getPreferenceStore();
+		final String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
+		final String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
+		final String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
+		final String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
+		final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
+		final String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
+		final String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
+		final String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
+		authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
+				proxyUsername, proxyPassword, proxyPort,
+				proxyHost, timeout);
+		final HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
+		final IntegrationInfo integrationInfo = new IntegrationInfo(ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion);
+		phoneHomeService.phoneHome(hubServerConfig, integrationInfo, hubVersion);
+	}
 
-    public List<ComponentModel> initializeProjectComponents(final String projectName) {
-        return projectInfo.put(projectName, Collections.synchronizedList(new ArrayList<ComponentModel>()));
-    }
+	public List<ComponentModel> initializeProjectComponents(final String projectName) {
+		return projectInfo.put(projectName, Collections.synchronizedList(new ArrayList<ComponentModel>()));
+	}
 
-    public List<ComponentModel> addProjectComponents(final String projectName, final List<ComponentModel> models) {
-        return projectInfo.put(projectName, models);
-    }
+	public List<ComponentModel> addProjectComponents(final String projectName, final List<ComponentModel> models) {
+		return projectInfo.put(projectName, models);
+	}
 
-    public void addComponentToProject(final String projectName, final Gav gav) {
-        final List<ComponentModel> models = projectInfo.get(projectName);
-        if (models != null) {
-            try {
-                final ComponentModel newModel = componentCache.get(gav);
-                models.add(newModel);
-                models.sort(new DependencyTableViewerComparator());
-                projectInfo.put(projectName, models);
-                if (componentView != null) {
-                    componentView.resetInput();
-                }
-            } catch (IntegrationException e) {
-                /*
-                 * Thrown if exception occurs when accessing key gav from cache. If an exception is
-                 * thrown, info associated with that gav is inaccessible, and so don't put any
-                 * information related to said gav into hashmap associated with the project
-                 */
-            }
-        }
-    }
+	public void addComponentToProject(final String projectName, final Gav gav) {
+		final List<ComponentModel> models = projectInfo.get(projectName);
+		if (models != null) {
+			try {
+				final ComponentModel newModel = componentCache.get(gav);
+				models.add(newModel);
+				models.sort(new DependencyTableViewerComparator());
+				projectInfo.put(projectName, models);
+				if (componentView != null) {
+					componentView.resetInput();
+				}
+			} catch (final IntegrationException e) {
+				/*
+				 * Thrown if exception occurs when accessing key gav from cache. If an exception is
+				 * thrown, info associated with that gav is inaccessible, and so don't put any
+				 * information related to said gav into hashmap associated with the project
+				 */
+			}
+		}
+	}
 
-    public List<ComponentModel> getProjectComponents(final String projectName) {
-        final List<ComponentModel> models = projectInfo.get(projectName);
-        if (models == null) {
-            return null;
-        }
-        return projectInfo.get(projectName);
-    }
+	public List<ComponentModel> getProjectComponents(final String projectName) {
+		final List<ComponentModel> models = projectInfo.get(projectName);
+		if (models == null) {
+			return null;
+		}
+		return projectInfo.get(projectName);
+	}
 
-    public void removeProject(final String projectName) {
-        projectInfo.remove(projectName);
-        plugin.getDefaultPreferencesService().removeProject(projectName);
-        if (componentView != null) {
-            if (componentView.getLastSelectedProjectName().equals(projectName)) {
-                componentView.setLastSelectedProjectName("");
-            }
-        }
-    }
+	public void removeProject(final String projectName) {
+		projectInfo.remove(projectName);
+		plugin.getDefaultPreferencesService().removeProject(projectName);
+		if (componentView != null) {
+			if (componentView.getLastSelectedProjectName().equals(projectName)) {
+				componentView.setLastSelectedProjectName("");
+			}
+		}
+	}
 
-    public void removeComponentFromProject(final String projectName, final Gav gav) {
-        final List<ComponentModel> models = projectInfo.get(projectName);
-        if (models != null) {
-            for (Iterator<ComponentModel> iterator = models.iterator(); iterator.hasNext();) {
-                final ComponentModel model = iterator.next();
-                if (model.getGav().equals(gav)) {
-                    iterator.remove();
-                }
-            }
-            projectInfo.put(projectName, models);
-            if (componentView != null) {
-                componentView.resetInput();
-            }
-        }
-    }
+	public void removeComponentFromProject(final String projectName, final Gav gav) {
+		final List<ComponentModel> models = projectInfo.get(projectName);
+		if (models != null) {
+			for (final Iterator<ComponentModel> iterator = models.iterator(); iterator.hasNext();) {
+				final ComponentModel model = iterator.next();
+				if (model.getGav().equals(gav)) {
+					iterator.remove();
+				}
+			}
+			projectInfo.put(projectName, models);
+			if (componentView != null) {
+				componentView.resetInput();
+			}
+		}
+	}
 
-    public boolean containsComponentsFromProject(final String projectName) {
-        return projectInfo.containsKey(projectName);
-    }
+	public boolean containsComponentsFromProject(final String projectName) {
+		return projectInfo.containsKey(projectName);
+	}
 
-    public void renameProject(final String oldName, final String newName) {
-        final List<ComponentModel> models = projectInfo.get(oldName);
-        projectInfo.put(newName, models);
-        projectInfo.remove(oldName);
-    }
+	public void renameProject(final String oldName, final String newName) {
+		final List<ComponentModel> models = projectInfo.get(oldName);
+		projectInfo.put(newName, models);
+		projectInfo.remove(oldName);
+	}
 
-    public void updateCache(final RestConnection connection) throws HubIntegrationException {
-        HubRestConnectionService newConnectionService = Activator.getPlugin().updateConnection(connection);
-        if (projectInfo.isEmpty() && newConnectionService.hasActiveHubConnection()) {
-            final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
-            final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
-            final List<String> supportedJavaProjects = workspaceInformationService.getSupportedJavaProjectNames();
-            inspectionQueueService.enqueueInspections(supportedJavaProjects);
-        }
-    }
+	public void updateCache(final RestConnection connection) throws HubIntegrationException {
+		final HubRestConnectionService newConnectionService = Activator.getPlugin().updateConnection(connection);
+		if (projectInfo.isEmpty() && newConnectionService.hasActiveHubConnection()) {
+			final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
+			final WorkspaceInformationService workspaceInformationService = plugin.getWorkspaceInformationService();
+			final List<String> supportedJavaProjects = workspaceInformationService.getSupportedJavaProjectNames();
+			inspectionQueueService.enqueueInspections(supportedJavaProjects);
+		}
+	}
 
 }

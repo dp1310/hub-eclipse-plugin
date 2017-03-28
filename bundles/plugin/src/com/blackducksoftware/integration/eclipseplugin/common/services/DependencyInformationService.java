@@ -35,9 +35,9 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.Classpat
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
-import com.blackducksoftware.integration.hub.api.vulnerability.SeverityEnum;
-import com.blackducksoftware.integration.hub.api.vulnerability.VulnerabilityItem;
+import com.blackducksoftware.integration.hub.model.view.ComplexLicenseView;
+import com.blackducksoftware.integration.hub.model.enumeration.VulnerabilitySeverityEnum;
+import com.blackducksoftware.integration.hub.model.view.VulnerabilityView;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
 import com.blackducksoftware.integration.hub.dataservice.license.LicenseDataService;
 import com.blackducksoftware.integration.hub.dataservice.vulnerability.VulnerabilityDataService;
@@ -91,8 +91,8 @@ public class DependencyInformationService {
 
     public ComponentModel load(final Gav gav) throws IOException, URISyntaxException, IntegrationException {
         final VulnerabilityDataService vulnService = plugin.getConnectionService().getVulnerabilityDataService();
-        List<VulnerabilityItem> vulns = null;
-        ComplexLicenseItem sLicense = null;
+        List<VulnerabilityView> vulns = null;
+        ComplexLicenseView sLicense = null;
         try {
             vulns = vulnService.getVulnsFromComponentVersion(gav.getNamespace().toLowerCase(), gav.getGroupId(),
                     gav.getArtifactId(), gav.getVersion());
@@ -106,15 +106,15 @@ public class DependencyInformationService {
         return new ComponentModel(gav, sLicense, getVulnerabilitySeverityCount(vulns), vulns != null);
     }
 
-    public int[] getVulnerabilitySeverityCount(List<VulnerabilityItem> vulnerabilities) {
+    public int[] getVulnerabilitySeverityCount(List<VulnerabilityView> vulnerabilities) {
         int high = 0;
         int medium = 0;
         int low = 0;
         if (vulnerabilities == null) {
             return new int[] { 0, 0, 0 };
         }
-        for (VulnerabilityItem vuln : vulnerabilities) {
-            switch (SeverityEnum.valueOf(vuln.getSeverity())) {
+        for (VulnerabilityView vuln : vulnerabilities) {
+            switch (VulnerabilitySeverityEnum.valueOf(vuln.getSeverity())) {
             case HIGH:
                 high++;
                 break;

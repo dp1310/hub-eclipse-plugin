@@ -23,62 +23,60 @@
  */
 package com.blackducksoftware.integration.eclipseplugin.internal;
 
+import java.net.MalformedURLException;
+
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
-import com.blackducksoftware.integration.exception.EncryptionException;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class AuthorizationValidator {
-    private final HubRestConnectionService connectionService;
+	private final HubRestConnectionService connectionService;
 
-    private final HubServerConfigBuilder builder;
+	private final HubServerConfigBuilder builder;
 
-    public static final String LOGIN_SUCCESS_MESSAGE = "Successful login!";
+	public static final String LOGIN_SUCCESS_MESSAGE = "Successful login!";
 
-    public AuthorizationValidator(final HubRestConnectionService connectionService,
-            final HubServerConfigBuilder builder) {
-        this.connectionService = connectionService;
-        this.builder = builder;
-    }
+	public AuthorizationValidator(final HubRestConnectionService connectionService,
+			final HubServerConfigBuilder builder) {
+		this.connectionService = connectionService;
+		this.builder = builder;
+	}
 
-    public AuthorizationResponse validateCredentials(final String username, final String password, final String hubUrl,
-            final String proxyUsername, final String proxyPassword, final String proxyPort, final String proxyHost, final String timeout) {
-        setHubServerConfigBuilderFields(username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
-                proxyHost, timeout);
+	public AuthorizationResponse validateCredentials(final String username, final String password, final String hubUrl,
+			final String proxyUsername, final String proxyPassword, final String proxyPort, final String proxyHost, final String timeout) {
+		setHubServerConfigBuilderFields(username, password, hubUrl, proxyUsername, proxyPassword, proxyPort,
+				proxyHost, timeout);
 
-        final ValidationResults results = builder.createValidator().assertValid();
-        if (results.isSuccess()) {
-            try {
-                HubServerConfig config = builder.build();
-                RestConnection connection = connectionService.getCredentialsRestConnection(config);
-                connection.connect();
-                return new AuthorizationResponse(connection, LOGIN_SUCCESS_MESSAGE);
-            } catch (IllegalArgumentException | EncryptionException e) {
-                return new AuthorizationResponse(e.getMessage());
-            } catch (HubIntegrationException e) {
-                return new AuthorizationResponse(e.getMessage());
-            }
-        }
-        return new AuthorizationResponse(results);
-    }
+		final ValidationResults results = builder.createValidator().assertValid();
+		if (results.isSuccess()) {
+			RestConnection connection;
+			try {
+				connection = connectionService.getCredentialsRestConnection(hubUrl, username, password, timeout);
+				connection.connect();
+				return new AuthorizationResponse(connection, LOGIN_SUCCESS_MESSAGE);
+			} catch (MalformedURLException | IntegrationException e) {
+				return new AuthorizationResponse(e.getMessage());
+			}
+		}
+		return new AuthorizationResponse(results);
+	}
 
-    public HubServerConfigBuilder getHubServerConfigBuilder() {
-        return builder;
-    }
+	public HubServerConfigBuilder getHubServerConfigBuilder() {
+		return builder;
+	}
 
-    public void setHubServerConfigBuilderFields(final String username,
-            final String password, final String hubUrl, final String proxyUsername, final String proxyPassword,
-            final String proxyPort, final String proxyHost, final String timeout) {
-        builder.setUsername(username);
-        builder.setPassword(password);
-        builder.setHubUrl(hubUrl);
-        builder.setTimeout(timeout);
-        builder.setProxyUsername(proxyUsername);
-        builder.setProxyPassword(proxyPassword);
-        builder.setProxyHost(proxyHost);
-        builder.setProxyPort(proxyPort);
-    }
+	public void setHubServerConfigBuilderFields(final String username,
+			final String password, final String hubUrl, final String proxyUsername, final String proxyPassword,
+			final String proxyPort, final String proxyHost, final String timeout) {
+		builder.setUsername(username);
+		builder.setPassword(password);
+		builder.setHubUrl(hubUrl);
+		builder.setTimeout(timeout);
+		builder.setProxyUsername(proxyUsername);
+		builder.setProxyPassword(proxyPassword);
+		builder.setProxyHost(proxyHost);
+		builder.setProxyPort(proxyPort);
+	}
 }
