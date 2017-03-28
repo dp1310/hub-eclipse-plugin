@@ -30,30 +30,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IProduct;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.preference.IPreferenceStore;
-
-import com.blackducksoftware.integration.eclipseplugin.common.constants.PreferenceNames;
-import com.blackducksoftware.integration.eclipseplugin.common.constants.SecurePreferenceNames;
 import com.blackducksoftware.integration.eclipseplugin.common.services.HubRestConnectionService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.InspectionQueueService;
-import com.blackducksoftware.integration.eclipseplugin.common.services.SecurePreferencesService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.DependencyTableViewerComparator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
-import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
 import com.blackducksoftware.integration.hub.buildtool.Gav;
-import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
-import com.blackducksoftware.integration.hub.global.HubServerConfig;
-import com.blackducksoftware.integration.hub.phonehome.IntegrationInfo;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
-import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
 public class ProjectDependencyInformation {
 	private final Activator plugin;
@@ -79,36 +66,6 @@ public class ProjectDependencyInformation {
 
 	public void removeComponentView() {
 		componentView = null;
-	}
-
-	public void phoneHome() throws IntegrationException {
-		if (!plugin.getConnectionService().hasActiveHubConnection()) {
-			return;
-		}
-		final PhoneHomeDataService phoneHomeService = plugin.getConnectionService().getPhoneHomeDataService();
-		final HubVersionRequestService hubVersionRequestService = plugin.getConnectionService().getHubVersionRequestService();
-		final String hubVersion = hubVersionRequestService.getHubVersion();
-		final IProduct eclipseProduct = Platform.getProduct();
-		final String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
-		final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
-		final AuthorizationValidator authorizationValidator = new AuthorizationValidator(plugin.getConnectionService(),
-				new HubServerConfigBuilder());
-		final SecurePreferencesService securePrefService = new SecurePreferencesService();
-		final IPreferenceStore prefStore = plugin.getPreferenceStore();
-		final String username = prefStore.getString(PreferenceNames.HUB_USERNAME);
-		final String password = securePrefService.getSecurePreference(SecurePreferenceNames.HUB_PASSWORD);
-		final String hubUrl = prefStore.getString(PreferenceNames.HUB_URL);
-		final String proxyUsername = prefStore.getString(PreferenceNames.PROXY_USERNAME);
-		final String proxyPassword = securePrefService.getSecurePreference(SecurePreferenceNames.PROXY_PASSWORD);
-		final String proxyPort = prefStore.getString(PreferenceNames.PROXY_PORT);
-		final String proxyHost = prefStore.getString(PreferenceNames.PROXY_HOST);
-		final String timeout = prefStore.getString(PreferenceNames.HUB_TIMEOUT);
-		authorizationValidator.setHubServerConfigBuilderFields(username, password, hubUrl,
-				proxyUsername, proxyPassword, proxyPort,
-				proxyHost, timeout);
-		final HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
-		final IntegrationInfo integrationInfo = new IntegrationInfo(ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion);
-		phoneHomeService.phoneHome(hubServerConfig, integrationInfo, hubVersion);
 	}
 
 	public List<ComponentModel> initializeProjectComponents(final String projectName) {
