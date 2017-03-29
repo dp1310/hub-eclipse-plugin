@@ -7,3 +7,4 @@ pom.xml.bak
 .polyglot.build.properties.bak
 *.jpeg
 *.jar
+!resources/

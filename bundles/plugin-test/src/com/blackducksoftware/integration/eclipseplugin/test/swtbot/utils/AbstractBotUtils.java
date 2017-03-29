@@ -35,39 +35,39 @@ import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditi
 import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.conditions.TreeItemIsExpandedCondition;
 
 public abstract class AbstractBotUtils {
-    protected final SWTWorkbenchBot bot;
+	protected final SWTWorkbenchBot bot;
 
-    protected final BlackDuckBotUtils botUtils;
+	protected final BlackDuckBotUtils botUtils;
 
-    public AbstractBotUtils(final BlackDuckBotUtils botUtils) {
-        this.bot = new SWTWorkbenchBot();
-        this.botUtils = botUtils;
-    }
+	public AbstractBotUtils(final BlackDuckBotUtils botUtils) {
+		this.bot = new SWTWorkbenchBot();
+		this.botUtils = botUtils;
+	}
 
-    protected SWTBotButton pressButton(final String buttonTitle) {
-        final SWTBotButton target = bot.button(buttonTitle);
-        bot.waitUntil(new ButtonIsEnabledCondition(target));
-        return target.click();
-    }
+	protected SWTBotButton pressButton(final String buttonTitle) {
+		final SWTBotButton target = bot.button(buttonTitle);
+		bot.waitUntil(new ButtonIsEnabledCondition(target));
+		return target.click();
+	}
 
-    protected SWTBotTreeItem expandSuperNode(final String nodeName) {
-        final SWTBotTree optionTree = bot.tree();
-        final SWTBotTreeItem node = optionTree.expandNode(nodeName);
-        bot.waitUntil(new TreeItemIsExpandedCondition(node));
-        return node;
-    }
+	protected SWTBotTreeItem expandSuperNode(final String nodeName) {
+		final SWTBotTree optionTree = bot.tree();
+		final SWTBotTreeItem node = optionTree.expandNode(nodeName);
+		bot.waitUntil(new TreeItemIsExpandedCondition(node));
+		return node;
+	}
 
-    protected SWTBotMenu selectFromMenu(final SWTBotRootMenu rootMenu, final String... menuLabels) {
-        final SWTBotMenu currentMenu = rootMenu.menu(menuLabels);
-        return currentMenu.click();
-    }
+	protected SWTBotMenu selectFromMenu(final SWTBotRootMenu rootMenu, final String... menuLabels) {
+		final SWTBotMenu currentMenu = rootMenu.menu(menuLabels);
+		return currentMenu.click();
+	}
 
-    public void setSWTBotTimeoutShort() {
-        SWTBotPreferences.TIMEOUT = 500;
-    }
+	public void setSWTBotTimeoutShort() {
+		SWTBotPreferences.TIMEOUT = 2000;
+	}
 
-    public void setSWTBotTimeoutDefault() {
-        SWTBotPreferences.TIMEOUT = 5000;
-    }
+	public void setSWTBotTimeoutDefault() {
+		SWTBotPreferences.TIMEOUT = 10000;
+	}
 
 }
