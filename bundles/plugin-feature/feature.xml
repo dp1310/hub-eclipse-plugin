@@ -2,11 +2,11 @@
 <feature
       id="hub.eclipse.plugin.feature"
       label="Black Duck Hub Plugin for Eclipse"
-      version="1.0.0.qualifier"
+      version="1.0.0"
       provider-name="Black Duck Software Inc.">
 
    <description url="https://github.com/blackducksoftware/hub-eclipse-plugin">
-      Black Duck Hub plugin for Eclipse.
+      The Black Duck Hub plugin for Eclipse uses your Black Duck Hub instance to provide an overview of all dependencies in your Maven and Gradle projects. In addition, the plugin enables you to drill down by opening the informational page for any component/version it finds in the Hub.
    </description>
 
    <copyright>

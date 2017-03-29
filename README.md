@@ -1,5 +1,5 @@
 ## Overview ##
-Hub Eclipse is still in development...please check back in a few weeks for a released version.
+The Black Duck Hub plugin for Eclipse uses your Black Duck Hub instance to provide an overview of all dependencies in your Maven and Gradle projects. In addition, the plugin enables you to drill down by opening the informational page for any component/version it finds in the Hub.
 
 ## Build ##
 
@@ -11,4 +11,4 @@ Hub Eclipse is still in development...please check back in a few weeks for a rel
 <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=3300019" class="drag" title="Drag to your running Eclipse workspace."><img class="img-responsive" src="https://marketplace.eclipse.org/sites/all/themes/solstice/public/images/marketplace/btn-install.png" alt="Drag to your running Eclipse workspace." /></a>
 
 ## Documentation ##
-All documentation for hub-common can be found on the base project:  https://github.com/blackducksoftware/hub-eclipse-plugin/wiki
+All documentation for hub-eclipse-plugin can be found on the base project:  https://github.com/blackducksoftware/hub-eclipse-plugin/wiki
