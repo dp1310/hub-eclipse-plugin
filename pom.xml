@@ -21,6 +21,7 @@
   </modules>
 
   <properties>
+    <gradle-update-site>http://download.eclipse.org/buildship/updates/e46/releases/2.x</gradle-update-site>
     <m2e-update-site>http://download.eclipse.org/technology/m2e/releases</m2e-update-site>
     <neon-repo.url>http://download.eclipse.org/releases/neon</neon-repo.url>
     <tycho.version>0.26.0</tycho.version>
@@ -36,6 +37,11 @@
     <repository>
       <id>m2e</id>
       <url>${m2e-update-site}</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>org.eclipse.buildship</id>
+      <url>${gradle-update-site}</url>
       <layout>p2</layout>
     </repository>
   </repositories>
@@ -96,7 +102,11 @@
                 <type>eclipse-feature</type>
                 <id>org.eclipse.m2e.feature</id>
                 <versionRange>1.7.0.20160603-1933</versionRange>
-
+              </requirement>
+              <requirement>
+                <type>eclipse-feature</type>
+                <id>org.eclipse.buildship</id>
+                <versionRange>2.0.1.v20170302-1039</versionRange>
               </requirement>
             </extraRequirements>
           </dependency-resolution>

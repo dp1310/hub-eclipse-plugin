@@ -121,62 +121,6 @@
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>org.mockito</groupId>
-                  <artifactId>mockito-all</artifactId>
-                  <version>1.10.19</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-module-junit4</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-module-junit4-common</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-api-mockito</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-api-mockito-common</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-core</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-api-support</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>powermock-reflect</artifactId>
-                  <version>1.6.5</version>
-                  <type>jar</type>
-                  <outputDirectory>${output-dir}</outputDirectory>
-                </artifactItem>
-                <artifactItem>
                   <groupId>org.javassist</groupId>
                   <artifactId>javassist</artifactId>
                   <version>3.20.0-GA</version>

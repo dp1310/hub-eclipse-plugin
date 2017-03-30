@@ -35,64 +35,65 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTableItem;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.InspectionStatus;
 
 public class ComponentInspectorBotUtils extends AbstractBotUtils {
-    public ComponentInspectorBotUtils(final BlackDuckBotUtils parent) {
-        super(parent);
-    }
+	public ComponentInspectorBotUtils(final BlackDuckBotUtils parent) {
+		super(parent);
+	}
 
-    public static final String COMPONENT_INSPECTOR_NAME = "Component Inspector";
+	public static final String COMPONENT_INSPECTOR_NAME = "Component Inspector";
 
-    public SWTBot getComponentInspectorView() {
-        final SWTBotView view = bot.viewByTitle(COMPONENT_INSPECTOR_NAME);
-        return view.bot();
-    }
+	public SWTBot getComponentInspectorView() {
+		final SWTBotView view = bot.viewByTitle(COMPONENT_INSPECTOR_NAME);
+		return view.bot();
+	}
 
-    public SWTBotCLabel getInspectionStatus(final String status) {
-        final SWTBot viewBot = this.getComponentInspectorView();
-        this.setSWTBotTimeoutShort();
-        final SWTBotCLabel clabel = viewBot.clabel(status);
-        this.setSWTBotTimeoutDefault();
-        return clabel;
-    }
+	public SWTBotCLabel getInspectionStatus(final String status) {
+		final SWTBot viewBot = this.getComponentInspectorView();
+		this.setSWTBotTimeoutShort();
+		final SWTBotCLabel clabel = viewBot.clabel(status);
+		this.setSWTBotTimeoutDefault();
+		return clabel;
+	}
 
-    public SWTBotCLabel getInspectionStatusIfCompleteOrInProgress() {
-        final SWTBot viewBot = this.getComponentInspectorView();
-        this.setSWTBotTimeoutShort();
-        for (String statusMessage : Arrays.asList(InspectionStatus.CONNECTION_OK, InspectionStatus.PROJECT_INSPECTION_ACTIVE,
-                InspectionStatus.PROJECT_INSPECTION_SCHEDULED, InspectionStatus.CONNECTION_OK_NO_COMPONENTS)) {
-            try {
-                final SWTBotCLabel clabel = viewBot.clabel(statusMessage);
-                this.setSWTBotTimeoutDefault();
-                return clabel;
-            } catch (final WidgetNotFoundException e) {
-            }
-        }
-        this.setSWTBotTimeoutDefault();
-        throw new WidgetNotFoundException(
-                String.format("Inspection status widget not found with value '%s', '%s', '%s', or '%s'", InspectionStatus.CONNECTION_OK,
-                        InspectionStatus.PROJECT_INSPECTION_ACTIVE, InspectionStatus.PROJECT_INSPECTION_SCHEDULED,
-                        InspectionStatus.CONNECTION_OK_NO_COMPONENTS));
-    }
+	public SWTBotCLabel getInspectionStatusIfCompleteOrInProgress() {
+		final SWTBot viewBot = this.getComponentInspectorView();
+		this.setSWTBotTimeoutShort();
+		for (final String statusMessage : Arrays.asList(InspectionStatus.PROJECT_INSPECTION_ACTIVE,
+				InspectionStatus.PROJECT_INSPECTION_SCHEDULED, InspectionStatus.CONNECTION_OK_NO_COMPONENTS,
+				InspectionStatus.CONNECTION_OK)) {
+			try {
+				final SWTBotCLabel clabel = viewBot.clabel(statusMessage);
+				this.setSWTBotTimeoutDefault();
+				return clabel;
+			} catch (final WidgetNotFoundException e) {
+			}
+		}
+		this.setSWTBotTimeoutDefault();
+		throw new WidgetNotFoundException(
+				String.format("Inspection status widget not found with value '%s', '%s', '%s', or '%s'", InspectionStatus.CONNECTION_OK,
+						InspectionStatus.PROJECT_INSPECTION_ACTIVE, InspectionStatus.PROJECT_INSPECTION_SCHEDULED,
+						InspectionStatus.CONNECTION_OK_NO_COMPONENTS));
+	}
 
-    public SWTBotTable getInspectionResultsTable() {
-        final SWTBot viewBot = this.getComponentInspectorView();
-        return viewBot.table();
-    }
+	public SWTBotTable getInspectionResultsTable() {
+		final SWTBot viewBot = this.getComponentInspectorView();
+		return viewBot.table();
+	}
 
-    public String[][] getInspectionResults() {
-        final SWTBotTable inspectorTable = this.getInspectionResultsTable();
-        final String[][] inspectionResults = new String[inspectorTable.rowCount()][inspectorTable.columnCount()];
-        for (int i = 0; i < inspectorTable.rowCount(); i++) {
-            for (int j = 0; j < inspectorTable.columnCount(); j++) {
-                inspectionResults[i][j] = inspectorTable.cell(i, j);
-            }
-        }
-        return inspectionResults;
-    }
+	public String[][] getInspectionResults() {
+		final SWTBotTable inspectorTable = this.getInspectionResultsTable();
+		final String[][] inspectionResults = new String[inspectorTable.rowCount()][inspectorTable.columnCount()];
+		for (int i = 0; i < inspectorTable.rowCount(); i++) {
+			for (int j = 0; j < inspectorTable.columnCount(); j++) {
+				inspectionResults[i][j] = inspectorTable.cell(i, j);
+			}
+		}
+		return inspectionResults;
+	}
 
-    public void openComponent(final String componentText) {
-        final SWTBotTable table = this.getInspectionResultsTable();
-        final SWTBotTableItem tableItem = table.getTableItem(componentText);
-        tableItem.doubleClick();
-    }
+	public void openComponent(final String componentText) {
+		final SWTBotTable table = this.getInspectionResultsTable();
+		final SWTBotTableItem tableItem = table.getTableItem(componentText);
+		tableItem.doubleClick();
+	}
 
 }
