@@ -63,11 +63,11 @@ public abstract class AbstractBotUtils {
 	}
 
 	public void setSWTBotTimeoutShort() {
-		SWTBotPreferences.TIMEOUT = 2000;
+		SWTBotPreferences.TIMEOUT = 5000;
 	}
 
 	public void setSWTBotTimeoutDefault() {
-		SWTBotPreferences.TIMEOUT = 10000;
+		SWTBotPreferences.TIMEOUT = 20000;
 	}
 
 }
