@@ -14,7 +14,7 @@
 
   <!-- where OSGI dependencies go -->
   <properties>
-    <eclipse-test-password>-eclipse.password ../resources/testPassword.txt</eclipse-test-password>
+    <eclipse-test-password>-eclipse.password ./resources/testPassword.txt</eclipse-test-password>
     <output-dir>./target/dependencies</output-dir>
   </properties>
 
