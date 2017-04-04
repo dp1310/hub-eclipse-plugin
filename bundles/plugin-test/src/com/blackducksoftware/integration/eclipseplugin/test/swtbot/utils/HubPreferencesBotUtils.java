@@ -29,60 +29,68 @@ import com.blackducksoftware.integration.eclipseplugin.common.constants.Preferen
 import com.blackducksoftware.integration.eclipseplugin.preferences.BlackDuckPreferences;
 
 public class HubPreferencesBotUtils extends AbstractPreferenceBotUtils {
-    public static final String VALID_HUB_USERNAME = "sysadmin";
+	public static final String VALID_HUB_USERNAME = "sysadmin";
 
-    public static final String VALID_HUB_PASSWORD = "blackduck";
+	public static final String VALID_HUB_PASSWORD = "blackduck";
 
-    public static final String VALID_HUB_URL = "http://int-auto01.dc1.lan:9000";
+	public static final String VALID_HUB_URL = "http://int-auto01.dc1.lan:9000";
 
-    public static final String ALT_VALID_HUB_URL = "http://int-hub01.dc1.lan:8080";
+	public static final String ALT_VALID_HUB_URL = "http://int-hub01.dc1.lan:8080";
 
-    public static final String VALID_HUB_TIMEOUT = "120";
+	public static final String VALID_HUB_TIMEOUT = "120";
 
-    public static final String INVALID_STRING = "INVALID";
+	public static final String INVALID_STRING = "INVALID";
 
-    public HubPreferencesBotUtils(final BlackDuckBotUtils botUtils) {
-        super(botUtils);
-    }
+	public HubPreferencesBotUtils(final BlackDuckBotUtils botUtils) {
+		super(botUtils);
+	}
 
-    public void enterValidCredentials() {
-        this.enterCredentials(VALID_HUB_USERNAME, VALID_HUB_PASSWORD, VALID_HUB_URL, VALID_HUB_TIMEOUT);
-    }
+	public void enterValidCredentials() {
+		this.enterCredentials(VALID_HUB_USERNAME, VALID_HUB_PASSWORD, VALID_HUB_URL, VALID_HUB_TIMEOUT);
+	}
 
-    public void enterInvalidCredentials() {
-        this.enterCredentials(INVALID_STRING, INVALID_STRING, INVALID_STRING, INVALID_STRING);
-    }
+	public void enterInvalidCredentials() {
+		this.enterCredentials(INVALID_STRING, INVALID_STRING, INVALID_STRING, INVALID_STRING);
+	}
 
-    public void enterCredentials(final String hubUsername, final String hubPassword, final String hubUrl, final String hubTimeout) {
-        this.enterCredentials(hubUsername, hubPassword, hubUrl, hubTimeout, "", "", "", "");
-    }
+	public void enterCredentials(final String hubUsername, final String hubPassword, final String hubUrl, final String hubTimeout) {
+		this.enterCredentials(hubUsername, hubPassword, hubUrl, hubTimeout, "", "", "", "");
+	}
 
-    public void enterCredentials(final String hubUsername, final String hubPassword, final String hubUrl, final String hubTimeout,
-            final String proxyUsername, final String proxyPassword, final String proxyHost, final String proxyPort) {
-        final SWTBotText usernameField = bot.textWithLabel(PreferenceFieldLabels.HUB_USERNAME_LABEL);
-        usernameField.typeText(hubUsername);
-        final SWTBotText passwordField = bot.textWithLabel(PreferenceFieldLabels.HUB_PASSWORD_LABEL);
-        passwordField.typeText(hubPassword);
-        final SWTBotText urlField = bot.textWithLabel(PreferenceFieldLabels.HUB_URL_LABEL);
-        urlField.typeText(hubUrl);
-        final SWTBotText timeoutField = bot.textWithLabel(PreferenceFieldLabels.HUB_TIMEOUT_LABEL);
-        timeoutField.typeText(hubTimeout);
-        final SWTBotText proxyUsernameField = bot.textWithLabel(PreferenceFieldLabels.PROXY_USERNAME_LABEL);
-        proxyUsernameField.typeText(proxyUsername);
-        final SWTBotText proxyPasswordField = bot.textWithLabel(PreferenceFieldLabels.PROXY_PASSWORD_LABEL);
-        proxyPasswordField.typeText(proxyPassword);
-        final SWTBotText proxyHostField = bot.textWithLabel(PreferenceFieldLabels.PROXY_HOST_LABEL);
-        proxyHostField.typeText(proxyHost);
-        final SWTBotText proxyPortField = bot.textWithLabel(PreferenceFieldLabels.PROXY_PORT_LABEL);
-        proxyPortField.typeText(proxyPort);
-    }
+	public void enterCredentials(final String hubUsername, final String hubPassword, final String hubUrl, final String hubTimeout,
+			final String proxyUsername, final String proxyPassword, final String proxyHost, final String proxyPort) {
+		final SWTBotText usernameField = bot.textWithLabel(PreferenceFieldLabels.HUB_USERNAME_LABEL);
+		usernameField.selectAll();
+		usernameField.typeText(hubUsername);
+		final SWTBotText passwordField = bot.textWithLabel(PreferenceFieldLabels.HUB_PASSWORD_LABEL);
+		passwordField.selectAll();
+		passwordField.typeText(hubPassword);
+		final SWTBotText urlField = bot.textWithLabel(PreferenceFieldLabels.HUB_URL_LABEL);
+		urlField.selectAll();
+		urlField.typeText(hubUrl);
+		final SWTBotText timeoutField = bot.textWithLabel(PreferenceFieldLabels.HUB_TIMEOUT_LABEL);
+		timeoutField.selectAll();
+		timeoutField.typeText(hubTimeout);
+		final SWTBotText proxyUsernameField = bot.textWithLabel(PreferenceFieldLabels.PROXY_USERNAME_LABEL);
+		proxyUsernameField.selectAll();
+		proxyUsernameField.typeText(proxyUsername);
+		final SWTBotText proxyPasswordField = bot.textWithLabel(PreferenceFieldLabels.PROXY_PASSWORD_LABEL);
+		proxyPasswordField.selectAll();
+		proxyPasswordField.typeText(proxyPassword);
+		final SWTBotText proxyHostField = bot.textWithLabel(PreferenceFieldLabels.PROXY_HOST_LABEL);
+		proxyHostField.selectAll();
+		proxyHostField.typeText(proxyHost);
+		final SWTBotText proxyPortField = bot.textWithLabel(PreferenceFieldLabels.PROXY_PORT_LABEL);
+		proxyPortField.selectAll();
+		proxyPortField.typeText(proxyPort);
+	}
 
-    public void resetCredentials() {
-        this.enterCredentials("", "", "", "", "", "", "", "");
-        this.pressOK();
-    }
+	public void resetCredentials() {
+		this.enterCredentials("", "", "", "", "", "", "", "");
+		this.pressOK();
+	}
 
-    public void testCurrentCredentials() {
-        this.pressButton(BlackDuckPreferences.TEST_HUB_CREDENTIALS_TEXT);
-    }
+	public void testCurrentCredentials() {
+		this.pressButton(BlackDuckPreferences.TEST_HUB_CREDENTIALS_TEXT);
+	}
 }
