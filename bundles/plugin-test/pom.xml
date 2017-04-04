@@ -29,7 +29,7 @@
           <useUIHarness>true</useUIHarness>
           <!-- argLine needed for SWTBot to run properly -->
           <argLine>${tycho.testArgLine} ${os-jvm-flags}</argLine>
-          <appArgLine>${eclipse-test-password}</appArgLine>
+          <appArgLine>${eclipse-test-password} ${use-gtk-2}</appArgLine>
           <useUIThread>false</useUIThread>
           <product>org.eclipse.sdk.ide</product>
           <application>org.eclipse.ui.ide.workbench</application>
@@ -157,6 +157,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2>--launcher.GTK_version 2</use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -168,6 +169,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
       </properties>
     </profile>
@@ -190,6 +192,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -201,6 +204,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -212,6 +216,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -223,6 +228,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -234,6 +240,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -245,6 +252,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -256,6 +264,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
@@ -267,6 +276,7 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
+        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
       </properties>
     </profile>
