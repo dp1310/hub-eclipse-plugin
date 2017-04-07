@@ -50,176 +50,177 @@ import com.blackducksoftware.integration.eclipseplugin.test.swtbot.utils.TestCon
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ComponentViewBotTest {
 	private static final String COMMONS_FILEUPLOAD = "commons-fileupload";
-	
-    private final String[] testMavenComponents = { "commons-fileupload  1.0 ", "just-a-maven-project  0.0.1-SNAPSHOT ", "junit  3.8.1 " };
 
-    private final String filterBoxMessage = "type filter text";
+	private final String[] testMavenComponents = { "commons-fileupload  1.0 ", "just-a-maven-project  0.0.1-SNAPSHOT ", "junit  3.8.1 " };
 
-    private static BlackDuckBotUtils botUtils;
+	private final String filterBoxMessage = "type filter text";
 
-    @BeforeClass
-    public static void setUpWorkspaceBot() throws IOException {
-        botUtils = new BlackDuckBotUtils();
-        botUtils.closeWelcomeView();
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterValidCredentials();
-        botUtils.preferences().pressApply();
-        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
-        botUtils.preferences().inspectorSettings().setAnalyzeByDefaultTrue();
-        botUtils.preferences().pressOK();
-        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
-        botUtils.workbench().closeProject(TestConstants.TEST_MAVEN_ARTIFACT);
-        botUtils.addJarToProject(TestConstants.TEST_MAVEN_ARTIFACT_JAR, TestConstants.TEST_MAVEN_ARTIFACT);
-        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
-        botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        botUtils.workbench().copyPomToProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT_POM_PATH, TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
-    }
+	private static BlackDuckBotUtils botUtils;
 
-    @Test
-    public void testThatVulnerabilityViewOpensFromWindowMenu() {
-        botUtils.workbench().openComponentInspectorView();
-        final SWTWorkbenchBot bot = botUtils.bot();
-        assertNotNull(bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR));
-        assertNotNull(bot.viewById(PluginIDs.COMPONENT_INSPECTOR));
-        bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR).close();
-    }
+	@BeforeClass
+	public static void setUpWorkspaceBot() throws IOException {
+		botUtils = new BlackDuckBotUtils();
+		botUtils.closeWelcomeView();
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterValidCredentials();
+		botUtils.preferences().pressApply();
+		botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+		botUtils.preferences().inspectorSettings().setAnalyzeByDefaultTrue();
+		botUtils.preferences().pressOK();
+		botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_ARTIFACT);
+		botUtils.workbench().closeProject(TestConstants.TEST_MAVEN_ARTIFACT);
+		botUtils.addJarToProject(TestConstants.TEST_MAVEN_ARTIFACT_JAR, TestConstants.TEST_MAVEN_ARTIFACT);
+		botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
+		botUtils.workbench().createProject().createMavenProject(TestConstants.TEST_MAVEN_GROUP, TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		botUtils.workbench().copyPomToProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT_POM_PATH, TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		botUtils.workbench().createProject().createGeneralProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
+	}
 
-    @Test
-    public void testInspectionResults() {
-        botUtils.workbench().openComponentInspectorView();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        SWTBotTable table = botUtils.componentInspector().getInspectionResultsTable();
-        for (final String componentName : testMavenComponents) {
-            assertTrue(table.containsItem(componentName));
-        }
-    }
+	@Test
+	public void testThatVulnerabilityViewOpensFromWindowMenu() {
+		botUtils.workbench().openComponentInspectorView();
+		final SWTWorkbenchBot bot = botUtils.bot();
+		assertNotNull(bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR));
+		assertNotNull(bot.viewById(PluginIDs.COMPONENT_INSPECTOR));
+		bot.viewByTitle(ViewNames.COMPONENT_INSPECTOR).close();
+	}
 
-    @Test
-    public void testConnectionOK() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterValidCredentials();
-        botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        botUtils.workbench().openComponentInspectorView();
-        botUtils.componentInspector().getInspectionResultsTable().setFocus();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
-    }
+	@Test
+	public void testInspectionResults() {
+		botUtils.workbench().openComponentInspectorView();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		projectNode.select();
+		botUtils.workbench().openComponentInspectorView();
+		final SWTBotTable table = botUtils.componentInspector().getInspectionResultsTable();
+		for (final String componentName : testMavenComponents) {
+			assertTrue(table.containsItem(componentName));
+		}
+	}
 
-    @Test
-    public void testConnectionOKNoComponents() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterValidCredentials();
-        botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
-        projectNode.select();
-        botUtils.workbench().openComponentInspectorView();
-        botUtils.componentInspector().getInspectionResultsTable().setFocus();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK_NO_COMPONENTS));
-    }
+	@Test
+	public void testConnectionOK() {
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterValidCredentials();
+		botUtils.preferences().pressOK();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		projectNode.select();
+		botUtils.workbench().openComponentInspectorView();
+		botUtils.componentInspector().getInspectionResultsTable().setFocus();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
+	}
 
-    @Test
-    public void testConnectionDisconnected() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterInvalidCredentials();
-        botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        botUtils.workbench().openComponentInspectorView();
-        botUtils.componentInspector().getInspectionResultsTable().setFocus();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_DISCONNECTED));
-    }
+	@Test
+	public void testConnectionOKNoComponents() {
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterValidCredentials();
+		botUtils.preferences().pressOK();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
+		projectNode.select();
+		botUtils.workbench().openComponentInspectorView();
+		botUtils.componentInspector().getInspectionResultsTable().setFocus();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK_NO_COMPONENTS));
+	}
 
-    @Test
-    public void testProjectNotSupported() {
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
-        projectNode.select();
-        botUtils.workbench().openComponentInspectorView();
-        botUtils.componentInspector().getInspectionResultsTable().setFocus();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_NOT_SUPPORTED));
-    }
+	@Test
+	public void testConnectionDisconnected() {
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterInvalidCredentials();
+		botUtils.preferences().pressOK();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		projectNode.select();
+		botUtils.workbench().openComponentInspectorView();
+		botUtils.componentInspector().getInspectionResultsTable().setFocus();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_DISCONNECTED));
+	}
 
-    @Test
-    public void testInspectionDeactivated() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
-        botUtils.preferences().inspectorSettings().deactivateProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        botUtils.preferences().inspectorSettings().pressOK();
-        try{
-        	final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        	projectNode.select();
-        	botUtils.workbench().openComponentInspectorView();
-        	botUtils.componentInspector().getInspectionResultsTable().setFocus();
-        	assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_INSPECTION_INACTIVE));
-        }finally{
-            botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-            botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
-            botUtils.preferences().inspectorSettings().activateProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-            botUtils.preferences().inspectorSettings().pressOK();
-        }
-    }
+	@Test
+	public void testProjectNotSupported() {
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
+		projectNode.select();
+		botUtils.workbench().openComponentInspectorView();
+		botUtils.componentInspector().getInspectionResultsTable().setFocus();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_NOT_SUPPORTED));
+	}
 
-    @Test
-    public void testFiltering() {
-        botUtils.workbench().openComponentInspectorView();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        botUtils.componentInspector().getInspectionResultsTable().setFocus();
-        final SWTBot viewBot = botUtils.componentInspector().getComponentInspectorView();
-        final SWTBotText filterbox = viewBot.textWithMessage(filterBoxMessage);
-        filterbox.typeText(COMMONS_FILEUPLOAD);
-        try {
-            final SWTBotTable table = botUtils.componentInspector().getInspectionResultsTable();
-            for (final String componentName : testMavenComponents) {
-                if (componentName.equals(testMavenComponents[0])) {
-                    assertTrue(table.containsItem(componentName));
-                } else {
-                    assertFalse(table.containsItem(componentName));
-                }
-            }
-        } finally {
-            filterbox.setText("");
-        }
-    }
+	@Test
+	public void testInspectionDeactivated() {
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+		botUtils.preferences().inspectorSettings().deactivateProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		botUtils.preferences().inspectorSettings().pressOK();
+		try{
+			final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+			projectNode.select();
+			botUtils.workbench().openComponentInspectorView();
+			botUtils.componentInspector().getInspectionResultsTable().setFocus();
+			assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.PROJECT_INSPECTION_INACTIVE));
+		}finally{
+			botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+			botUtils.preferences().inspectorSettings().openComponentInspectorPreferences();
+			botUtils.preferences().inspectorSettings().activateProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+			botUtils.preferences().inspectorSettings().pressOK();
+		}
+	}
 
-    @Test
-    public void testSwitchHubInstanceFromValidInstanceToOtherValidInstance() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterValidCredentials();
-        botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterCredentials(HubPreferencesBotUtils.VALID_HUB_USERNAME, HubPreferencesBotUtils.VALID_HUB_PASSWORD,
-                HubPreferencesBotUtils.ALT_VALID_HUB_URL, HubPreferencesBotUtils.VALID_HUB_TIMEOUT);
-        botUtils.preferences().pressOK();
-        assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
-    }
+	@Test
+	public void testFiltering() {
+		botUtils.workbench().openComponentInspectorView();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		projectNode.select();
+		botUtils.componentInspector().getInspectionResultsTable().setFocus();
+		final SWTBot viewBot = botUtils.componentInspector().getComponentInspectorView();
+		final SWTBotText filterbox = viewBot.textWithMessage(filterBoxMessage);
+		filterbox.typeText(COMMONS_FILEUPLOAD);
+		try {
+			final SWTBotTable table = botUtils.componentInspector().getInspectionResultsTable();
+			for (final String componentName : testMavenComponents) {
+				if (componentName.equals(testMavenComponents[0])) {
+					assertTrue(table.containsItem(componentName));
+				} else {
+					assertFalse(table.containsItem(componentName));
+				}
+			}
+		} finally {
+			filterbox.setText("");
+		}
+	}
 
-    @Test
-    public void testSwitchHubInstanceFromValidInstanceToOtherInvalidInstance() {
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterValidCredentials();
-        botUtils.preferences().pressOK();
-        final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        projectNode.select();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
-        botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
-        botUtils.preferences().hubSettings().enterInvalidCredentials();
-        botUtils.preferences().pressOK();
-        assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_DISCONNECTED));
-    }
+	@Test
+	public void testSwitchHubInstanceFromValidInstanceToOtherValidInstance() {
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterValidCredentials();
+		botUtils.preferences().pressOK();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		projectNode.select();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterCredentials(HubPreferencesBotUtils.VALID_HUB_USERNAME, HubPreferencesBotUtils.VALID_HUB_PASSWORD,
+				HubPreferencesBotUtils.ALT_VALID_HUB_URL, HubPreferencesBotUtils.VALID_HUB_TIMEOUT);
+		botUtils.preferences().pressOK();
+		assertNotNull(botUtils.componentInspector().getInspectionStatusIfCompleteOrInProgress());
+	}
 
-    @AfterClass
-    public static void tearDownWorkspaceBot() {
-        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_ARTIFACT);
-        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
-        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
-        botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
-        botUtils.bot().resetWorkbench();
-    }
+	@Test
+	public void testSwitchHubInstanceFromValidInstanceToOtherInvalidInstance() {
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterValidCredentials();
+		botUtils.preferences().pressOK();
+		final SWTBotTreeItem projectNode = botUtils.workbench().getProject(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		projectNode.select();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_OK));
+		botUtils.preferences().openBlackDuckPreferencesFromEclipseMenu();
+		botUtils.preferences().hubSettings().enterInvalidCredentials();
+		botUtils.preferences().pressOK();
+		assertNotNull(botUtils.componentInspector().getInspectionStatus(InspectionStatus.CONNECTION_DISCONNECTED));
+	}
+
+	@AfterClass
+	public static void tearDownWorkspaceBot() {
+		botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_ARTIFACT);
+		botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_COMPONENTS_ARTIFACT);
+		botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_MAVEN_EMPTY_ARTIFACT);
+		botUtils.workbench().deleteProjectFromDisk(TestConstants.TEST_NON_JAVA_PROJECT_NAME);
+		botUtils.bot().resetWorkbench();
+	}
 
 }
