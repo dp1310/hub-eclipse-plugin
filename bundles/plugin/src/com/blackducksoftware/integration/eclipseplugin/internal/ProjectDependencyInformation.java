@@ -38,7 +38,7 @@ import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.Com
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.DependencyTableViewerComparator;
 import com.blackducksoftware.integration.eclipseplugin.views.ui.VulnerabilityView;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.hub.bdio.simple.model.externalid.MavenExternalId;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 
@@ -76,7 +76,7 @@ public class ProjectDependencyInformation {
 		return projectInfo.put(projectName, models);
 	}
 
-	public void addComponentToProject(final String projectName, final Gav gav) {
+	public void addComponentToProject(final String projectName, final MavenExternalId gav) {
 		final List<ComponentModel> models = projectInfo.get(projectName);
 		if (models != null) {
 			try {
@@ -115,7 +115,7 @@ public class ProjectDependencyInformation {
 		}
 	}
 
-	public void removeComponentFromProject(final String projectName, final Gav gav) {
+	public void removeComponentFromProject(final String projectName, final MavenExternalId gav) {
 		final List<ComponentModel> models = projectInfo.get(projectName);
 		if (models != null) {
 			for (final Iterator<ComponentModel> iterator = models.iterator(); iterator.hasNext();) {

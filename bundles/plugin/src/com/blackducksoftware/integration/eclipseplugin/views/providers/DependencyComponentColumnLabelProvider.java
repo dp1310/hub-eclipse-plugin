@@ -35,54 +35,54 @@ import org.eclipse.swt.widgets.Display;
 import com.blackducksoftware.integration.eclipseplugin.common.constants.PathsToIconFiles;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
-import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.hub.bdio.simple.model.externalid.MavenExternalId;
 
 public class DependencyComponentColumnLabelProvider extends DependencyTreeViewLabelProvider {
 
-    @Override
-    public String getText(Object input) {
-        if (input instanceof ComponentModel) {
-            Gav gav = ((ComponentModel) input).getGav();
-            String text = gav.getArtifactId() + ":" + gav.getVersion();
-            return text;
-        }
-        if (input instanceof String) {
-            return (String) input;
-        }
-        return "";
-    }
+	@Override
+	public String getText(final Object input) {
+		if (input instanceof ComponentModel) {
+			final MavenExternalId gav = ((ComponentModel) input).getGav();
+			final String text = gav.name + ":" + gav.version;
+			return text;
+		}
+		if (input instanceof String) {
+			return (String) input;
+		}
+		return "";
+	}
 
-    @Override
-    public String getTitle() {
-        return "Component";
-    }
+	@Override
+	public String getTitle() {
+		return "Component";
+	}
 
-    @Override
-    public Image getImage(Object input) {
-        if (input instanceof ComponentModel) {
-            ComponentModel validObject = ((ComponentModel) input);
-            if (!validObject.getComponentIsKnown() || !validObject.getLicenseIsKnown()) {
-                ImageDescriptor descriptor = Activator.getImageDescriptor(PathsToIconFiles.WARNING);
-                return descriptor == null ? null : descriptor.createImage();
-            }
-        }
-        return null;
-    }
+	@Override
+	public Image getImage(final Object input) {
+		if (input instanceof ComponentModel) {
+			final ComponentModel validObject = ((ComponentModel) input);
+			if (!validObject.getComponentIsKnown() || !validObject.getLicenseIsKnown()) {
+				final ImageDescriptor descriptor = Activator.getImageDescriptor(PathsToIconFiles.WARNING);
+				return descriptor == null ? null : descriptor.createImage();
+			}
+		}
+		return null;
+	}
 
-    @Override
-    public void styleCell(ViewerCell cell) {
-        String[] compChunks = cell.getText().split(":");
-        cell.setText(String.format("%s  %s ", compChunks[0], compChunks[1]));
-        Display display = Display.getCurrent();
-        final Color versionColor = decodeHex(display, "#285F8F");
-        final Color backgroundColor = decodeHex(display, "#fafafa");
-        final Color borderColor = decodeHex(display, "#dddddd");
-        final StyleRange versionStyle = new StyleRange(compChunks[0].length() + 1, compChunks[1].length() + 2, versionColor, backgroundColor);
-        versionStyle.borderStyle = SWT.BORDER_SOLID;
-        versionStyle.borderColor = borderColor;
-        int versionHeight = (int) (cell.getFont().getFontData()[0].getHeight() * 0.85);
-        versionStyle.font = FontDescriptor.createFrom(cell.getFont()).setHeight(versionHeight).createFont(display);
-        cell.setStyleRanges(new StyleRange[] { versionStyle });
-    }
+	@Override
+	public void styleCell(final ViewerCell cell) {
+		final String[] compChunks = cell.getText().split(":");
+		cell.setText(String.format("%s  %s ", compChunks[0], compChunks[1]));
+		final Display display = Display.getCurrent();
+		final Color versionColor = decodeHex(display, "#285F8F");
+		final Color backgroundColor = decodeHex(display, "#fafafa");
+		final Color borderColor = decodeHex(display, "#dddddd");
+		final StyleRange versionStyle = new StyleRange(compChunks[0].length() + 1, compChunks[1].length() + 2, versionColor, backgroundColor);
+		versionStyle.borderStyle = SWT.BORDER_SOLID;
+		versionStyle.borderColor = borderColor;
+		final int versionHeight = (int) (cell.getFont().getFontData()[0].getHeight() * 0.85);
+		versionStyle.font = FontDescriptor.createFrom(cell.getFont()).setHeight(versionHeight).createFont(display);
+		cell.setStyleRanges(new StyleRange[] { versionStyle });
+	}
 
 }

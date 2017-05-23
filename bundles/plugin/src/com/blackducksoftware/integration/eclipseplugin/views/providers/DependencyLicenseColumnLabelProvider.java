@@ -24,29 +24,29 @@
 package com.blackducksoftware.integration.eclipseplugin.views.providers;
 
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
-import com.blackducksoftware.integration.hub.api.component.version.ComplexLicenseItem;
 import com.blackducksoftware.integration.hub.dataservice.license.ComplexLicenseParser;
+import com.blackducksoftware.integration.hub.model.view.ComplexLicenseView;
 
 public class DependencyLicenseColumnLabelProvider extends DependencyTreeViewLabelProvider {
-    public DependencyLicenseColumnLabelProvider(int width, int style) {
-        super(width, style);
-    }
+	public DependencyLicenseColumnLabelProvider(final int width, final int style) {
+		super(width, style);
+	}
 
-    @Override
-    public String getText(Object input) {
-        ComponentModel model = (ComponentModel) input;
-        if (!model.getLicenseIsKnown()) {
-            return "";
-        }
-        ComplexLicenseItem license = model.getLicense();
-        ComplexLicenseParser licenseParser = new ComplexLicenseParser(license);
-        String text = licenseParser.parse();
-        return text;
-    }
+	@Override
+	public String getText(final Object input) {
+		final ComponentModel model = (ComponentModel) input;
+		if (!model.getLicenseIsKnown()) {
+			return "";
+		}
+		final ComplexLicenseView license = model.getLicense();
+		final ComplexLicenseParser licenseParser = new ComplexLicenseParser(license);
+		final String text = licenseParser.parse();
+		return text;
+	}
 
-    @Override
-    public String getTitle() {
-        return "License";
-    }
+	@Override
+	public String getTitle() {
+		return "License";
+	}
 
 }

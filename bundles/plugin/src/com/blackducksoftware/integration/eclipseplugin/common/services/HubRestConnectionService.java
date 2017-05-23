@@ -40,89 +40,89 @@ import com.blackducksoftware.integration.log.IntLogger;
 
 public class HubRestConnectionService {
 
-    private final HubServicesFactory hubServicesFactory;
+	private final HubServicesFactory hubServicesFactory;
 
-    private final IntLogger logger;
+	private final IntLogger logger;
 
-    private final RestConnection restConnection;
+	private final RestConnection restConnection;
 
-    private LicenseDataService licenseDataService;
+	private LicenseDataService licenseDataService;
 
-    private VulnerabilityDataService vulnerabilityDataService;
+	private VulnerabilityDataService vulnerabilityDataService;
 
-    private ComponentDataService componentDataService;
+	private ComponentDataService componentDataService;
 
-    private MetaService metaService;
+	private MetaService metaService;
 
-    private PhoneHomeDataService phoneHomeDataService;
+	private PhoneHomeDataService phoneHomeDataService;
 
-    private HubVersionRequestService hubVersionRequestService;
+	private HubVersionRequestService hubVersionRequestService;
 
-    public HubRestConnectionService() {
-        restConnection = null;
-        this.logger = new IntBufferedLogger();
-        hubServicesFactory = null;
-    }
+	public HubRestConnectionService() {
+		restConnection = null;
+		this.logger = new IntBufferedLogger();
+		hubServicesFactory = null;
+	}
 
-    public HubRestConnectionService(RestConnection restConnection) {
-        this.restConnection = restConnection;
-        this.logger = new IntBufferedLogger();
-        this.hubServicesFactory = new HubServicesFactory(restConnection);
-    }
+	public HubRestConnectionService(final RestConnection restConnection) {
+		this.restConnection = restConnection;
+		this.logger = new IntBufferedLogger();
+		this.hubServicesFactory = new HubServicesFactory(restConnection);
+	}
 
-    public CredentialsRestConnection getCredentialsRestConnection(final HubServerConfig config)
-            throws IllegalArgumentException, EncryptionException, HubIntegrationException {
-        return new CredentialsRestConnection(config);
-    }
+	public CredentialsRestConnection getCredentialsRestConnection(final HubServerConfig config)
+			throws IllegalArgumentException, EncryptionException, HubIntegrationException {
+		return new CredentialsRestConnection(logger, config.getHubUrl(), config.getGlobalCredentials().getUsername(), config.getGlobalCredentials().getDecryptedPassword(), config.getTimeout());
+	}
 
-    public LicenseDataService getLicenseDataService() {
-        if (licenseDataService == null) {
-            licenseDataService = hubServicesFactory.createLicenseDataService(logger);
-        }
-        return licenseDataService;
-    }
+	public LicenseDataService getLicenseDataService() {
+		if (licenseDataService == null) {
+			licenseDataService = hubServicesFactory.createLicenseDataService();
+		}
+		return licenseDataService;
+	}
 
-    public VulnerabilityDataService getVulnerabilityDataService() {
-        if (vulnerabilityDataService == null) {
-            vulnerabilityDataService = hubServicesFactory.createVulnerabilityDataService(logger);
-        }
-        return vulnerabilityDataService;
-    }
+	public VulnerabilityDataService getVulnerabilityDataService() {
+		if (vulnerabilityDataService == null) {
+			vulnerabilityDataService = hubServicesFactory.createVulnerabilityDataService(logger);
+		}
+		return vulnerabilityDataService;
+	}
 
-    public ComponentDataService getComponentDataService() {
-        if (componentDataService == null) {
-            componentDataService = hubServicesFactory.createComponentDataService(logger);
-        }
-        return componentDataService;
-    }
+	public ComponentDataService getComponentDataService() {
+		if (componentDataService == null) {
+			componentDataService = hubServicesFactory.createComponentDataService(logger);
+		}
+		return componentDataService;
+	}
 
-    public MetaService getMetaService() {
-        if (metaService == null) {
-            metaService = hubServicesFactory.createMetaService(logger);
-        }
-        return metaService;
-    }
+	public MetaService getMetaService() {
+		if (metaService == null) {
+			metaService = hubServicesFactory.createMetaService(logger);
+		}
+		return metaService;
+	}
 
-    public PhoneHomeDataService getPhoneHomeDataService() {
-        if (phoneHomeDataService == null) {
-            phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService(logger);
-        }
-        return phoneHomeDataService;
-    }
+	public PhoneHomeDataService getPhoneHomeDataService() {
+		if (phoneHomeDataService == null) {
+			phoneHomeDataService = hubServicesFactory.createPhoneHomeDataService(logger);
+		}
+		return phoneHomeDataService;
+	}
 
-    public HubVersionRequestService getHubVersionRequestService() {
-        if (hubVersionRequestService == null) {
-            hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
-        }
-        return hubVersionRequestService;
-    }
+	public HubVersionRequestService getHubVersionRequestService() {
+		if (hubVersionRequestService == null) {
+			hubVersionRequestService = hubServicesFactory.createHubVersionRequestService();
+		}
+		return hubVersionRequestService;
+	}
 
-    public RestConnection getRestConnection() {
-        return restConnection;
-    }
+	public RestConnection getRestConnection() {
+		return restConnection;
+	}
 
-    public boolean hasActiveHubConnection() {
-        return restConnection != null;
-    }
+	public boolean hasActiveHubConnection() {
+		return restConnection != null;
+	}
 
 }

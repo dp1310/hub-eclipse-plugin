@@ -52,12 +52,13 @@ import com.blackducksoftware.integration.eclipseplugin.internal.listeners.JavaPr
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.NewJavaProjectListener;
 import com.blackducksoftware.integration.eclipseplugin.internal.listeners.ProjectDependenciesChangedListener;
 import com.blackducksoftware.integration.eclipseplugin.preferences.listeners.DefaultPreferenceChangeListener;
-import com.blackducksoftware.integration.hub.api.nonpublic.HubVersionRequestService;
+import com.blackducksoftware.integration.exception.IntegrationException;
 import com.blackducksoftware.integration.hub.builder.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.FilePathMavenExternalIdExtractor;
 import com.blackducksoftware.integration.hub.dataservice.phonehome.PhoneHomeDataService;
 import com.blackducksoftware.integration.hub.exception.HubIntegrationException;
 import com.blackducksoftware.integration.hub.global.HubServerConfig;
+import com.blackducksoftware.integration.hub.phonehome.IntegrationInfo;
 import com.blackducksoftware.integration.hub.rest.RestConnection;
 import com.blackducksoftware.integration.phone.home.enums.ThirdPartyName;
 
@@ -97,7 +98,7 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		System.out.println("STARTING HUB ECLIPSE PLUGIN");
 		plugin = this;
-		final FilePathGavExtractor extractor = new FilePathGavExtractor();
+		final FilePathMavenExternalIdExtractor extractor = new FilePathMavenExternalIdExtractor();
 		final DependencyInformationService depService = new DependencyInformationService(this);
 		projService = new ProjectInformationService(depService, extractor);
 		workspaceInformationService = new WorkspaceInformationService(projService);
@@ -208,13 +209,11 @@ public class Activator extends AbstractUIPlugin {
 		ErrorDialog.openError(null, dialogTitle, message, status);
 	}
 
-	public void phoneHome() throws HubIntegrationException {
+	public void phoneHome() throws IntegrationException {
 		if (!plugin.getConnectionService().hasActiveHubConnection()) {
 			return;
 		}
 		final PhoneHomeDataService phoneHomeService = this.connectionService.getPhoneHomeDataService();
-		final HubVersionRequestService hubVersionRequestService = this.connectionService.getHubVersionRequestService();
-		final String hubVersion = hubVersionRequestService.getHubVersion();
 		final IProduct eclipseProduct = Platform.getProduct();
 		final String eclipseVersion = eclipseProduct.getDefiningBundle().getVersion().toString();
 		final String pluginVersion = Platform.getBundle("hub-eclipse-plugin").getVersion().toString();
@@ -234,8 +233,8 @@ public class Activator extends AbstractUIPlugin {
 				proxyUsername, proxyPassword, proxyPort,
 				proxyHost, timeout);
 		final HubServerConfig hubServerConfig = authorizationValidator.getHubServerConfigBuilder().build();
-		phoneHomeService.phoneHome(hubServerConfig, ThirdPartyName.ECLIPSE, eclipseVersion,
-				pluginVersion, hubVersion);
+		final IntegrationInfo integrationInfo = new IntegrationInfo(ThirdPartyName.ECLIPSE, eclipseVersion, pluginVersion);
+		phoneHomeService.phoneHome(hubServerConfig, integrationInfo);
 	}
 
 }

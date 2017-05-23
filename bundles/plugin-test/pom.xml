@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.blackducksoftware.integration</groupId>
     <artifactId>hub-eclipse-plugin-root</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -157,8 +157,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2>--launcher.GTK_version 2</use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2>--launcher.GTK_version 2</use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -169,8 +169,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -192,8 +192,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -204,8 +204,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -216,8 +216,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -228,8 +228,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -240,8 +240,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -252,8 +252,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -264,8 +264,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
     <profile>
@@ -276,8 +276,8 @@ run Eclipse environment for tests, but no other operating system recognizes this
         </os>
       </activation>
       <properties>
-        <use-gtk-2></use-gtk-2>
         <os-jvm-flags></os-jvm-flags>
+        <use-gtk-2></use-gtk-2>
       </properties>
     </profile>
   </profiles>

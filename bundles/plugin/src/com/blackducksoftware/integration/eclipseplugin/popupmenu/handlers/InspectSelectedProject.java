@@ -35,26 +35,26 @@ import com.blackducksoftware.integration.eclipseplugin.common.services.Preferenc
 import com.blackducksoftware.integration.eclipseplugin.common.services.ProjectInformationService;
 import com.blackducksoftware.integration.eclipseplugin.common.services.WorkspaceInformationService;
 import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
-import com.blackducksoftware.integration.hub.buildtool.FilePathGavExtractor;
+import com.blackducksoftware.integration.hub.buildtool.FilePathMavenExternalIdExtractor;
 
 public class InspectSelectedProject extends AbstractHandler {
-    @Override
-    public Object execute(final ExecutionEvent event) throws ExecutionException {
-        final Activator plugin = Activator.getPlugin();
-        final DependencyInformationService depService = new DependencyInformationService(plugin);
-        final FilePathGavExtractor extractor = new FilePathGavExtractor();
-        final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
-        final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
-        final List<String> selectedProjects = workspaceService.getAllSelectedProjects();
-        final PreferencesService preferencesService = plugin.getDefaultPreferencesService();
-        final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
-        for (String selectedProject : selectedProjects) {
-            if (!preferencesService.isActivated(selectedProject)) {
-                preferencesService.setProjectActivation(selectedProject, true);
-            }
-            inspectionQueueService.enqueueInspection(selectedProject);
-        }
-        return null;
-    }
+	@Override
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final Activator plugin = Activator.getPlugin();
+		final DependencyInformationService depService = new DependencyInformationService(plugin);
+		final FilePathMavenExternalIdExtractor extractor = new FilePathMavenExternalIdExtractor();
+		final ProjectInformationService projService = new ProjectInformationService(depService, extractor);
+		final WorkspaceInformationService workspaceService = new WorkspaceInformationService(projService);
+		final List<String> selectedProjects = workspaceService.getAllSelectedProjects();
+		final PreferencesService preferencesService = plugin.getDefaultPreferencesService();
+		final InspectionQueueService inspectionQueueService = plugin.getInspectionQueueService();
+		for (final String selectedProject : selectedProjects) {
+			if (!preferencesService.isActivated(selectedProject)) {
+				preferencesService.setProjectActivation(selectedProject, true);
+			}
+			inspectionQueueService.enqueueInspection(selectedProject);
+		}
+		return null;
+	}
 
 }

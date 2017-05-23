@@ -32,71 +32,71 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.blackducksoftware.integration.eclipseplugin.common.services.DependencyInformationService;
 import com.blackducksoftware.integration.eclipseplugin.views.providers.utils.ComponentModel;
 import com.blackducksoftware.integration.exception.IntegrationException;
-import com.blackducksoftware.integration.hub.buildtool.Gav;
+import com.blackducksoftware.integration.hub.bdio.simple.model.externalid.MavenExternalId;
 
 public class ComponentCache {
 
-    private final int TTL_IN_MILLIS = 3600000;
+	private final int TTL_IN_MILLIS = 3600000;
 
-    private ConcurrentHashMap<Gav, ComponentModel> cache;
+	private ConcurrentHashMap<MavenExternalId, ComponentModel> cache;
 
-    private ConcurrentHashMap<Gav, Timestamp> cacheKeyTTL;
+	private ConcurrentHashMap<MavenExternalId, Timestamp> cacheKeyTTL;
 
-    private Timestamp oldestKeyAge;
+	private Timestamp oldestKeyAge;
 
-    private final int cacheCapacity;
+	private final int cacheCapacity;
 
-    private final DependencyInformationService dependencyInformationService;
+	private final DependencyInformationService dependencyInformationService;
 
-    public ComponentCache(final int cacheCapacity, final DependencyInformationService dependencyInformationService) {
-        this.cacheCapacity = cacheCapacity;
-        this.dependencyInformationService = dependencyInformationService;
-        cache = buildCache();
-    }
+	public ComponentCache(final int cacheCapacity, final DependencyInformationService dependencyInformationService) {
+		this.cacheCapacity = cacheCapacity;
+		this.dependencyInformationService = dependencyInformationService;
+		cache = buildCache();
+	}
 
-    private ConcurrentHashMap<Gav, ComponentModel> buildCache() {
-        cache = new ConcurrentHashMap<>();
-        cacheKeyTTL = new ConcurrentHashMap<>();
-        return cache;
-    }
+	private ConcurrentHashMap<MavenExternalId, ComponentModel> buildCache() {
+		cache = new ConcurrentHashMap<>();
+		cacheKeyTTL = new ConcurrentHashMap<>();
+		return cache;
+	}
 
-    public ComponentModel get(Gav gav) throws IntegrationException {
-        ComponentModel model = cache.get(gav);
-        final Timestamp stalestamp = new Timestamp(System.currentTimeMillis() - TTL_IN_MILLIS);
-        if (oldestKeyAge != null && oldestKeyAge.before(stalestamp)) {
-            removeStaleKeys(stalestamp);
-        }
-        if (model == null) {
-            try {
-                model = dependencyInformationService.load(gav);
-            } catch (IOException | URISyntaxException e) {
-                throw new IntegrationException(e);
-            }
-            // If over capacity, pop least recently used
-            if (cache.size() == cacheCapacity) {
-                removeLeastRecentlyUsedKey();
-            }
-            cache.put(gav, model);
-            cacheKeyTTL.put(gav, new Timestamp(System.currentTimeMillis()));
-        }
-        return model;
-    }
+	public ComponentModel get(final MavenExternalId gav) throws IntegrationException {
+		ComponentModel model = cache.get(gav);
+		final Timestamp stalestamp = new Timestamp(System.currentTimeMillis() - TTL_IN_MILLIS);
+		if (oldestKeyAge != null && oldestKeyAge.before(stalestamp)) {
+			removeStaleKeys(stalestamp);
+		}
+		if (model == null) {
+			try {
+				model = dependencyInformationService.load(gav);
+			} catch (IOException | URISyntaxException e) {
+				throw new IntegrationException(e);
+			}
+			// If over capacity, pop least recently used
+			if (cache.size() == cacheCapacity) {
+				removeLeastRecentlyUsedKey();
+			}
+			cache.put(gav, model);
+			cacheKeyTTL.put(gav, new Timestamp(System.currentTimeMillis()));
+		}
+		return model;
+	}
 
-    public void removeLeastRecentlyUsedKey() {
-        cache.remove(Collections.min(cacheKeyTTL.entrySet(),
-                (entry1, entry2) -> entry1.getValue().getNanos() - entry2.getValue().getNanos()).getKey());
-    }
+	public void removeLeastRecentlyUsedKey() {
+		cache.remove(Collections.min(cacheKeyTTL.entrySet(),
+				(entry1, entry2) -> entry1.getValue().getNanos() - entry2.getValue().getNanos()).getKey());
+	}
 
-    public void removeStaleKeys(Timestamp stalestamp) {
-        oldestKeyAge = null;
-        cacheKeyTTL.forEach(cacheCapacity, (livingGav, timestamp) -> {
-            if (timestamp.before(stalestamp)) {
-                cache.remove(livingGav);
-                cacheKeyTTL.remove(livingGav);
-            } else {
-                oldestKeyAge = (oldestKeyAge == null || oldestKeyAge.after(timestamp)) ? timestamp : oldestKeyAge;
-            }
-        });
-    }
+	public void removeStaleKeys(final Timestamp stalestamp) {
+		oldestKeyAge = null;
+		cacheKeyTTL.forEach(cacheCapacity, (livingGav, timestamp) -> {
+			if (timestamp.before(stalestamp)) {
+				cache.remove(livingGav);
+				cacheKeyTTL.remove(livingGav);
+			} else {
+				oldestKeyAge = (oldestKeyAge == null || oldestKeyAge.after(timestamp)) ? timestamp : oldestKeyAge;
+			}
+		});
+	}
 
 }

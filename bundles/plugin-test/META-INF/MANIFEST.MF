@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: hub-eclipse-plugin-test
 Bundle-SymbolicName: hub-eclipse-plugin-test
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.0.1
 Bundle-ClassPath: ./target/dependencies, .
 Fragment-Host: hub-eclipse-plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

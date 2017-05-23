@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/hub.eclipse.plugin.feature_1.0.1.qualifier.jar" id="hub.eclipse.plugin.feature" version="1.0.1.qualifier">
+   <feature url="features/hub.eclipse.plugin.feature_1.0.1.jar" id="hub.eclipse.plugin.feature" version="1.0.1">
       <category name="blackduck"/>
    </feature>
    <category-def name="blackduck" label="Black Duck"/>

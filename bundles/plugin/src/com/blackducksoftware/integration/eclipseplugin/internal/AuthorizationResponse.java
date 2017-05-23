@@ -32,26 +32,28 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import com.blackducksoftware.integration.hub.rest.RestConnection;
+import com.blackducksoftware.integration.validator.FieldEnum;
+import com.blackducksoftware.integration.validator.ValidationResult;
 import com.blackducksoftware.integration.validator.ValidationResults;
 
 public class AuthorizationResponse {
-    private RestConnection connection;
+    private final RestConnection connection;
 
-    private String responseMessage;
+    private final String responseMessage;
 
     private final Set<Object> invalidFields;
 
-    public AuthorizationResponse(RestConnection connection, String responseMessage) {
+    public AuthorizationResponse(final RestConnection connection, final String responseMessage) {
         this.invalidFields = new HashSet<>();
         this.connection = connection;
         this.responseMessage = responseMessage;
     }
 
-    public AuthorizationResponse(String responseMessage) {
+    public AuthorizationResponse(final String responseMessage) {
         this(null, responseMessage);
     }
 
-    public AuthorizationResponse(ValidationResults responseResults) {
+    public AuthorizationResponse(final ValidationResults responseResults) {
         this.invalidFields = new HashSet<>();
         this.connection = null;
         this.responseMessage = parseResponseMessageFromValidationResults(responseResults);
@@ -69,11 +71,11 @@ public class AuthorizationResponse {
         return invalidFields;
     }
 
-    private String parseResponseMessageFromValidationResults(ValidationResults responseResults) {
+    private String parseResponseMessageFromValidationResults(final ValidationResults responseResults) {
         final StringBuilder errBuilder = new StringBuilder();
         final Set<String> results = new LinkedHashSet<>();
-        Map<Object, Set<String>> responseMap = responseResults.getResultMap();
-        for (final Entry<Object, Set<String>> result : responseMap.entrySet()) {
+        final Map<FieldEnum, Set<ValidationResult>> responseMap = responseResults.getResultMap();
+        for (final Entry<FieldEnum, Set<ValidationResult>> result : responseMap.entrySet()) {
             final String fieldResults = StringUtils.join(result.getValue(), ", ");
             results.add(fieldResults);
             invalidFields.add(result.getKey());
