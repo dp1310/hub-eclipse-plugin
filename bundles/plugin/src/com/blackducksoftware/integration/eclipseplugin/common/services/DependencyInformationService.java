@@ -43,91 +43,91 @@ import com.blackducksoftware.integration.hub.model.view.ComplexLicenseView;
 import com.blackducksoftware.integration.hub.model.view.VulnerabilityView;
 
 public class DependencyInformationService {
-	private final Activator plugin;
+    private final Activator plugin;
 
-	public DependencyInformationService(final Activator plugin) {
-		this.plugin = plugin;
-	}
+    public DependencyInformationService(final Activator plugin) {
+        this.plugin = plugin;
+    }
 
-	public boolean isMavenDependency(final URL filePath) {
-		URL m2Repo;
-		try {
-			m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
-		} catch (final MalformedURLException e) {
-			e.printStackTrace();
-			return false;
-		}
-		final String[] m2RepoSegments = m2Repo.getFile().split("/");
-		final String[] filePathSegments = filePath.getFile().split("/");
-		if (filePathSegments.length < m2RepoSegments.length) {
-			return false;
-		}
-		for (int i = 0; i < m2RepoSegments.length; i++) {
-			if (!filePathSegments[i].equals(m2RepoSegments[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean isMavenDependency(final URL filePath) {
+        URL m2Repo;
+        try {
+            m2Repo = JavaCore.getClasspathVariable(ClasspathVariables.MAVEN).toFile().toURI().toURL();
+        } catch (final MalformedURLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        final String[] m2RepoSegments = m2Repo.getFile().split("/");
+        final String[] filePathSegments = filePath.getFile().split("/");
+        if (filePathSegments.length < m2RepoSegments.length) {
+            return false;
+        }
+        for (int i = 0; i < m2RepoSegments.length; i++) {
+            if (!filePathSegments[i].equals(m2RepoSegments[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	public boolean isGradleDependency(final URL filePath) {
-		final String[] filePathSegments = filePath.getFile().split("/");
-		if (filePathSegments.length < 3) {
-			return false;
-		}
-		if (filePathSegments[filePathSegments.length - 3].equals("lib")
-				|| filePathSegments[filePathSegments.length - 2].equals("plugins")
-				|| filePathSegments[filePathSegments.length - 2].equals("lib")) {
-			return false;
-		}
-		for (final String segment : filePathSegments) {
-			if (segment.equals(".gradle")) {
-				return true;
-			}
-		}
-		return false;
-	}
+    public boolean isGradleDependency(final URL filePath) {
+        final String[] filePathSegments = filePath.getFile().split("/");
+        if (filePathSegments.length < 3) {
+            return false;
+        }
+        if (filePathSegments[filePathSegments.length - 3].equals("lib")
+                || filePathSegments[filePathSegments.length - 2].equals("plugins")
+                || filePathSegments[filePathSegments.length - 2].equals("lib")) {
+            return false;
+        }
+        for (final String segment : filePathSegments) {
+            if (segment.equals(".gradle")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public ComponentModel load(final MavenExternalId gav) throws IOException, URISyntaxException, IntegrationException {
-		final VulnerabilityDataService vulnService = plugin.getConnectionService().getVulnerabilityDataService();
-		List<VulnerabilityView> vulns = null;
-		ComplexLicenseView sLicense = null;
-		try {
-			vulns = vulnService.getVulnsFromComponentVersion(gav.forge.toString().toLowerCase(), gav.group,
-					gav.name, gav.version);
+    public ComponentModel load(final MavenExternalId gav) throws IOException, URISyntaxException, IntegrationException {
+        final VulnerabilityDataService vulnService = plugin.getConnectionService().getVulnerabilityDataService();
+        List<VulnerabilityView> vulns = null;
+        ComplexLicenseView sLicense = null;
+        try {
+            vulns = vulnService.getVulnsFromComponentVersion(gav.forge.toString().toLowerCase(), gav.group,
+                    gav.name, gav.version);
 
-			final LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
-			sLicense = licenseService.getComplexLicenseItemFromComponent(gav.forge.toString().toLowerCase(), gav.group,
-					gav.name, gav.version);
-		} catch (final IntegrationException e) {
-			e.printStackTrace();
-			// Do nothing
-		}
-		return new ComponentModel(gav, sLicense, getVulnerabilitySeverityCount(vulns), vulns != null);
-	}
+            final LicenseDataService licenseService = Activator.getPlugin().getConnectionService().getLicenseDataService();
+            sLicense = licenseService.getComplexLicenseItemFromComponent(gav.forge.toString().toLowerCase(), gav.group,
+                    gav.name, gav.version);
+        } catch (final IntegrationException e) {
+            e.printStackTrace();
+            // Do nothing
+        }
+        return new ComponentModel(gav, sLicense, getVulnerabilitySeverityCount(vulns), vulns != null);
+    }
 
-	public int[] getVulnerabilitySeverityCount(final List<VulnerabilityView> vulns) {
-		int high = 0;
-		int medium = 0;
-		int low = 0;
-		if (vulns == null) {
-			return new int[] { 0, 0, 0 };
-		}
-		for (final VulnerabilityView vuln : vulns) {
-			switch (VulnerabilitySeverityEnum.valueOf(vuln.getSeverity())) {
-			case HIGH:
-				high++;
-				break;
-			case MEDIUM:
-				medium++;
-				break;
-			case LOW:
-				low++;
-				break;
-			default:
-				break;
-			}
-		}
-		return new int[] { high, medium, low };
-	}
+    public int[] getVulnerabilitySeverityCount(final List<VulnerabilityView> vulns) {
+        int high = 0;
+        int medium = 0;
+        int low = 0;
+        if (vulns == null) {
+            return new int[] { 0, 0, 0 };
+        }
+        for (final VulnerabilityView vuln : vulns) {
+            switch (VulnerabilitySeverityEnum.valueOf(vuln.severity)) {
+            case HIGH:
+                high++;
+                break;
+            case MEDIUM:
+                medium++;
+                break;
+            case LOW:
+                low++;
+                break;
+            default:
+                break;
+            }
+        }
+        return new int[] { high, medium, low };
+    }
 }
