@@ -24,6 +24,7 @@
     <gradle-update-site>http://download.eclipse.org/buildship/updates/e46/releases/2.x</gradle-update-site>
     <m2e-update-site>http://download.eclipse.org/technology/m2e/releases</m2e-update-site>
     <neon-repo.url>http://download.eclipse.org/releases/neon</neon-repo.url>
+    <sonar.projectName>Integrations - Black Duck Hub Plugin for Eclipse</sonar.projectName>
     <tycho.version>0.26.0</tycho.version>
   </properties>
 
