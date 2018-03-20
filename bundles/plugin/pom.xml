@@ -83,21 +83,21 @@
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>hub-common</artifactId>
-                  <version>12.0.1</version>
+                  <version>13.1.2</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>hub-common-rest</artifactId>
-                  <version>2.1.0</version>
+                  <version>2.1.3</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>hub-common-response</artifactId>
-                  <version>3.0.0</version>
+                  <version>3.2.0</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
@@ -111,21 +111,21 @@
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>phone-home-api</artifactId>
-                  <version>2.0.0</version>
+                  <version>2.0.2</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>integration-common</artifactId>
-                  <version>6.0.0</version>
+                  <version>6.0.2</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.blackducksoftware.integration</groupId>
                   <artifactId>integration-bdio</artifactId>
-                  <version>4.0.0</version>
+                  <version>4.1.1</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
@@ -149,21 +149,21 @@
                 <artifactItem>
                   <groupId>com.squareup.okhttp3</groupId>
                   <artifactId>okhttp</artifactId>
-                  <version>3.4.2</version>
+                  <version>3.7.0</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.squareup.okhttp3</groupId>
                   <artifactId>okhttp-urlconnection</artifactId>
-                  <version>3.4.2</version>
+                  <version>3.7.0</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>com.squareup.okio</groupId>
                   <artifactId>okio</artifactId>
-                  <version>1.9.0</version>
+                  <version>1.12.0</version>
                   <type>jar</type>
                   <outputDirectory>${output-dir}</outputDirectory>
                 </artifactItem>
@@ -186,6 +186,11 @@
                   <groupId>commons-codec</groupId>
                   <artifactId>commons-codec</artifactId>
                   <version>1.10</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>commons-io</groupId>
+                  <artifactId>commons-io</artifactId>
+                  <version>2.5</version>
                 </artifactItem>
               </artifactItems>
             </configuration>

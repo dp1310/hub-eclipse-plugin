@@ -3,8 +3,8 @@ target/
 .classpath
 .settings/
 bin/
-pom.xml.bak
-.polyglot.build.properties.bak
+*.bak
 *.jpeg
 *.jar
 !resources/
+screenshots/

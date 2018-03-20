@@ -1,7 +1,7 @@
 /**
  * hub-eclipse-plugin
  *
- * Copyright (C) 2017 Black Duck Software, Inc.
+ * Copyright (C) 2018 Black Duck Software, Inc.
  * http://www.blackducksoftware.com/
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -37,67 +37,60 @@ import com.blackducksoftware.integration.eclipseplugin.startup.Activator;
 import com.blackducksoftware.integration.hub.bdio.simple.model.externalid.MavenExternalId;
 
 public class InspectionJob extends Job {
-	public static final String FAMILY = "Black Duck Component Inspection";
+    public static final String FAMILY = "Black Duck Component Inspection";
+    public static final String JOB_INSPECT_PROJECT_PREFACE = "Black Duck Component Inspector inspecting ";
+    private static final int ONE_HUNDRED_PERCENT = 100000;
+    private static final int THIRTY_PERCENT = 30000;
+    private static final int SEVENTY_PERCENT = 70000;
+    private final ProjectInformationService projectInformationService;
+    private final String projectName;
+    private final Activator plugin;
 
-	public static final String JOB_INSPECT_PROJECT_PREFACE = "Black Duck Component Inspector inspecting ";
+    public InspectionJob(final Activator plugin, final String projectName, final ProjectInformationService projectInformationService) {
+        super(JOB_INSPECT_PROJECT_PREFACE + projectName);
+        this.projectName = projectName;
+        this.projectInformationService = projectInformationService;
+        this.plugin = plugin;
+        this.setPriority(Job.BUILD);
+    }
 
-	private static final int ONE_HUNDRED_PERCENT = 100000;
+    public String getProjectName() {
+        return projectName;
+    }
 
-	private static final int THIRTY_PERCENT = 30000;
+    @Override
+    public boolean belongsTo(final Object family) {
+        return family.equals(FAMILY);
+    }
 
-	private static final int SEVENTY_PERCENT = 70000;
-
-	private final ProjectInformationService projectInformationService;
-
-	private final String projectName;
-
-	private final Activator plugin;
-
-	public InspectionJob(final Activator plugin, final String projectName, final ProjectInformationService projectInformationService) {
-		super(JOB_INSPECT_PROJECT_PREFACE + projectName);
-		this.projectName = projectName;
-		this.projectInformationService = projectInformationService;
-		this.plugin = plugin;
-		this.setPriority(Job.BUILD);
-	}
-
-	public String getProjectName() {
-		return projectName;
-	}
-
-	@Override
-	public boolean belongsTo(final Object family) {
-		return family.equals(FAMILY);
-	}
-
-	@Override
-	protected IStatus run(final IProgressMonitor monitor) {
-		try {
-			if (!plugin.getConnectionService().hasActiveHubConnection()
-					|| !plugin.getDefaultPreferencesService().isActivated(projectName)) {
-				return Status.OK_STATUS;
-			}
-			Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
-			final SubMonitor subMonitor = SubMonitor.convert(monitor, ONE_HUNDRED_PERCENT);
-			subMonitor.setTaskName("Gathering dependencies");
-			final List<URL> dependencyFilepaths = projectInformationService.getProjectDependencyFilePaths(projectName);
-			subMonitor.split(THIRTY_PERCENT).done();
-			for (final URL filePath : dependencyFilepaths) {
-				subMonitor.setTaskName(String.format("Inspecting %s", filePath));
-				final MavenExternalId gav = projectInformationService.getGavFromFilepath(filePath);
-				if (gav != null) {
-					Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
-					if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
-						subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
-					} else {
-						subMonitor.split(SEVENTY_PERCENT).done();
-					}
-				}
-			}
-			return Status.OK_STATUS;
-		} catch (final Exception e) {
-			return Status.CANCEL_STATUS;
-		}
-	}
+    @Override
+    protected IStatus run(final IProgressMonitor monitor) {
+        try {
+            if (!plugin.getConnectionService().hasActiveHubConnection()
+                    || !plugin.getDefaultPreferencesService().isActivated(projectName)) {
+                return Status.OK_STATUS;
+            }
+            Activator.getPlugin().getProjectInformation().initializeProjectComponents(projectName);
+            final SubMonitor subMonitor = SubMonitor.convert(monitor, ONE_HUNDRED_PERCENT);
+            subMonitor.setTaskName("Gathering dependencies");
+            final List<URL> dependencyFilepaths = projectInformationService.getProjectDependencyFilePaths(projectName);
+            subMonitor.split(THIRTY_PERCENT).done();
+            for (final URL filePath : dependencyFilepaths) {
+                subMonitor.setTaskName(String.format("Inspecting %s", filePath));
+                final MavenExternalId gav = projectInformationService.getGavFromFilepath(filePath);
+                if (gav != null) {
+                    Activator.getPlugin().getProjectInformation().addComponentToProject(projectName, gav);
+                    if (dependencyFilepaths.size() < SEVENTY_PERCENT) {
+                        subMonitor.split(SEVENTY_PERCENT / dependencyFilepaths.size()).done();
+                    } else {
+                        subMonitor.split(SEVENTY_PERCENT).done();
+                    }
+                }
+            }
+            return Status.OK_STATUS;
+        } catch (final Exception e) {
+            return Status.CANCEL_STATUS;
+        }
+    }
 
 }
